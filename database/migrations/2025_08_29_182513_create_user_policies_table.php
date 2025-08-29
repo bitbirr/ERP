@@ -22,6 +22,7 @@ return new class extends Migration
 
             $table->unique(['user_id','branch_id','capability_key']);
             $table->index(['user_id','capability_key']);
+            $table->foreign('branch_id')->references('id')->on('branches')->nullOnDelete();
         });
     }
 
