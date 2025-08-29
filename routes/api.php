@@ -23,3 +23,6 @@ Route::get('/ping', function () {
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::get('/api/transactions', [\App\Http\Controllers\TransactionController::class, 'index'])
+    ->middleware(['cap:tx.view', 'throttle:10,1']);

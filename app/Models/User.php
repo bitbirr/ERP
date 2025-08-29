@@ -46,4 +46,19 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    /**
+     * Get the role assignments for the user.
+     */
+    public function roleAssignments()
+    {
+        return $this->hasMany(UserRoleAssignment::class);
+    }
+
+    /**
+     * Get the user policies for the user.
+     */
+    public function userPolicies()
+    {
+        return $this->hasMany(UserPolicy::class);
+    }
 }
