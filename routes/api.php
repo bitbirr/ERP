@@ -26,3 +26,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::get('/api/transactions', [\App\Http\Controllers\TransactionController::class, 'index'])
     ->middleware(['cap:tx.view', 'throttle:10,1']);
+Route::middleware(['auth:sanctum', 'cap:users.manage'])->group(function () {
+    Route::post('/api/rbac/roles', [\App\Http\Controllers\RbacController::class, 'createRole']);
+    Route::patch('/api/rbac/roles/{id}', [\App\Http\Controllers\RbacController::class, 'updateRole']);
+    Route::post('/api/rbac/roles/{id}/capabilities', [\App\Http\Controllers\RbacController::class, 'syncRoleCapabilities']);
+    Route::post('/api/rbac/users/{user}/roles', [\App\Http\Controllers\RbacController::class, 'assignUserRole']);
+    Route::post('/api/rbac/rebuild', [\App\Http\Controllers\RbacController::class, 'rebuildRbacCache']);
+});
