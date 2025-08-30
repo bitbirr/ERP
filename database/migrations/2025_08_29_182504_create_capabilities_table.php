@@ -11,10 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('capabilities', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('capabilities')) {
+            Schema::create('capabilities', function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->string('key')->unique();   // consider unique
+                $table->string('name');
+                $table->string('group_name')->nullable(); // rename from "group"
+                $table->timestamps();
+            });
+        }
     }
 
     /**

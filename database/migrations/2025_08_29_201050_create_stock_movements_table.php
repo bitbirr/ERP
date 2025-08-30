@@ -26,7 +26,7 @@ return new class extends Migration
             ])->comment('stock_move_type');
             $table->string('ref')->nullable();
             $table->jsonb('meta')->nullable();
-            $table->uuid('created_by')->nullable();
+            $table->unsignedBigInteger('created_by')->nullable();
             $table->timestamps();
 
             $table->index(['product_id', 'branch_id', 'created_at']);

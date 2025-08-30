@@ -64,7 +64,7 @@ class DatabaseSeeder extends Seeder
             $role->capabilities()->syncWithoutDetaching($capIds);
         }
 
-        // 4. Create Branches
+        // 4. Create Branches (static + factory for realistic data)
         $branches = [
             ['name' => 'Main Branch', 'code' => 'main'],
             ['name' => 'Hamda Hotel Branch', 'code' => 'hamda'],
@@ -74,19 +74,35 @@ class DatabaseSeeder extends Seeder
         foreach ($branches as $branch) {
             $branchModels[$branch['code']] = Branch::firstOrCreate(['code' => $branch['code']], $branch);
         }
+        // Add more branches via factory
+        Branch::factory()->count(5)->create();
+
+        // 4b. Create Products (static + factory for realistic data)
+        $products = [
+            ['code' => 'P001', 'name' => 'Yimulu', 'type' => 'YIMULU', 'uom' => 'card', 'is_active' => true],
+            ['code' => 'P002', 'name' => 'Voucher card', 'type' => 'VOUCHER', 'uom' => 'airtime', 'is_active' => true],
+            ['code' => 'P003', 'name' => 'EVD', 'type' => 'EVD', 'uom' => 'pcs', 'is_active' => true],
+            ['code' => 'P004', 'name' => 'simcard', 'type' => 'SIM', 'uom' => 'pcs', 'is_active' => true],
+            ['code' => 'P005', 'name' => 'telebirr', 'type' => 'TELEBIRR', 'uom' => 'amount', 'is_active' => true],
+        ];
+        foreach ($products as $product) {
+            \App\Models\Product::firstOrCreate(['code' => $product['code']], $product);
+        }
+        // Add more products via factory
+        \App\Models\Product::factory()->count(20)->create();
 
         // 5. Create Users and Assign Roles/Branches
         $users = [
             // Main Branch
-            ['name' => 'Najib hassen', 'email' => 'najib@main.com', 'password' => bcrypt('secret123'), 'role' => 'manager', 'branch' => 'main'],
-            ['name' => 'hafsa hassen', 'email' => 'hafsa@main.com', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'main'],
-            ['name' => 'Marwan haji', 'email' => 'marwan@main.com', 'password' => bcrypt('secret123'), 'role' => 'inventory', 'branch' => 'main'],
-            ['name' => 'hawa kabade', 'email' => 'hawa@main.com', 'password' => bcrypt('secret123'), 'role' => 'finance', 'branch' => 'main'],
-            ['name' => 'hana hasen', 'email' => 'hana@main.com', 'password' => bcrypt('secret123'), 'role' => 'telebirr_distributor', 'branch' => 'main'],
+            ['name' => 'Najib hassen', 'email' => 'najib@najibshop.shop', 'password' => bcrypt('secret123'), 'role' => 'manager', 'branch' => 'main'],
+            ['name' => 'hafsa hassen', 'email' => 'hafsa@najibshop.shop', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'main'],
+            ['name' => 'Marwan haji', 'email' => 'marwan@najibshop.shop', 'password' => bcrypt('secret123'), 'role' => 'inventory', 'branch' => 'main'],
+            ['name' => 'hawa kabade', 'email' => 'hawa@najibshop.shop', 'password' => bcrypt('secret123'), 'role' => 'finance', 'branch' => 'main'],
+            ['name' => 'hana hasen', 'email' => 'hana@najibshop.shop', 'password' => bcrypt('secret123'), 'role' => 'telebirr_distributor', 'branch' => 'main'],
             // Hamda Hotel Branch
-            ['name' => 'Naila haji', 'email' => 'naila@hamda.com', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'hamda'],
+            ['name' => 'Naila haji', 'email' => 'naila@najibshop.shop', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'hamda'],
             // Chinaksan Branch
-            ['name' => 'Yenesew mekonin', 'email' => 'yenesew@chinaksan.com', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'chinaksan'],
+            ['name' => 'Yenesew mekonin', 'email' => 'yenesew@najibshop.shop', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'chinaksan'],
         ];
         foreach ($users as $u) {
             $user = User::firstOrCreate(['email' => $u['email']], [
@@ -109,6 +125,12 @@ class DatabaseSeeder extends Seeder
             'user_id' => $superuser->id,
             'role_id' => $roleModels['admin']->id,
             'branch_id' => null,
+        ]);
+
+        // Call additional seeders
+        $this->call([
+            BranchSeeder::class,
+            ProductSeeder::class,
         ]);
     }
 }
