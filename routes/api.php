@@ -34,7 +34,35 @@ Route::middleware(['auth:sanctum', 'cap:users.manage'])->group(function () {
     Route::post('/api/rbac/rebuild', [\App\Http\Controllers\RbacController::class, 'rebuildRbacCache']);
 });
 
+// GL (General Ledger) API Routes
 Route::middleware(['auth:sanctum'])->group(function () {
+    // Journal routes
+    Route::get('/api/gl/journals', [\App\Http\Controllers\GL\GlJournalController::class, 'index'])
+        ->middleware('cap:gl.view');
+    Route::post('/api/gl/journals', [\App\Http\Controllers\GL\GlJournalController::class, 'store'])
+        ->middleware('cap:gl.create');
+    Route::get('/api/gl/journals/{journal}', [\App\Http\Controllers\GL\GlJournalController::class, 'show'])
+        ->middleware('cap:gl.view');
+    Route::post('/api/gl/journals/{journal}/post', [\App\Http\Controllers\GL\GlJournalController::class, 'post'])
+        ->middleware('cap:gl.post');
+    Route::post('/api/gl/journals/{journal}/reverse', [\App\Http\Controllers\GL\GlJournalController::class, 'reverse'])
+        ->middleware('cap:gl.reverse');
+    Route::post('/api/gl/journals/{journal}/void', [\App\Http\Controllers\GL\GlJournalController::class, 'void'])
+        ->middleware('cap:gl.reverse');
+    Route::post('/api/gl/journals/{journal}/validate', [\App\Http\Controllers\GL\GlJournalController::class, 'validateDraft'])
+        ->middleware('cap:gl.view');
+
+    // Account routes
+    Route::get('/api/gl/accounts', [\App\Http\Controllers\GL\GlAccountController::class, 'index'])
+        ->middleware('cap:gl.view');
+    Route::get('/api/gl/accounts/tree', [\App\Http\Controllers\GL\GlAccountController::class, 'tree'])
+        ->middleware('cap:gl.view');
+    Route::get('/api/gl/accounts/{account}', [\App\Http\Controllers\GL\GlAccountController::class, 'show'])
+        ->middleware('cap:gl.view');
+    Route::get('/api/gl/accounts/{account}/balance', [\App\Http\Controllers\GL\GlAccountController::class, 'balance'])
+        ->middleware('cap:gl.view');
+
+    // POS Receipt routes
     Route::post('/api/receipts', [\App\Http\Controllers\PosController::class, 'createReceipt'])
         ->middleware('cap:receipts.create');
     Route::patch('/api/receipts/{receipt}/void', [\App\Http\Controllers\PosController::class, 'voidReceipt'])
