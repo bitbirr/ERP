@@ -33,3 +33,10 @@ Route::middleware(['auth:sanctum', 'cap:users.manage'])->group(function () {
     Route::post('/api/rbac/users/{user}/roles', [\App\Http\Controllers\RbacController::class, 'assignUserRole']);
     Route::post('/api/rbac/rebuild', [\App\Http\Controllers\RbacController::class, 'rebuildRbacCache']);
 });
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/api/receipts', [\App\Http\Controllers\PosController::class, 'createReceipt'])
+        ->middleware('cap:receipts.create');
+    Route::patch('/api/receipts/{receipt}/void', [\App\Http\Controllers\PosController::class, 'voidReceipt'])
+        ->middleware('cap:receipts.void');
+});

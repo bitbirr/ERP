@@ -151,6 +151,38 @@ class InventoryService
     }
 
     /**
+     * Issue stock: validate available, decrement on_hand, log movement.
+     */
+    public function issueStock(Product $product, Branch $branch, float $qty, ?string $ref = null, array $ctx = []): InventoryItem
+    {
+        return DB::transaction(function () use ($product, $branch, $qty, $ref, $ctx) {
+            $item = InventoryItem::where('product_id', $product->id)
+                ->where('branch_id', $branch->id)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$item || $item->on_hand - $item->reserved < $qty) {
+                throw new HttpException(422, 'Not enough available stock to issue');
+            }
+
+            $item->on_hand -= $qty;
+            $item->save();
+
+            StockMovement::create([
+                'product_id' => $product->id,
+                'branch_id' => $branch->id,
+                'qty' => -$qty, // Negative for issue
+                'type' => 'ISSUE',
+                'ref' => $ref,
+                'meta' => $ctx['meta'] ?? null,
+                'created_by' => $ctx['created_by'] ?? null,
+            ]);
+
+            return $item->fresh();
+        });
+    }
+
+    /**
      * Transfer stock: lock both source and destination, validate, move stock, log movements.
      */
     public function transfer(Product $product, Branch $from, Branch $to, float $qty, ?string $ref = null, array $ctx = []): void
