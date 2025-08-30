@@ -61,4 +61,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->middleware('cap:gl.view');
     Route::get('/api/gl/accounts/{account}/balance', [\App\Http\Controllers\GL\GlAccountController::class, 'balance'])
         ->middleware('cap:gl.view');
+
+    // POS Receipt routes
+    Route::post('/api/receipts', [\App\Http\Controllers\PosController::class, 'createReceipt'])
+        ->middleware('cap:receipts.create');
+    Route::patch('/api/receipts/{receipt}/void', [\App\Http\Controllers\PosController::class, 'voidReceipt'])
+        ->middleware('cap:receipts.void');
 });
