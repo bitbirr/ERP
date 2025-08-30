@@ -42,6 +42,13 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Audit Logs', 'key' => 'audit.logs', 'group' => 'audit'],
             ['name' => 'Telebirr Sales', 'key' => 'telebirr.sales', 'group' => 'telebirr'],
             ['name' => 'Finance Access', 'key' => 'finance.access', 'group' => 'finance'],
+            // GL (General Ledger) Capabilities
+            ['name' => 'View GL Journals', 'key' => 'gl.view', 'group' => 'general_ledger'],
+            ['name' => 'Create GL Journals', 'key' => 'gl.create', 'group' => 'general_ledger'],
+            ['name' => 'Post GL Journals', 'key' => 'gl.post', 'group' => 'general_ledger'],
+            ['name' => 'Reverse GL Journals', 'key' => 'gl.reverse', 'group' => 'general_ledger'],
+            ['name' => 'Manage GL Accounts', 'key' => 'gl.manage_accounts', 'group' => 'general_ledger'],
+            ['name' => 'Manage GL Journal Sources', 'key' => 'gl.manage_journal_sources', 'group' => 'general_ledger'],
         ];
         $capModels = [];
         foreach ($capabilities as $cap) {
@@ -51,12 +58,12 @@ class DatabaseSeeder extends Seeder
         // 3. Attach Capabilities to Roles
         $roleCaps = [
             'admin' => array_keys($capModels),
-            'manager' => ['tx.view', 'tx.create', 'tx.approve', 'users.manage', 'inventory.view', 'inventory.manage', 'finance.access'],
+            'manager' => ['tx.view', 'tx.create', 'tx.approve', 'users.manage', 'inventory.view', 'inventory.manage', 'finance.access', 'gl.view'],
             'sales' => ['tx.view', 'tx.create', 'telebirr.sales'],
             'telebirr_distributor' => ['telebirr.sales'],
-            'finance' => ['finance.access', 'tx.view'],
+            'finance' => ['finance.access', 'tx.view', 'gl.view', 'gl.create', 'gl.post', 'gl.reverse'],
             'inventory' => ['inventory.view', 'inventory.manage'],
-            'audit' => ['audit.logs'],
+            'audit' => ['audit.logs', 'gl.view'],
         ];
         foreach ($roleCaps as $roleSlug => $capKeys) {
             $role = $roleModels[$roleSlug];
