@@ -15,6 +15,7 @@ class ProductFactory extends Factory
         $types = ['YIMULU', 'VOUCHER', 'EVD', 'SIM', 'TELEBIRR', 'E_AIRTIME'];
         $strategies = ['FIXED', 'DISCOUNT', 'EXACT', 'MARKUP'];
         return [
+            'id' => (string) \Illuminate\Support\Str::uuid(),
             'code' => strtoupper(Str::random(8)),
             'name' => $this->faker->words(2, true),
             'type' => $this->faker->randomElement($types),

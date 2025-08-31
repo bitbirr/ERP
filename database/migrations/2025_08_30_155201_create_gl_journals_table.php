@@ -28,7 +28,6 @@ return new class extends Migration
             $table->timestamps();
 
             // Indexes
-            $table->unique('journal_no');
             $table->index(['status', 'journal_date']);
             $table->index(['source', 'reference']);
 

@@ -1,0 +1,554 @@
+{
+  "info": {
+    "name": "Telebirr API Collection",
+    "description": "Complete API collection for Telebirr system with authentication, agents, transactions, reconciliation and reporting endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "telebirr-api"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Get Sanctum Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{user_email}}\",\n  \"password\": \"secret123\",\n  \"device_name\": \"postman\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/sanctum/token",
+              "host": ["{{baseURL}}"],
+              "path": ["sanctum", "token"]
+            },
+            "description": "Get authentication token for the current user. Copy the token from response and update the 'token' environment variable."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Agents",
+      "item": [
+        {
+          "name": "Get All Agents - Positive",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/telebirr/agents",
+              "host": ["{{baseURL}}"],
+              "path": ["telebirr", "agents"]
+            },
+            "description": "Retrieve all Telebirr agents. Requires telebirr.view capability."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Agents - Negative (Unauthorized)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/telebirr/agents",
+              "host": ["{{baseURL}}"],
+              "path": ["telebirr", "agents"]
+            },
+            "description": "Attempt to retrieve agents without proper authentication or capability."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Agent - Positive",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/telebirr/agents/1",
+              "host": ["{{baseURL}}"],
+              "path": ["telebirr", "agents", "1"]
+            },
+            "description": "Retrieve a specific agent by ID. Requires telebirr.view capability."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Agent - Negative (Not Found)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/telebirr/agents/99999",
+              "host": ["{{baseURL}}"],
+              "path": ["telebirr", "agents", "99999"]
+            },
+            "description": "Attempt to retrieve a non-existent agent."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Agent - Positive",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Agent\",\n  \"short_code\": \"TEST001\",\n  \"phone\": \"+251911123456\",\n  \"location\": \"Addis Ababa\",\n  \"status\": \"Active\",\n  \"notes\": \"Test agent for API testing\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/telebirr/agents",
+              "host": ["{{baseURL}}"],
+              "path": ["telebirr", "agents"]
+            },
+            "description": "Create a new Telebirr agent. Requires telebirr.manage capability."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Agent - Negative (Duplicate Short Code)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Duplicate Agent\",\n  \"short_code\": \"EXISTING\",\n  \"phone\": \"+251911123456\",\n  \"location\": \"Addis Ababa\",\n  \"status\": \"Active\",\n  \"notes\": \"This should fail due to duplicate short code\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/telebirr/agents",
+              "host": ["{{baseURL}}"],
+              "path": ["telebirr", "agents"]
+            },
+            "description": "Attempt to create an agent with an existing short code."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Agent - Negative (Missing Required Fields)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"\",\n  \"phone\": \"+251911123456\",\n  \"location\": \"Addis Ababa\",\n  \"status\": \"Active\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/telebirr/agents",
+              "host": ["{{baseURL}}"],
+              "path": ["telebirr", "agents"]
+            },
+            "description": "Attempt to create an agent with missing required fields."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Agent - Positive",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Agent Name\",\n  \"status\": \"Inactive\",\n  \"notes\": \"Updated via API\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/telebirr/agents/1",
+              "host": ["{{baseURL}}"],
+              "path": ["telebirr", "agents", "1"]
+            },
+            "description": "Update an existing agent. Requires telebirr.manage capability."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Agent - Negative (Not Found)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/telebirr/agents/99999",
+              "host": ["{{baseURL}}"],
+              "path": ["telebirr", "agents", "99999"]
+            },
+            "description": "Attempt to update a non-existent agent."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "Get All Transactions - Positive",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/telebirr/transactions",
+              "host": ["{{baseURL}}"],
+              "path": ["telebirr", "transactions"]
+            },
+            "description": "Retrieve all Telebirr transactions. Requires telebirr.view capability."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Transaction - Positive",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/telebirr/transactions/1",
+              "host": ["{{baseURL}}"],
+              "path": ["telebirr", "transactions", "1"]
+            },
+            "description": "Retrieve a specific transaction by ID. Requires telebirr.view capability."
+          },
+          "response": []
+        },
+        {
+          "name": "Post Topup Transaction - Positive",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 1000.00,\n  \"currency\": \"ETB\",\n  \"idempotency_key\": \"topup-{{timestamp}}\",\n  \"external_ref\": \"EXT-REF-001\",\n  \"bank_external_number\": \"BANK001\",\n  \"payment_method\": \"CASH\",\n  \"remarks\": \"Topup transaction via API\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/telebirr/transactions/topup",
+              "host": ["{{baseURL}}"],
+              "path": ["telebirr", "transactions", "topup"]
+            },
+            "description": "Post a topup transaction. Requires telebirr.post capability."
+          },
+          "response": []
+        },
+        {
+          "name": "Post Topup Transaction - Negative (Duplicate Idempotency Key)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 500.00,\n  \"currency\": \"ETB\",\n  \"idempotency_key\": \"duplicate-key\",\n  \"external_ref\": \"EXT-REF-002\",\n  \"bank_external_number\": \"BANK001\",\n  \"payment_method\": \"BANK_TRANSFER\",\n  \"remarks\": \"This should fail due to duplicate idempotency key\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/telebirr/transactions/topup",
+              "host": ["{{baseURL}}"],
+              "path": ["telebirr", "transactions", "topup"]
+            },
+            "description": "Attempt to post a topup with an existing idempotency key."
+          },
+          "response": []
+        },
+        {
+          "name": "Post Issue Transaction - Positive",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 2000.00,\n  \"currency\": \"ETB\",\n  \"idempotency_key\": \"issue-{{timestamp}}\",\n  \"external_ref\": \"EXT-ISSUE-001\",\n  \"agent_short_code\": \"AGENT001\",\n  \"payment_method\": \"CASH\",\n  \"remarks\": \"Issue transaction to agent\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/telebirr/transactions/issue",
+              "host": ["{{baseURL}}"],
+              "path": ["telebirr", "transactions", "issue"]
+            },
+            "description": "Post an issue transaction to an agent. Requires telebirr.post capability."
+          },
+          "response": []
+        },
+        {
+          "name": "Post Issue Transaction - Negative (Invalid Agent)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 1500.00,\n  \"currency\": \"ETB\",\n  \"idempotency_key\": \"issue-invalid-{{timestamp}}\",\n  \"external_ref\": \"EXT-ISSUE-002\",\n  \"agent_short_code\": \"INVALID_AGENT\",\n  \"payment_method\": \"MOBILE\",\n  \"remarks\": \"This should fail due to invalid agent\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/telebirr/transactions/issue",
+              "host": ["{{baseURL}}"],
+              "path": ["telebirr", "transactions", "issue"]
+            },
+            "description": "Attempt to post an issue transaction with an invalid agent short code."
+          },
+          "response": []
+        },
+        {
+          "name": "Post Repay Transaction - Positive",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 800.00,\n  \"currency\": \"ETB\",\n  \"idempotency_key\": \"repay-{{timestamp}}\",\n  \"external_ref\": \"EXT-REPAY-001\",\n  \"agent_short_code\": \"AGENT001\",\n  \"bank_external_number\": \"BANK001\",\n  \"payment_method\": \"BANK_TRANSFER\",\n  \"remarks\": \"Repayment from agent\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/telebirr/transactions/repay",
+              "host": ["{{baseURL}}"],
+              "path": ["telebirr", "transactions", "repay"]
+            },
+            "description": "Post a repayment transaction from an agent. Requires telebirr.post capability."
+          },
+          "response": []
+        },
+        {
+          "name": "Post Loan Transaction - Positive",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 3000.00,\n  \"currency\": \"ETB\",\n  \"idempotency_key\": \"loan-{{timestamp}}\",\n  \"external_ref\": \"EXT-LOAN-001\",\n  \"agent_short_code\": \"AGENT001\",\n  \"payment_method\": \"CASH\",\n  \"remarks\": \"Loan to agent\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/telebirr/transactions/loan",
+              "host": ["{{baseURL}}"],
+              "path": ["telebirr", "transactions", "loan"]
+            },
+            "description": "Post a loan transaction to an agent. Requires telebirr.post capability."
+          },
+          "response": []
+        },
+        {
+          "name": "Void Transaction - Positive",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Voided via API test\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/telebirr/transactions/1/void",
+              "host": ["{{baseURL}}"],
+              "path": ["telebirr", "transactions", "1", "void"]
+            },
+            "description": "Void a transaction. Requires telebirr.void capability."
+          },
+          "response": []
+        },
+        {
+          "name": "Void Transaction - Negative (Already Voided)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Attempting to void already voided transaction\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/telebirr/transactions/1/void",
+              "host": ["{{baseURL}}"],
+              "path": ["telebirr", "transactions", "1", "void"]
+            },
+            "description": "Attempt to void a transaction that is already voided."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reconciliation",
+      "item": [
+        {
+          "name": "Get Reconciliation Data - Positive",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/telebirr/reconciliation?start_date=2024-01-01&end_date=2024-12-31",
+              "host": ["{{baseURL}}"],
+              "path": ["telebirr", "reconciliation"],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2024-12-31"
+                }
+              ]
+            },
+            "description": "Retrieve reconciliation data for a date range. Requires telebirr.view capability."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Reconciliation Data - Negative (Invalid Date Range)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/telebirr/reconciliation?start_date=2024-12-31&end_date=2024-01-01",
+              "host": ["{{baseURL}}"],
+              "path": ["telebirr", "reconciliation"],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "2024-12-31"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2024-01-01"
+                }
+              ]
+            },
+            "description": "Attempt to get reconciliation data with invalid date range (start after end)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Get Agent Balances - Positive",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/telebirr/reports/agent-balances",
+              "host": ["{{baseURL}}"],
+              "path": ["telebirr", "reports", "agent-balances"]
+            },
+            "description": "Retrieve agent balance report. Requires telebirr.view capability."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Transaction Summary - Positive",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/telebirr/reports/transaction-summary?start_date=2024-01-01&end_date=2024-12-31",
+              "host": ["{{baseURL}}"],
+              "path": ["telebirr", "reports", "transaction-summary"],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2024-12-31"
+                }
+              ]
+            },
+            "description": "Retrieve transaction summary report. Requires telebirr.view capability."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Inject Authorization header if token is available",
+          "if (pm.environment.get('token')) {",
+          "    pm.request.headers.add({",
+          "        key: 'Authorization',",
+          "        value: 'Bearer ' + pm.environment.get('token')",
+          "    });",
+          "}",
+          "",
+          "// Set timestamp variable for idempotency keys",
+          "pm.environment.set('timestamp', new Date().getTime());"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseURL",
+      "value": "http://localhost:8000/api",
+      "type": "string"
+    }
+  ]
+}

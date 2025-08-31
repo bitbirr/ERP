@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Capability;
@@ -33,22 +34,53 @@ class DatabaseSeeder extends Seeder
 
         // 2. Create Capabilities
         $capabilities = [
-            ['name' => 'View Transactions', 'key' => 'tx.view', 'group' => 'transactions'],
-            ['name' => 'Create Transaction', 'key' => 'tx.create', 'group' => 'transactions'],
-            ['name' => 'Approve Transaction', 'key' => 'tx.approve', 'group' => 'transactions'],
-            ['name' => 'Manage Users', 'key' => 'users.manage', 'group' => 'users'],
-            ['name' => 'Manage Inventory', 'key' => 'inventory.manage', 'group' => 'inventory'],
-            ['name' => 'View Inventory', 'key' => 'inventory.view', 'group' => 'inventory'],
+            // Telebirr capabilities
+            ['name' => 'View Telebirr', 'key' => 'telebirr.view', 'group' => 'telebirr'],
+            ['name' => 'Manage Telebirr', 'key' => 'telebirr.manage', 'group' => 'telebirr'],
+            ['name' => 'Post Telebirr Transactions', 'key' => 'telebirr.post', 'group' => 'telebirr'],
+            ['name' => 'Void Telebirr Transactions', 'key' => 'telebirr.void', 'group' => 'telebirr'],
+            ['name' => 'Create Telebirr Topup', 'key' => 'telebirr.topup.create', 'group' => 'telebirr'],
+            ['name' => 'Create Telebirr Issue', 'key' => 'telebirr.issue.create', 'group' => 'telebirr'],
+            ['name' => 'Create Telebirr Loan', 'key' => 'telebirr.loan.create', 'group' => 'telebirr'],
+            ['name' => 'Create Telebirr Repay', 'key' => 'telebirr.repay.create', 'group' => 'telebirr'],
+            ['name' => 'Read Telebirr Transactions', 'key' => 'telebirr.tx.read', 'group' => 'telebirr'],
+            ['name' => 'Read Telebirr Reports', 'key' => 'telebirr.report.read', 'group' => 'telebirr'],
+            ['name' => 'View Telebirr Agents', 'key' => 'telebirr.agents.read', 'group' => 'telebirr'],
+            ['name' => 'Create Telebirr Agents', 'key' => 'telebirr.agents.create', 'group' => 'telebirr'],
+            ['name' => 'Update Telebirr Agents', 'key' => 'telebirr.agents.update', 'group' => 'telebirr'],
+            ['name' => 'Void Telebirr Voucher', 'key' => 'telebirr.voucher.void', 'group' => 'telebirr'],
+            ['name' => 'Telebirr Reconciliation', 'key' => 'telebirr.recon.ebirr', 'group' => 'telebirr'],
+
+            // GL capabilities
+            ['name' => 'View GL', 'key' => 'gl.view', 'group' => 'general_ledger'],
+            ['name' => 'Create GL', 'key' => 'gl.create', 'group' => 'general_ledger'],
+            ['name' => 'Post GL', 'key' => 'gl.post', 'group' => 'general_ledger'],
+            ['name' => 'Reverse GL', 'key' => 'gl.reverse', 'group' => 'general_ledger'],
+            ['name' => 'Manage GL Accounts', 'key' => 'gl.accounts.manage', 'group' => 'general_ledger'],
+            ['name' => 'Manage GL Journal Sources', 'key' => 'gl.sources.manage', 'group' => 'general_ledger'],
+            ['name' => 'Read GL Journals', 'key' => 'gl.journals.read', 'group' => 'general_ledger'],
+            ['name' => 'Create GL Journals', 'key' => 'gl.journals.create', 'group' => 'general_ledger'],
+            ['name' => 'Post GL Journals', 'key' => 'gl.post.create', 'group' => 'general_ledger'],
+            ['name' => 'Reverse GL Journals', 'key' => 'gl.journals.reverse', 'group' => 'general_ledger'],
+
+            // Audit capabilities
+            ['name' => 'Read Audit Logs', 'key' => 'audit.read', 'group' => 'audit'],
             ['name' => 'Audit Logs', 'key' => 'audit.logs', 'group' => 'audit'],
-            ['name' => 'Telebirr Sales', 'key' => 'telebirr.sales', 'group' => 'telebirr'],
+
+            // User management
+            ['name' => 'Manage Users', 'key' => 'users.manage', 'group' => 'users'],
+
+            // Inventory capabilities
+            ['name' => 'Manage Inventory', 'key' => 'inventory.manage', 'group' => 'inventory'],
+            ['name' => 'Read Inventory', 'key' => 'inventory.read', 'group' => 'inventory'],
+
+            // Finance capabilities
             ['name' => 'Finance Access', 'key' => 'finance.access', 'group' => 'finance'],
-            // GL (General Ledger) Capabilities
-            ['name' => 'View GL Journals', 'key' => 'gl.view', 'group' => 'general_ledger'],
-            ['name' => 'Create GL Journals', 'key' => 'gl.create', 'group' => 'general_ledger'],
-            ['name' => 'Post GL Journals', 'key' => 'gl.post', 'group' => 'general_ledger'],
-            ['name' => 'Reverse GL Journals', 'key' => 'gl.reverse', 'group' => 'general_ledger'],
-            ['name' => 'Manage GL Accounts', 'key' => 'gl.manage_accounts', 'group' => 'general_ledger'],
-            ['name' => 'Manage GL Journal Sources', 'key' => 'gl.manage_journal_sources', 'group' => 'general_ledger'],
+
+            // Transaction capabilities
+            ['name' => 'Read Transactions', 'key' => 'tx.read', 'group' => 'transactions'],
+            ['name' => 'Create Transactions', 'key' => 'tx.create', 'group' => 'transactions'],
+            ['name' => 'Approve Transactions', 'key' => 'tx.approve', 'group' => 'transactions'],
         ];
         $capModels = [];
         foreach ($capabilities as $cap) {
@@ -57,13 +89,46 @@ class DatabaseSeeder extends Seeder
 
         // 3. Attach Capabilities to Roles
         $roleCaps = [
-            'admin' => array_keys($capModels),
-            'manager' => ['tx.view', 'tx.create', 'tx.approve', 'users.manage', 'inventory.view', 'inventory.manage', 'finance.access', 'gl.view'],
-            'sales' => ['tx.view', 'tx.create', 'telebirr.sales'],
-            'telebirr_distributor' => ['telebirr.sales'],
-            'finance' => ['finance.access', 'tx.view', 'gl.view', 'gl.create', 'gl.post', 'gl.reverse'],
-            'inventory' => ['inventory.view', 'inventory.manage'],
-            'audit' => ['audit.logs', 'gl.view'],
+            'admin' => array_keys($capModels), // All capabilities
+            'manager' => [ // Read/report access
+                'telebirr.view',
+                'gl.view',
+                'audit.read',
+                'inventory.read',
+                'tx.read',
+            ],
+            'telebirr_distributor' => [ // Topup/issue/loan/repay
+                'telebirr.view',
+                'telebirr.post',
+                'telebirr.void',
+            ],
+            'sales' => [ // Basic sales capabilities
+                'tx.create',
+                'tx.read',
+                'telebirr.view',
+            ],
+            'finance' => [ // Finance and GL capabilities
+                'finance.access',
+                'gl.view',
+                'gl.create',
+                'gl.post',
+                'gl.reverse',
+                'gl.accounts.manage',
+                'gl.sources.manage',
+                'telebirr.view',
+                'telebirr.post',
+                'telebirr.void',
+                'tx.read',
+            ],
+            'inventory' => [ // Inventory management
+                'inventory.read',
+                'inventory.manage',
+            ],
+            'audit' => [ // Read-only audit access
+                'audit.read',
+                'audit.logs',
+                'gl.view',
+            ],
         ];
         foreach ($roleCaps as $roleSlug => $capKeys) {
             $role = $roleModels[$roleSlug];
@@ -101,43 +166,66 @@ class DatabaseSeeder extends Seeder
         // 5. Create Users and Assign Roles/Branches
         $users = [
             // Main Branch
-            ['name' => 'Najib hassen', 'email' => 'najib@najibshop.shop', 'password' => bcrypt('secret123'), 'role' => 'manager', 'branch' => 'main'],
-            ['name' => 'hafsa hassen', 'email' => 'hafsa@najibshop.shop', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'main'],
-            ['name' => 'Marwan haji', 'email' => 'marwan@najibshop.shop', 'password' => bcrypt('secret123'), 'role' => 'inventory', 'branch' => 'main'],
-            ['name' => 'hawa kabade', 'email' => 'hawa@najibshop.shop', 'password' => bcrypt('secret123'), 'role' => 'finance', 'branch' => 'main'],
-            ['name' => 'hana hasen', 'email' => 'hana@najibshop.shop', 'password' => bcrypt('secret123'), 'role' => 'telebirr_distributor', 'branch' => 'main'],
-            // Hamda Hotel Branch
-            ['name' => 'Naila haji', 'email' => 'naila@najibshop.shop', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'hamda'],
-            // Chinaksan Branch
-            ['name' => 'Yenesew mekonin', 'email' => 'yenesew@najibshop.shop', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'chinaksan'],
+            ['name' => 'Ismail', 'email' => 'admin@example.com', 'password' => bcrypt('secret123'), 'role' => 'admin', 'branch' => 'main'],
+            ['name' => 'Najo', 'email' => 'manager@example.com', 'password' => bcrypt('secret123'), 'role' => 'manager', 'branch' => 'main'],
+            ['name' => 'mawlid', 'email' => 'distributor@example.com', 'password' => bcrypt('secret123'), 'role' => 'telebirr_distributor', 'branch' => 'main'],
+            ['name' => 'hamze', 'email' => 'sales@example.com', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'main'],
+            ['name' => 'nimco', 'email' => 'finance@example.com', 'password' => bcrypt('secret123'), 'role' => 'finance', 'branch' => 'main'],
+            ['name' => 'ikran', 'email' => 'inventory@example.com', 'password' => bcrypt('secret123'), 'role' => 'inventory', 'branch' => 'main'],
+            ['name' => 'yasmin', 'email' => 'audit@example.com', 'password' => bcrypt('secret123'), 'role' => 'audit', 'branch' => 'main'],
+            // Variants
+            ['name' => 'Disabled User', 'email' => 'disabled@example.com', 'password' => bcrypt('secret123'), 'role' => null, 'branch' => null], // No role - disabled
+            ['name' => 'Expired Token User', 'email' => 'expired@example.com', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'main'],
+            ['name' => 'Wrong Branch User', 'email' => 'wrongbranch@example.com', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'hamda'], // Assigned to hamda but maybe should be main
         ];
         foreach ($users as $u) {
-            $user = User::firstOrCreate(['email' => $u['email']], [
-                'name' => $u['name'],
-                'password' => $u['password'],
-            ]);
-            UserRoleAssignment::firstOrCreate([
-                'user_id' => $user->id,
-                'role_id' => $roleModels[$u['role']]->id,
-                'branch_id' => $branchModels[$u['branch']]->id,
-            ]);
+            $user = User::firstOrCreate(
+                ['email' => $u['email']],
+                [
+                    'id' => (string) Str::uuid(),
+                    'name' => $u['name'],
+                    'password' => $u['password'],
+                ]
+            );
+            if ($u['role']) {
+                UserRoleAssignment::firstOrCreate([
+                    'user_id' => $user->id,
+                    'role_id' => $roleModels[$u['role']]->id,
+                    'branch_id' => $u['branch'] ? $branchModels[$u['branch']]->id : null,
+                ]);
+            }
+            // Create tokens
+            if ($u['email'] === 'expired@example.com') {
+                $user->createToken('api', ['*'], now()->subDays(1)); // Expired token
+            } else {
+                $user->createToken('api'); // Valid token
+            }
         }
 
-        // 6. Create or fetch superuser and assign admin role (no branch)
+        // 6. Create superuser with no branch (variant)
         $superuser = User::firstOrCreate(
-            ['email' => 'admin@example.com'],
-            ['name' => 'Super Admin', 'password' => bcrypt('secret123')]
+            ['email' => 'superadmin@example.com'],
+            [
+                'id' => (string) Str::uuid(),
+                'name' => 'Super Admin',
+                'password' => bcrypt('secret123'),
+            ]
         );
         UserRoleAssignment::firstOrCreate([
             'user_id' => $superuser->id,
             'role_id' => $roleModels['admin']->id,
             'branch_id' => null,
         ]);
+        $superuser->createToken('api');
 
         // Call additional seeders
         $this->call([
-            BranchSeeder::class,
+            BranchesSeeder::class,
             ProductSeeder::class,
+            ChartOfAccountsSeeder::class,
+            BankAccountsSeeder::class,
+            TelebirrAgentsSeeder::class,
+            OpeningBalancesSeeder::class,
         ]);
     }
 }

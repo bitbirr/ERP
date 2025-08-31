@@ -24,7 +24,7 @@ class PosServiceTest extends TestCase
     {
         parent::setUp();
         $this->inventoryService = new InventoryService();
-        $this->posService = new PosService($this->inventoryService);
+        $this->posService = $this->createPosService($this->inventoryService, $this->getMockAuditLogger());
     }
 
     /** @test */
@@ -38,7 +38,7 @@ class PosServiceTest extends TestCase
 
         $receiptData = [
             'branch_id' => $branch->id,
-            'created_by' => 1,
+            'created_by' => $this->user->id,
         ];
 
         $lineItems = [
@@ -56,7 +56,11 @@ class PosServiceTest extends TestCase
         $receipt = $this->posService->processReceipt($receiptData, $lineItems);
 
         $this->assertInstanceOf(Receipt::class, $receipt);
+        $this->assertNotNull($receipt->id);
         $this->assertEquals(205, $receipt->grand_total);
+
+        // Refresh from database to ensure it's persisted
+        $receipt->refresh();
         $this->assertCount(1, $receipt->lines);
 
         // Check stock decreased
@@ -84,7 +88,7 @@ class PosServiceTest extends TestCase
 
         $receiptData = [
             'branch_id' => $branch->id,
-            'created_by' => 1,
+            'created_by' => $this->user->id,
         ];
 
         $lineItems = [
@@ -102,7 +106,7 @@ class PosServiceTest extends TestCase
         $receipt = $this->posService->processReceipt($receiptData, $lineItems);
         $receipt->update(['status' => 'posted']); // Assume posted
 
-        $voided = $this->posService->voidReceipt($receipt, ['voided_by' => 1]);
+        $voided = $this->posService->voidReceipt($receipt, ['voided_by' => $this->user->id]);
 
         $this->assertEquals('voided', $voided->status);
         $this->assertNotNull($voided->voided_at);

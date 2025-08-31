@@ -12,6 +12,11 @@
             <directory>tests/Feature</directory>
         </testsuite>
     </testsuites>
+    <extensions>
+        <bootstrap class="ParaTest\ParaTest\ParaTestExtension">
+            <parameter name="processes" value="4"/>
+        </bootstrap>
+    </extensions>
     <source>
         <include>
             <directory>app</directory>

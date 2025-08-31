@@ -19,52 +19,109 @@ Route::get('/ping', function () {
     return response()->json(['message' => 'pong']);
 });
 
-// Protected route example (requires authentication via Sanctum)
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+// Sanctum token creation route
+Route::post('/sanctum/token', function (Request $request) {
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+        'device_name' => 'required',
+    ]);
+
+    $user = \App\Models\User::where('email', $request->email)->first();
+
+    if (!$user || !\Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+        throw \Illuminate\Validation\ValidationException::withMessages([
+            'email' => ['The provided credentials are incorrect.'],
+        ]);
+    }
+
+    return response()->json([
+        'token' => $user->createToken($request->device_name)->plainTextToken,
+        'user' => $user->only(['id', 'name', 'email'])
+    ]);
 });
 
-Route::get('/api/transactions', [\App\Http\Controllers\TransactionController::class, 'index'])
-    ->middleware(['cap:tx.view', 'throttle:10,1']);
+// Protected route example (requires authentication via Sanctum)
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return response()->json(['user' => $request->user()]);
+});
+
 Route::middleware(['auth:sanctum', 'cap:users.manage'])->group(function () {
-    Route::post('/api/rbac/roles', [\App\Http\Controllers\RbacController::class, 'createRole']);
-    Route::patch('/api/rbac/roles/{id}', [\App\Http\Controllers\RbacController::class, 'updateRole']);
-    Route::post('/api/rbac/roles/{id}/capabilities', [\App\Http\Controllers\RbacController::class, 'syncRoleCapabilities']);
-    Route::post('/api/rbac/users/{user}/roles', [\App\Http\Controllers\RbacController::class, 'assignUserRole']);
-    Route::post('/api/rbac/rebuild', [\App\Http\Controllers\RbacController::class, 'rebuildRbacCache']);
+    Route::post('/rbac/roles', [\App\Http\Controllers\RbacController::class, 'createRole']);
+    Route::patch('/rbac/roles/{id}', [\App\Http\Controllers\RbacController::class, 'updateRole']);
+    Route::post('/rbac/roles/{id}/capabilities', [\App\Http\Controllers\RbacController::class, 'syncRoleCapabilities']);
+    Route::post('/rbac/users/{user}/roles', [\App\Http\Controllers\RbacController::class, 'assignUserRole']);
+    Route::post('/rbac/rebuild', [\App\Http\Controllers\RbacController::class, 'rebuildRbacCache']);
 });
 
 // GL (General Ledger) API Routes
 Route::middleware(['auth:sanctum'])->group(function () {
     // Journal routes
-    Route::get('/api/gl/journals', [\App\Http\Controllers\GL\GlJournalController::class, 'index'])
-        ->middleware('cap:gl.view');
-    Route::post('/api/gl/journals', [\App\Http\Controllers\GL\GlJournalController::class, 'store'])
-        ->middleware('cap:gl.create');
-    Route::get('/api/gl/journals/{journal}', [\App\Http\Controllers\GL\GlJournalController::class, 'show'])
-        ->middleware('cap:gl.view');
-    Route::post('/api/gl/journals/{journal}/post', [\App\Http\Controllers\GL\GlJournalController::class, 'post'])
-        ->middleware('cap:gl.post');
-    Route::post('/api/gl/journals/{journal}/reverse', [\App\Http\Controllers\GL\GlJournalController::class, 'reverse'])
-        ->middleware('cap:gl.reverse');
-    Route::post('/api/gl/journals/{journal}/void', [\App\Http\Controllers\GL\GlJournalController::class, 'void'])
-        ->middleware('cap:gl.reverse');
-    Route::post('/api/gl/journals/{journal}/validate', [\App\Http\Controllers\GL\GlJournalController::class, 'validateDraft'])
-        ->middleware('cap:gl.view');
+    Route::get('/gl/journals', [\App\Http\Controllers\GL\GlJournalController::class, 'index'])
+        ->middleware(['cap:gl.view']);
+    Route::post('/gl/journals', [\App\Http\Controllers\GL\GlJournalController::class, 'store'])
+        ->middleware(['cap:gl.create']);
+    Route::get('/gl/journals/{journal}', [\App\Http\Controllers\GL\GlJournalController::class, 'show'])
+        ->middleware(['cap:gl.view']);
+    Route::post('/gl/journals/{journal}/post', [\App\Http\Controllers\GL\GlJournalController::class, 'post'])
+        ->middleware(['cap:gl.post']);
+    Route::post('/gl/journals/{journal}/reverse', [\App\Http\Controllers\GL\GlJournalController::class, 'reverse'])
+        ->middleware(['cap:gl.reverse']);
+    Route::post('/gl/journals/{journal}/void', [\App\Http\Controllers\GL\GlJournalController::class, 'void'])
+        ->middleware(['cap:gl.reverse']);
+    Route::post('/gl/journals/{journal}/validate', [\App\Http\Controllers\GL\GlJournalController::class, 'validateDraft'])
+        ->middleware(['cap:gl.view']);
 
     // Account routes
-    Route::get('/api/gl/accounts', [\App\Http\Controllers\GL\GlAccountController::class, 'index'])
+    Route::get('/gl/accounts', [\App\Http\Controllers\GL\GlAccountController::class, 'index'])
         ->middleware('cap:gl.view');
-    Route::get('/api/gl/accounts/tree', [\App\Http\Controllers\GL\GlAccountController::class, 'tree'])
+    Route::get('/gl/accounts/tree', [\App\Http\Controllers\GL\GlAccountController::class, 'tree'])
         ->middleware('cap:gl.view');
-    Route::get('/api/gl/accounts/{account}', [\App\Http\Controllers\GL\GlAccountController::class, 'show'])
+    Route::get('/gl/accounts/{account}', [\App\Http\Controllers\GL\GlAccountController::class, 'show'])
         ->middleware('cap:gl.view');
-    Route::get('/api/gl/accounts/{account}/balance', [\App\Http\Controllers\GL\GlAccountController::class, 'balance'])
+    Route::get('/gl/accounts/{account}/balance', [\App\Http\Controllers\GL\GlAccountController::class, 'balance'])
         ->middleware('cap:gl.view');
 
     // POS Receipt routes
-    Route::post('/api/receipts', [\App\Http\Controllers\PosController::class, 'createReceipt'])
+    Route::post('/receipts', [\App\Http\Controllers\PosController::class, 'createReceipt'])
         ->middleware('cap:receipts.create');
-    Route::patch('/api/receipts/{receipt}/void', [\App\Http\Controllers\PosController::class, 'voidReceipt'])
+    Route::patch('/receipts/{receipt}/void', [\App\Http\Controllers\PosController::class, 'voidReceipt'])
         ->middleware('cap:receipts.void');
+
+    // Telebirr API Routes
+    // Agent routes
+    Route::get('/telebirr/agents', [\App\Http\Controllers\TelebirrController::class, 'agents'])
+        ->middleware('cap:telebirr.view');
+    Route::get('/telebirr/agents/{agent}', [\App\Http\Controllers\TelebirrController::class, 'agent'])
+        ->middleware('cap:telebirr.view');
+    Route::post('/telebirr/agents', [\App\Http\Controllers\TelebirrController::class, 'createAgent'])
+        ->middleware('cap:telebirr.manage');
+    Route::patch('/telebirr/agents/{agent}', [\App\Http\Controllers\TelebirrController::class, 'updateAgent'])
+        ->middleware('cap:telebirr.manage');
+
+    // Transaction routes
+    Route::get('/telebirr/transactions', [\App\Http\Controllers\TelebirrController::class, 'transactions'])
+        ->middleware('cap:telebirr.view');
+    Route::get('/telebirr/transactions/{transaction}', [\App\Http\Controllers\TelebirrController::class, 'transaction'])
+        ->middleware('cap:telebirr.view');
+    Route::post('/telebirr/transactions/topup', [\App\Http\Controllers\TelebirrController::class, 'postTopup'])
+        ->middleware('cap:telebirr.post');
+    Route::post('/telebirr/transactions/issue', [\App\Http\Controllers\TelebirrController::class, 'postIssue'])
+        ->middleware('cap:telebirr.post');
+    Route::post('/telebirr/transactions/repay', [\App\Http\Controllers\TelebirrController::class, 'postRepay'])
+        ->middleware('cap:telebirr.post');
+    Route::post('/telebirr/transactions/loan', [\App\Http\Controllers\TelebirrController::class, 'postLoan'])
+        ->middleware('cap:telebirr.post');
+    Route::patch('/telebirr/transactions/{transaction}/void', [\App\Http\Controllers\TelebirrController::class, 'voidTransaction'])
+        ->middleware('cap:telebirr.void');
+
+    // Reconciliation routes
+    Route::get('/telebirr/reconciliation', [\App\Http\Controllers\TelebirrController::class, 'reconciliation'])
+        ->middleware('cap:telebirr.view');
+
+    // Reporting routes
+    Route::get('/telebirr/reports/agent-balances', [\App\Http\Controllers\TelebirrController::class, 'agentBalances'])
+        ->middleware('cap:telebirr.view');
+    Route::get('/telebirr/reports/transaction-summary', [\App\Http\Controllers\TelebirrController::class, 'transactionSummary'])
+        ->middleware('cap:telebirr.view');
 });

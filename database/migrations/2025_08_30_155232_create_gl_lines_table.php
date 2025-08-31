@@ -39,10 +39,11 @@ return new class extends Migration
             $table->foreign('branch_id')->references('id')->on('branches')->onDelete('set null');
             // Note: Other dimension foreign keys would need their respective tables
 
-            // Constraints
-            $table->check('debit >= 0 AND credit >= 0');
-            $table->check('(debit > 0)::int + (credit > 0)::int = 1');
         });
+
+        // Add CHECK constraints
+        DB::statement('ALTER TABLE gl_lines ADD CONSTRAINT gl_lines_debit_credit_non_negative CHECK (debit >= 0 AND credit >= 0);');
+        DB::statement('ALTER TABLE gl_lines ADD CONSTRAINT gl_lines_debit_or_credit CHECK (((debit > 0)::int + (credit > 0)::int) = 1);');
     }
 
     /**

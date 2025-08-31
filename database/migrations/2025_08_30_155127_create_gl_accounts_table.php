@@ -25,13 +25,16 @@ return new class extends Migration
             $table->timestamps();
 
             // Indexes
-            $table->unique('code');
             $table->index('parent_id');
             $table->index(['type', 'normal_balance']);
 
-            // Foreign keys
-            $table->foreign('parent_id')->references('id')->on('gl_accounts')->onDelete('cascade');
+            // Foreign key to branches (not self-referencing)
             $table->foreign('branch_id')->references('id')->on('branches')->onDelete('set null');
+        });
+
+        // Add self-referencing foreign key after table creation
+        Schema::table('gl_accounts', function (Blueprint $table) {
+            $table->foreign('parent_id')->references('id')->on('gl_accounts')->onDelete('cascade');
         });
     }
 

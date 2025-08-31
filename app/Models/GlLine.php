@@ -23,12 +23,14 @@ class GlLine extends Model
         'memo',
         'debit',
         'credit',
+        'meta',
     ];
 
     protected $casts = [
         'line_no' => 'integer',
         'debit' => 'decimal:2',
         'credit' => 'decimal:2',
+        'meta' => 'array',
     ];
 
     // Relationships
@@ -142,5 +144,13 @@ class GlLine extends Model
             return 'credit';
         }
         return 'zero';
+    }
+
+    /**
+     * Get the account code through the relationship
+     */
+    public function getAccountCodeAttribute(): ?string
+    {
+        return $this->account?->code;
     }
 }
