@@ -38,16 +38,18 @@ To get actual tokens for testing:
    - Distributor: `distributor@example.com` / `secret123`
    - Finance: `finance@example.com` / `secret123`
 
-3. Make a POST request to `/api/sanctum/token` with:
+3. Make a POST request to `{{baseURL}}/sanctum/token` with:
    ```json
    {
-     "email": "user@example.com",
+     "email": "admin@example.com",
      "password": "secret123",
      "device_name": "postman"
    }
    ```
 
-4. Copy the returned token and update the environment variable
+4. Copy the returned `token` value and update the `token` environment variable
+
+**Note**: The Sanctum token route has been added to `routes/api.php`. If you get a 404, make sure your Laravel application is running and the routes are cached (`php artisan route:cache`).
 
 ## Collection Structure
 

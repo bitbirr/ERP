@@ -7,6 +7,34 @@
   },
   "item": [
     {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Get Sanctum Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{user_email}}\",\n  \"password\": \"secret123\",\n  \"device_name\": \"postman\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/sanctum/token",
+              "host": ["{{baseURL}}"],
+              "path": ["sanctum", "token"]
+            },
+            "description": "Get authentication token for the current user. Copy the token from response and update the 'token' environment variable."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Agents",
       "item": [
         {
