@@ -147,9 +147,9 @@ class DatabaseSeeder extends Seeder
 
         // Call additional seeders
         $this->call([
-            BranchSeeder::class,
+            BranchesSeeder::class,
             ProductSeeder::class,
-            TelebirrGlAccountsSeeder::class,
+            ChartOfAccountsSeeder::class,
             BankAccountsSeeder::class,
         ]);
     }

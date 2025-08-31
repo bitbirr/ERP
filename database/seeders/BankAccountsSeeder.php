@@ -30,36 +30,6 @@ class BankAccountsSeeder extends Seeder
                 'external_number' => '805856',
                 'gl_account_code' => '1103',
             ],
-            [
-                'name' => 'ABASINIYA 101954943',
-                'external_number' => '101954943',
-                'gl_account_code' => '1104',
-            ],
-            [
-                'name' => 'AWASH 01410991463100',
-                'external_number' => '01410991463100',
-                'gl_account_code' => '1105',
-            ],
-            [
-                'name' => 'DASHIN 7914329202011',
-                'external_number' => '7914329202011',
-                'gl_account_code' => '1106',
-            ],
-            [
-                'name' => 'TELEBIRR 0963373333',
-                'external_number' => '0963373333',
-                'gl_account_code' => '1107',
-            ],
-            [
-                'name' => 'ESAHAL 0963373333',
-                'external_number' => '0963373333',
-                'gl_account_code' => '1108',
-            ],
-            [
-                'name' => 'H.CASH 0963373333',
-                'external_number' => '0963373333',
-                'gl_account_code' => '1110',
-            ],
         ];
 
         foreach ($bankAccounts as $account) {
