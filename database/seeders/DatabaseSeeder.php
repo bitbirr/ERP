@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Capability;
@@ -33,33 +34,45 @@ class DatabaseSeeder extends Seeder
 
         // 2. Create Capabilities
         $capabilities = [
-            ['name' => 'View Transactions', 'key' => 'tx.view', 'group' => 'transactions'],
-            ['name' => 'Create Transaction', 'key' => 'tx.create', 'group' => 'transactions'],
-            ['name' => 'Approve Transaction', 'key' => 'tx.approve', 'group' => 'transactions'],
-            ['name' => 'Manage Users', 'key' => 'users.manage', 'group' => 'users'],
-            ['name' => 'Manage Inventory', 'key' => 'inventory.manage', 'group' => 'inventory'],
-            ['name' => 'View Inventory', 'key' => 'inventory.view', 'group' => 'inventory'],
+            // Telebirr capabilities
+            ['name' => 'Create Telebirr Topup', 'key' => 'telebirr.topup.create', 'group' => 'telebirr'],
+            ['name' => 'Create Telebirr Issue', 'key' => 'telebirr.issue.create', 'group' => 'telebirr'],
+            ['name' => 'Create Telebirr Loan', 'key' => 'telebirr.loan.create', 'group' => 'telebirr'],
+            ['name' => 'Create Telebirr Repay', 'key' => 'telebirr.repay.create', 'group' => 'telebirr'],
+            ['name' => 'Read Telebirr Transactions', 'key' => 'telebirr.tx.read', 'group' => 'telebirr'],
+            ['name' => 'Read Telebirr Reports', 'key' => 'telebirr.report.read', 'group' => 'telebirr'],
+            ['name' => 'View Telebirr Agents', 'key' => 'telebirr.agents.read', 'group' => 'telebirr'],
+            ['name' => 'Create Telebirr Agents', 'key' => 'telebirr.agents.create', 'group' => 'telebirr'],
+            ['name' => 'Update Telebirr Agents', 'key' => 'telebirr.agents.update', 'group' => 'telebirr'],
+            ['name' => 'Void Telebirr Voucher', 'key' => 'telebirr.voucher.void', 'group' => 'telebirr'],
+            ['name' => 'Telebirr Reconciliation', 'key' => 'telebirr.recon.ebirr', 'group' => 'telebirr'],
+
+            // GL capabilities
+            ['name' => 'Read GL Journals', 'key' => 'gl.journals.read', 'group' => 'general_ledger'],
+            ['name' => 'Create GL Journals', 'key' => 'gl.journals.create', 'group' => 'general_ledger'],
+            ['name' => 'Post GL Journals', 'key' => 'gl.post.create', 'group' => 'general_ledger'],
+            ['name' => 'Reverse GL Journals', 'key' => 'gl.journals.reverse', 'group' => 'general_ledger'],
+            ['name' => 'Manage GL Accounts', 'key' => 'gl.accounts.manage', 'group' => 'general_ledger'],
+            ['name' => 'Manage GL Journal Sources', 'key' => 'gl.sources.manage', 'group' => 'general_ledger'],
+
+            // Audit capabilities
+            ['name' => 'Read Audit Logs', 'key' => 'audit.read', 'group' => 'audit'],
             ['name' => 'Audit Logs', 'key' => 'audit.logs', 'group' => 'audit'],
-            ['name' => 'Telebirr Sales', 'key' => 'telebirr.sales', 'group' => 'telebirr'],
+
+            // User management
+            ['name' => 'Manage Users', 'key' => 'users.manage', 'group' => 'users'],
+
+            // Inventory capabilities
+            ['name' => 'Manage Inventory', 'key' => 'inventory.manage', 'group' => 'inventory'],
+            ['name' => 'Read Inventory', 'key' => 'inventory.read', 'group' => 'inventory'],
+
+            // Finance capabilities
             ['name' => 'Finance Access', 'key' => 'finance.access', 'group' => 'finance'],
-            // Telebirr specific capabilities
-            ['name' => 'View Agents', 'key' => 'agents.read', 'group' => 'telebirr'],
-            ['name' => 'Create Agents', 'key' => 'agents.create', 'group' => 'telebirr'],
-            ['name' => 'Update Agents', 'key' => 'agents.update', 'group' => 'telebirr'],
-            ['name' => 'Issue E-float', 'key' => 'efloat.issue', 'group' => 'telebirr'],
-            ['name' => 'Loan E-float', 'key' => 'efloat.loan', 'group' => 'telebirr'],
-            ['name' => 'Create Topup', 'key' => 'topup.create', 'group' => 'telebirr'],
-            ['name' => 'Create Repayment', 'key' => 'repayment.create', 'group' => 'telebirr'],
-            ['name' => 'EBIRR Reconciliation', 'key' => 'recon.ebirr', 'group' => 'telebirr'],
-            ['name' => 'Void Voucher', 'key' => 'voucher.void', 'group' => 'telebirr'],
-            ['name' => 'View Reports', 'key' => 'reports.view', 'group' => 'telebirr'],
-            // GL (General Ledger) Capabilities
-            ['name' => 'View GL Journals', 'key' => 'gl.view', 'group' => 'general_ledger'],
-            ['name' => 'Create GL Journals', 'key' => 'gl.create', 'group' => 'general_ledger'],
-            ['name' => 'Post GL Journals', 'key' => 'gl.post', 'group' => 'general_ledger'],
-            ['name' => 'Reverse GL Journals', 'key' => 'gl.reverse', 'group' => 'general_ledger'],
-            ['name' => 'Manage GL Accounts', 'key' => 'gl.manage_accounts', 'group' => 'general_ledger'],
-            ['name' => 'Manage GL Journal Sources', 'key' => 'gl.manage_journal_sources', 'group' => 'general_ledger'],
+
+            // Transaction capabilities
+            ['name' => 'Read Transactions', 'key' => 'tx.read', 'group' => 'transactions'],
+            ['name' => 'Create Transactions', 'key' => 'tx.create', 'group' => 'transactions'],
+            ['name' => 'Approve Transactions', 'key' => 'tx.approve', 'group' => 'transactions'],
         ];
         $capModels = [];
         foreach ($capabilities as $cap) {
@@ -68,13 +81,53 @@ class DatabaseSeeder extends Seeder
 
         // 3. Attach Capabilities to Roles
         $roleCaps = [
-            'admin' => array_keys($capModels),
-            'manager' => ['tx.view', 'tx.create', 'tx.approve', 'users.manage', 'inventory.view', 'inventory.manage', 'finance.access', 'gl.view', 'agents.read', 'agents.create', 'agents.update', 'efloat.issue', 'efloat.loan', 'topup.create', 'repayment.create', 'recon.ebirr', 'voucher.void', 'reports.view'],
-            'sales' => ['tx.view', 'tx.create', 'telebirr.sales'],
-            'telebirr_distributor' => ['telebirr.sales', 'efloat.issue', 'efloat.loan', 'agents.read', 'reports.view'],
-            'finance' => ['finance.access', 'tx.view', 'gl.view', 'gl.create', 'gl.post', 'gl.reverse', 'topup.create', 'repayment.create', 'recon.ebirr', 'voucher.void', 'reports.view'],
-            'inventory' => ['inventory.view', 'inventory.manage'],
-            'audit' => ['audit.logs', 'gl.view'],
+            'admin' => array_keys($capModels), // All capabilities
+            'manager' => [ // Read/report access
+                'telebirr.tx.read',
+                'telebirr.report.read',
+                'telebirr.agents.read',
+                'gl.journals.read',
+                'audit.read',
+                'inventory.read',
+                'tx.read',
+            ],
+            'telebirr_distributor' => [ // Topup/issue/loan/repay
+                'telebirr.topup.create',
+                'telebirr.issue.create',
+                'telebirr.loan.create',
+                'telebirr.repay.create',
+                'telebirr.tx.read',
+                'telebirr.agents.read',
+            ],
+            'sales' => [ // Basic sales capabilities
+                'tx.create',
+                'tx.read',
+                'telebirr.tx.read',
+            ],
+            'finance' => [ // Finance and GL capabilities
+                'finance.access',
+                'gl.journals.read',
+                'gl.journals.create',
+                'gl.post.create',
+                'gl.journals.reverse',
+                'gl.accounts.manage',
+                'gl.sources.manage',
+                'telebirr.topup.create',
+                'telebirr.repay.create',
+                'telebirr.recon.ebirr',
+                'telebirr.voucher.void',
+                'telebirr.report.read',
+                'tx.read',
+            ],
+            'inventory' => [ // Inventory management
+                'inventory.read',
+                'inventory.manage',
+            ],
+            'audit' => [ // Read-only audit access
+                'audit.read',
+                'audit.logs',
+                'gl.journals.read',
+            ],
         ];
         foreach ($roleCaps as $roleSlug => $capKeys) {
             $role = $roleModels[$roleSlug];
@@ -123,10 +176,14 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Yenesew mekonin', 'email' => 'yenesew@najibshop.shop', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'chinaksan'],
         ];
         foreach ($users as $u) {
-            $user = User::firstOrCreate(['email' => $u['email']], [
-                'name' => $u['name'],
-                'password' => $u['password'],
-            ]);
+            $user = User::firstOrCreate(
+                ['email' => $u['email']],
+                [
+                    'id' => (string) Str::uuid(),
+                    'name' => $u['name'],
+                    'password' => $u['password'],
+                ]
+            );
             UserRoleAssignment::firstOrCreate([
                 'user_id' => $user->id,
                 'role_id' => $roleModels[$u['role']]->id,
@@ -137,7 +194,11 @@ class DatabaseSeeder extends Seeder
         // 6. Create or fetch superuser and assign admin role (no branch)
         $superuser = User::firstOrCreate(
             ['email' => 'admin@example.com'],
-            ['name' => 'Super Admin', 'password' => bcrypt('secret123')]
+            [
+                'id' => (string) Str::uuid(),
+                'name' => 'Super Admin',
+                'password' => bcrypt('secret123'),
+            ]
         );
         UserRoleAssignment::firstOrCreate([
             'user_id' => $superuser->id,
