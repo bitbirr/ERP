@@ -17,7 +17,7 @@ class TelebirrTransactionFactory extends Factory
         return [
             'tx_type' => $this->faker->randomElement(['TOPUP', 'ISSUE', 'REPAY', 'LOAN']),
             'agent_id' => TelebirrAgent::factory(),
-            'bank_account_id' => $this->faker->optional()->factory(BankAccount::class),
+            'bank_account_id' => $this->faker->boolean(50) ? BankAccount::factory() : null,
             'amount' => $this->faker->randomFloat(2, 10, 10000),
             'currency' => $this->faker->randomElement(['ETB', 'USD', 'EUR']),
             'idempotency_key' => $this->faker->unique()->uuid(),
@@ -26,7 +26,7 @@ class TelebirrTransactionFactory extends Factory
             'remarks' => $this->faker->optional()->sentence(),
             'external_ref' => $this->faker->optional()->uuid(),
             'created_by' => \App\Models\User::factory(),
-            'approved_by' => $this->faker->optional()->factory(\App\Models\User::class),
+            'approved_by' => $this->faker->boolean(30) ? \App\Models\User::factory() : null,
             'posted_at' => $this->faker->optional()->dateTime(),
         ];
     }

@@ -36,10 +36,27 @@ class EnsureHasCapability
         );
 
         if (! $user) {
+            \Log::warning('RBAC Access Denied: Unauthenticated', [
+                'capability' => $capability,
+                'branch_id' => $branchId,
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'url' => $request->fullUrl(),
+                'method' => $request->method(),
+            ]);
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
         if (! $hasCapability) {
+            \Log::warning('RBAC Access Denied', [
+                'user_id' => $user?->id,
+                'capability' => $capability,
+                'branch_id' => $branchId,
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'url' => $request->fullUrl(),
+                'method' => $request->method(),
+            ]);
             return response()->json(['message' => "Forbidden: missing capability {$capability}"], 403);
         }
 
