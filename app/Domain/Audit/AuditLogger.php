@@ -56,7 +56,7 @@ class AuditLogger
                     'uri'         => $req?->path(),
                     'http_method' => $req?->method(),
                     'branch_id'   => $req?->header('X-Branch-Id'),
-                    'request_id'  => $req?->attributes->get('request_id'),
+                    'request_id'  => $req?->attributes?->get('request_id'),
                 ]),
                 'created_at'       => now(),
             ]);

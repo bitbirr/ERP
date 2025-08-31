@@ -40,6 +40,7 @@ class BankAccountsSeeder extends Seeder
                     ['external_number' => $account['external_number']],
                     [
                         'name' => $account['name'],
+                        'account_number' => $account['external_number'],
                         'gl_account_id' => $glAccount->id,
                         'is_active' => true,
                     ]

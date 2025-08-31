@@ -15,6 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
             $table->string('name');
             $table->string('external_number')->unique();
+            $table->string('account_number');
             $table->uuid('gl_account_id');
             $table->boolean('is_active')->default(true);
             $table->timestamps();

@@ -50,6 +50,7 @@ class TransactionalSideEffectsTest extends TestCase
             $this->bankAccount = BankAccount::create([
                 'name' => 'Test Bank Account',
                 'external_number' => 'BANK001',
+                'account_number' => '1234567890',
                 'gl_account_id' => $glAccount->id,
                 'is_active' => true,
             ]);

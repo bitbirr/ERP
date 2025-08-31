@@ -15,8 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->appendToGroup('web', EnsureFrontendRequestsAreStateful::class);
         $middleware->alias([
-        'cap' => \App\Http\Middleware\EnsureHasCapability::class,
-    ]);
+            'auth' => \App\Http\Middleware\Authenticate::class,
+            'cap' => \App\Http\Middleware\EnsureHasCapability::class,
+        ]);
         //
     })
     ->withExceptions(function (Exceptions $exceptions) {

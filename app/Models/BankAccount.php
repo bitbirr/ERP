@@ -15,6 +15,7 @@ class BankAccount extends Model
     protected $fillable = [
         'name',
         'external_number',
+        'account_number',
         'gl_account_id',
         'is_active',
     ];
