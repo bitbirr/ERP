@@ -9,9 +9,16 @@ use App\Models\StockMovement;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use App\Domain\Audit\AuditLogger;
 
 class InventoryService
 {
+    protected $auditLogger;
+
+    public function __construct(?AuditLogger $auditLogger = null)
+    {
+        $this->auditLogger = $auditLogger ?? new AuditLogger();
+    }
     /**
      * Opening balance: create or update inventory item, increment on_hand, log movement.
      */
@@ -83,7 +90,7 @@ class InventoryService
             $item->save();
 
             if ($qty != 0) {
-                StockMovement::create([
+                $movement = StockMovement::create([
                     'product_id' => $product->id,
                     'branch_id' => $branch->id,
                     'qty' => $qty,
@@ -92,6 +99,21 @@ class InventoryService
                     'meta' => $ctx['meta'] ?? null,
                     'created_by' => $ctx['created_by'] ?? null,
                 ]);
+
+                // Audit the stock receive
+                $this->auditLogger->log(
+                    'inventory.stock.received',
+                    $movement,
+                    null,
+                    $movement->toArray(),
+                    array_merge($ctx, [
+                        'product_name' => $product->name,
+                        'branch_name' => $branch->name,
+                        'previous_on_hand' => $item->on_hand - $qty,
+                        'new_on_hand' => $item->on_hand,
+                        'received_quantity' => $qty,
+                    ])
+                );
             }
 
             return $item->fresh();
@@ -192,7 +214,7 @@ class InventoryService
             $item->on_hand -= $qty;
             $item->save();
 
-            StockMovement::create([
+            $movement = StockMovement::create([
                 'product_id' => $product->id,
                 'branch_id' => $branch->id,
                 'qty' => -$qty, // Negative for issue
@@ -201,6 +223,21 @@ class InventoryService
                 'meta' => $ctx['meta'] ?? null,
                 'created_by' => $ctx['created_by'] ?? null,
             ]);
+
+            // Audit the stock issue
+            $this->auditLogger->log(
+                'inventory.stock.issued',
+                $movement,
+                null,
+                $movement->toArray(),
+                array_merge($ctx, [
+                    'product_name' => $product->name,
+                    'branch_name' => $branch->name,
+                    'previous_on_hand' => $item->on_hand + $qty,
+                    'new_on_hand' => $item->on_hand,
+                    'issued_quantity' => $qty,
+                ])
+            );
 
             return $item->fresh();
         });
