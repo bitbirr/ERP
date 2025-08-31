@@ -542,4 +542,210 @@ class InventoryServiceTest extends TestCase
         $this->service->openingBalance($product, $branch, 50);
         $this->service->adjust($product, $branch, 0);
     }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function it_enforces_idempotency_for_stock_movements_with_same_ref()
+    {
+        $product = Product::factory()->create();
+        $branch = Branch::factory()->create();
+        $ref = 'test-ref-123';
+
+        $this->service->openingBalance($product, $branch, 100);
+
+        // First issue with ref
+        $item1 = $this->service->issueStock($product, $branch, 10, $ref);
+        $this->assertEquals(90, $item1->on_hand);
+
+        // Second issue with same ref - should be idempotent (no duplicate movement)
+        $item2 = $this->service->issueStock($product, $branch, 5, $ref);
+        $this->assertEquals(90, $item2->on_hand, 'Stock should remain unchanged due to idempotency');
+
+        $movements = StockMovement::where('ref', $ref)->get();
+        $this->assertCount(1, $movements, 'Should create only one movement due to idempotency');
+        $this->assertEquals(-10, $movements[0]->qty);
+        $this->assertEquals('ISSUE', $movements[0]->type);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function it_creates_multiple_stock_movements_with_same_ref_different_types()
+    {
+        $product = Product::factory()->create();
+        $branch = Branch::factory()->create();
+        $ref = 'test-ref-456';
+
+        $this->service->openingBalance($product, $branch, 100);
+
+        // Issue stock
+        $this->service->issueStock($product, $branch, 10, $ref);
+        // Receive stock with same ref
+        $this->service->receiveStock($product, $branch, 5, $ref);
+
+        $movements = StockMovement::where('ref', $ref)->get();
+        $this->assertCount(2, $movements);
+        $this->assertEquals(-10, $movements[0]->qty);
+        $this->assertEquals(5, $movements[1]->qty);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function it_handles_concurrent_requests_with_same_ref_idempotently()
+    {
+        $product = Product::factory()->create();
+        $branch = Branch::factory()->create();
+        $ref = 'concurrent-ref-789';
+
+        $this->service->openingBalance($product, $branch, 100);
+
+        // Simulate concurrent requests by running in separate transactions
+        $results = [];
+
+        // Use database transactions to simulate concurrency
+        DB::transaction(function () use ($product, $branch, $ref, &$results) {
+            $result1 = $this->service->issueStock($product, $branch, 10, $ref);
+            $results[] = $result1;
+        });
+
+        DB::transaction(function () use ($product, $branch, $ref, &$results) {
+            $result2 = $this->service->issueStock($product, $branch, 5, $ref);
+            $results[] = $result2;
+        });
+
+        $this->assertCount(2, $results);
+        $movements = StockMovement::where('ref', $ref)->get();
+        $this->assertCount(1, $movements, 'Should create only one movement due to idempotency');
+        $this->assertEquals(-10, $movements[0]->qty);
+
+        // Both results should reflect the same final state
+        $this->assertEquals(90, $results[0]->on_hand);
+        $this->assertEquals(90, $results[1]->on_hand);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function it_maintains_inventory_consistency_with_duplicate_refs()
+    {
+        $product = Product::factory()->create();
+        $branch = Branch::factory()->create();
+        $ref = 'consistency-ref-101';
+
+        $this->service->openingBalance($product, $branch, 100);
+
+        // Multiple operations with same ref - only first of each type should take effect
+        $this->service->issueStock($product, $branch, 10, $ref);
+        $this->service->issueStock($product, $branch, 5, $ref); // Should be ignored
+        $this->service->receiveStock($product, $branch, 3, $ref); // Different type, should create new movement
+
+        $item = InventoryItem::where('product_id', $product->id)
+            ->where('branch_id', $branch->id)
+            ->first();
+
+        // Expected: 100 - 10 + 3 = 93 (second issue ignored due to idempotency)
+        $this->assertEquals(93, $item->on_hand);
+
+        $movements = StockMovement::where('ref', $ref)->get();
+        $this->assertCount(2, $movements); // ISSUE and RECEIVE, but only one ISSUE
+        $this->assertEquals(-10, $movements[0]->qty);
+        $this->assertEquals(3, $movements[1]->qty);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function it_enforces_idempotency_for_reserve_operations()
+    {
+        $product = Product::factory()->create();
+        $branch = Branch::factory()->create();
+        $ref = 'reserve-ref-202';
+
+        $this->service->openingBalance($product, $branch, 100);
+
+        // First reserve
+        $item1 = $this->service->reserve($product, $branch, 20, $ref);
+        $this->assertEquals(20, $item1->reserved);
+
+        // Second reserve with same ref - should be idempotent
+        $item2 = $this->service->reserve($product, $branch, 15, $ref);
+        $this->assertEquals(20, $item2->reserved, 'Reserved amount should remain unchanged');
+
+        $movements = StockMovement::where('ref', $ref)->get();
+        $this->assertCount(1, $movements);
+        $this->assertEquals(20, $movements[0]->qty);
+        $this->assertEquals('RESERVE', $movements[0]->type);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function it_enforces_idempotency_for_adjust_operations()
+    {
+        $product = Product::factory()->create();
+        $branch = Branch::factory()->create();
+        $ref = 'adjust-ref-303';
+
+        $this->service->openingBalance($product, $branch, 50);
+
+        // First adjust
+        $item1 = $this->service->adjust($product, $branch, 10, $ref);
+        $this->assertEquals(60, $item1->on_hand);
+
+        // Second adjust with same ref - should be idempotent
+        $item2 = $this->service->adjust($product, $branch, 5, $ref);
+        $this->assertEquals(60, $item2->on_hand, 'Stock should remain unchanged');
+
+        $movements = StockMovement::where('ref', $ref)->get();
+        $this->assertCount(1, $movements);
+        $this->assertEquals(10, $movements[0]->qty);
+        $this->assertEquals('ADJUST', $movements[0]->type);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function it_enforces_idempotency_for_transfer_operations()
+    {
+        $product = Product::factory()->create();
+        $fromBranch = Branch::factory()->create();
+        $toBranch = Branch::factory()->create();
+        $ref = 'transfer-ref-404';
+
+        $this->service->openingBalance($product, $fromBranch, 100);
+
+        // First transfer
+        $this->service->transfer($product, $fromBranch, $toBranch, 25, $ref);
+
+        $fromItem = InventoryItem::where('product_id', $product->id)->where('branch_id', $fromBranch->id)->first();
+        $toItem = InventoryItem::where('product_id', $product->id)->where('branch_id', $toBranch->id)->first();
+
+        $this->assertEquals(75, $fromItem->on_hand);
+        $this->assertEquals(25, $toItem->on_hand);
+
+        // Second transfer with same ref - should be idempotent
+        $this->service->transfer($product, $fromBranch, $toBranch, 10, $ref);
+
+        // Stock should remain unchanged
+        $fromItem2 = InventoryItem::where('product_id', $product->id)->where('branch_id', $fromBranch->id)->first();
+        $toItem2 = InventoryItem::where('product_id', $product->id)->where('branch_id', $toBranch->id)->first();
+
+        $this->assertEquals(75, $fromItem2->on_hand);
+        $this->assertEquals(25, $toItem2->on_hand);
+
+        $movements = StockMovement::where('ref', $ref)->get();
+        $this->assertCount(2, $movements); // TRANSFER_OUT and TRANSFER_IN
+        $this->assertEquals(25, $movements[0]->qty);
+        $this->assertEquals(25, $movements[1]->qty);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    public function it_allows_different_refs_to_create_separate_movements()
+    {
+        $product = Product::factory()->create();
+        $branch = Branch::factory()->create();
+
+        $this->service->openingBalance($product, $branch, 100);
+
+        // Different refs should create separate movements
+        $this->service->issueStock($product, $branch, 10, 'ref-1');
+        $this->service->issueStock($product, $branch, 15, 'ref-2');
+        $this->service->issueStock($product, $branch, 20, 'ref-1'); // Same as first, should be ignored
+
+        $item = InventoryItem::where('product_id', $product->id)->where('branch_id', $branch->id)->first();
+        $this->assertEquals(75, $item->on_hand); // 100 - 10 - 15 = 75
+
+        $movements = StockMovement::where('type', 'ISSUE')->get();
+        $this->assertCount(2, $movements);
+        $this->assertEquals(-10, $movements[0]->qty);
+        $this->assertEquals(-15, $movements[1]->qty);
+    }
 }

@@ -90,6 +90,20 @@ class InventoryService
             $item->save();
 
             if ($qty != 0) {
+                // Check for idempotency if ref is provided
+                if ($ref) {
+                    $existingMovement = StockMovement::where('ref', $ref)
+                        ->where('product_id', $product->id)
+                        ->where('branch_id', $branch->id)
+                        ->where('type', 'RECEIVE')
+                        ->first();
+
+                    if ($existingMovement) {
+                        // Return existing item state without creating duplicate movement
+                        return $item->fresh();
+                    }
+                }
+
                 $movement = StockMovement::create([
                     'product_id' => $product->id,
                     'branch_id' => $branch->id,
@@ -139,6 +153,20 @@ class InventoryService
                 throw new HttpException(422, 'Not enough available stock to reserve');
             }
 
+            // Check for idempotency if ref is provided
+            if ($ref) {
+                $existingMovement = StockMovement::where('ref', $ref)
+                    ->where('product_id', $product->id)
+                    ->where('branch_id', $branch->id)
+                    ->where('type', 'RESERVE')
+                    ->first();
+
+                if ($existingMovement) {
+                    // Return existing item state without creating duplicate movement
+                    return $item->fresh();
+                }
+            }
+
             $item->reserved += $qty;
             $item->save();
 
@@ -175,6 +203,20 @@ class InventoryService
                 throw new HttpException(422, 'Not enough reserved stock to unreserve');
             }
 
+            // Check for idempotency if ref is provided
+            if ($ref) {
+                $existingMovement = StockMovement::where('ref', $ref)
+                    ->where('product_id', $product->id)
+                    ->where('branch_id', $branch->id)
+                    ->where('type', 'UNRESERVE')
+                    ->first();
+
+                if ($existingMovement) {
+                    // Return existing item state without creating duplicate movement
+                    return $item->fresh();
+                }
+            }
+
             $item->reserved -= $qty;
             $item->save();
 
@@ -209,6 +251,20 @@ class InventoryService
 
             if (!$item || $item->on_hand - $item->reserved < $qty) {
                 throw new HttpException(422, 'Not enough available stock to issue');
+            }
+
+            // Check for idempotency if ref is provided
+            if ($ref) {
+                $existingMovement = StockMovement::where('ref', $ref)
+                    ->where('product_id', $product->id)
+                    ->where('branch_id', $branch->id)
+                    ->where('type', 'ISSUE')
+                    ->first();
+
+                if ($existingMovement) {
+                    // Return existing item state without creating duplicate movement
+                    return $item->fresh();
+                }
             }
 
             $item->on_hand -= $qty;
@@ -257,6 +313,26 @@ class InventoryService
         }
 
         DB::transaction(function () use ($product, $from, $to, $qty, $ref, $ctx) {
+            // Check for idempotency if ref is provided
+            if ($ref) {
+                $existingOutMovement = StockMovement::where('ref', $ref)
+                    ->where('product_id', $product->id)
+                    ->where('branch_id', $from->id)
+                    ->where('type', 'TRANSFER_OUT')
+                    ->first();
+
+                $existingInMovement = StockMovement::where('ref', $ref)
+                    ->where('product_id', $product->id)
+                    ->where('branch_id', $to->id)
+                    ->where('type', 'TRANSFER_IN')
+                    ->first();
+
+                if ($existingOutMovement && $existingInMovement) {
+                    // Transfer already completed, return without creating duplicates
+                    return;
+                }
+            }
+
             // Lock order by (product_id, branch_id) to avoid deadlocks
             $ids = [
                 ['product_id' => $product->id, 'branch_id' => $from->id],
@@ -352,6 +428,20 @@ class InventoryService
             // Constraint: cannot make on_hand negative
             if ($item->on_hand + $qty < 0) {
                 throw new HttpException(422, 'Adjustment would result in negative stock');
+            }
+
+            // Check for idempotency if ref is provided
+            if ($ref) {
+                $existingMovement = StockMovement::where('ref', $ref)
+                    ->where('product_id', $product->id)
+                    ->where('branch_id', $branch->id)
+                    ->where('type', 'ADJUST')
+                    ->first();
+
+                if ($existingMovement) {
+                    // Return existing item state without creating duplicate movement
+                    return $item->fresh();
+                }
             }
 
             $item->on_hand += $qty;
