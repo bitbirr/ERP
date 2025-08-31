@@ -43,7 +43,7 @@ Route::post('/sanctum/token', function (Request $request) {
 
 // Protected route example (requires authentication via Sanctum)
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+    return response()->json(['user' => $request->user()]);
 });
 
 Route::middleware(['auth:sanctum', 'cap:users.manage'])->group(function () {

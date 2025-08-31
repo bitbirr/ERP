@@ -38,7 +38,7 @@ class RbacCacheBuilder
                     $rows[] = [
                         'id'             => DB::raw('gen_random_uuid()'),
                         'user_id'        => $user->getKey(),
-                        'branch_id'      => $branchId,
+                        'branch_id'      => $branchId ?: null, // Ensure null instead of empty string
                         'capability_key' => $key,
                         'granted'        => true,
                         'created_at'     => now(),

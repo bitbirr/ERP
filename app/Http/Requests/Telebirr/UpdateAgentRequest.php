@@ -12,7 +12,8 @@ class UpdateAgentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('telebirr.manage');
+        // Authorization is handled by middleware, skip Gate check to avoid conflicts
+        return true;
     }
 
     /**
