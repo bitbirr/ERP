@@ -165,15 +165,17 @@ class DatabaseSeeder extends Seeder
         // 5. Create Users and Assign Roles/Branches
         $users = [
             // Main Branch
-            ['name' => 'Najib hassen', 'email' => 'najib@najibshop.shop', 'password' => bcrypt('secret123'), 'role' => 'manager', 'branch' => 'main'],
-            ['name' => 'hafsa hassen', 'email' => 'hafsa@najibshop.shop', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'main'],
-            ['name' => 'Marwan haji', 'email' => 'marwan@najibshop.shop', 'password' => bcrypt('secret123'), 'role' => 'inventory', 'branch' => 'main'],
-            ['name' => 'hawa kabade', 'email' => 'hawa@najibshop.shop', 'password' => bcrypt('secret123'), 'role' => 'finance', 'branch' => 'main'],
-            ['name' => 'hana hasen', 'email' => 'hana@najibshop.shop', 'password' => bcrypt('secret123'), 'role' => 'telebirr_distributor', 'branch' => 'main'],
-            // Hamda Hotel Branch
-            ['name' => 'Naila haji', 'email' => 'naila@najibshop.shop', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'hamda'],
-            // Chinaksan Branch
-            ['name' => 'Yenesew mekonin', 'email' => 'yenesew@najibshop.shop', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'chinaksan'],
+            ['name' => 'Ismail', 'email' => 'admin@example.com', 'password' => bcrypt('secret123'), 'role' => 'admin', 'branch' => 'main'],
+            ['name' => 'Najo', 'email' => 'manager@example.com', 'password' => bcrypt('secret123'), 'role' => 'manager', 'branch' => 'main'],
+            ['name' => 'mawlid', 'email' => 'distributor@example.com', 'password' => bcrypt('secret123'), 'role' => 'telebirr_distributor', 'branch' => 'main'],
+            ['name' => 'hamze', 'email' => 'sales@example.com', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'main'],
+            ['name' => 'nimco', 'email' => 'finance@example.com', 'password' => bcrypt('secret123'), 'role' => 'finance', 'branch' => 'main'],
+            ['name' => 'ikran', 'email' => 'inventory@example.com', 'password' => bcrypt('secret123'), 'role' => 'inventory', 'branch' => 'main'],
+            ['name' => 'yasmin', 'email' => 'audit@example.com', 'password' => bcrypt('secret123'), 'role' => 'audit', 'branch' => 'main'],
+            // Variants
+            ['name' => 'Disabled User', 'email' => 'disabled@example.com', 'password' => bcrypt('secret123'), 'role' => null, 'branch' => null], // No role - disabled
+            ['name' => 'Expired Token User', 'email' => 'expired@example.com', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'main'],
+            ['name' => 'Wrong Branch User', 'email' => 'wrongbranch@example.com', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'hamda'], // Assigned to hamda but maybe should be main
         ];
         foreach ($users as $u) {
             $user = User::firstOrCreate(
@@ -184,16 +186,24 @@ class DatabaseSeeder extends Seeder
                     'password' => $u['password'],
                 ]
             );
-            UserRoleAssignment::firstOrCreate([
-                'user_id' => $user->id,
-                'role_id' => $roleModels[$u['role']]->id,
-                'branch_id' => $branchModels[$u['branch']]->id,
-            ]);
+            if ($u['role']) {
+                UserRoleAssignment::firstOrCreate([
+                    'user_id' => $user->id,
+                    'role_id' => $roleModels[$u['role']]->id,
+                    'branch_id' => $u['branch'] ? $branchModels[$u['branch']]->id : null,
+                ]);
+            }
+            // Create tokens
+            if ($u['email'] === 'expired@example.com') {
+                $user->createToken('api', ['*'], now()->subDays(1)); // Expired token
+            } else {
+                $user->createToken('api'); // Valid token
+            }
         }
 
-        // 6. Create or fetch superuser and assign admin role (no branch)
+        // 6. Create superuser with no branch (variant)
         $superuser = User::firstOrCreate(
-            ['email' => 'admin@example.com'],
+            ['email' => 'superadmin@example.com'],
             [
                 'id' => (string) Str::uuid(),
                 'name' => 'Super Admin',
@@ -205,6 +215,7 @@ class DatabaseSeeder extends Seeder
             'role_id' => $roleModels['admin']->id,
             'branch_id' => null,
         ]);
+        $superuser->createToken('api');
 
         // Call additional seeders
         $this->call([
