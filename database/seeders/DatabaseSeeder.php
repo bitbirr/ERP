@@ -42,6 +42,17 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Audit Logs', 'key' => 'audit.logs', 'group' => 'audit'],
             ['name' => 'Telebirr Sales', 'key' => 'telebirr.sales', 'group' => 'telebirr'],
             ['name' => 'Finance Access', 'key' => 'finance.access', 'group' => 'finance'],
+            // Telebirr specific capabilities
+            ['name' => 'View Agents', 'key' => 'agents.read', 'group' => 'telebirr'],
+            ['name' => 'Create Agents', 'key' => 'agents.create', 'group' => 'telebirr'],
+            ['name' => 'Update Agents', 'key' => 'agents.update', 'group' => 'telebirr'],
+            ['name' => 'Issue E-float', 'key' => 'efloat.issue', 'group' => 'telebirr'],
+            ['name' => 'Loan E-float', 'key' => 'efloat.loan', 'group' => 'telebirr'],
+            ['name' => 'Create Topup', 'key' => 'topup.create', 'group' => 'telebirr'],
+            ['name' => 'Create Repayment', 'key' => 'repayment.create', 'group' => 'telebirr'],
+            ['name' => 'EBIRR Reconciliation', 'key' => 'recon.ebirr', 'group' => 'telebirr'],
+            ['name' => 'Void Voucher', 'key' => 'voucher.void', 'group' => 'telebirr'],
+            ['name' => 'View Reports', 'key' => 'reports.view', 'group' => 'telebirr'],
             // GL (General Ledger) Capabilities
             ['name' => 'View GL Journals', 'key' => 'gl.view', 'group' => 'general_ledger'],
             ['name' => 'Create GL Journals', 'key' => 'gl.create', 'group' => 'general_ledger'],
@@ -58,10 +69,10 @@ class DatabaseSeeder extends Seeder
         // 3. Attach Capabilities to Roles
         $roleCaps = [
             'admin' => array_keys($capModels),
-            'manager' => ['tx.view', 'tx.create', 'tx.approve', 'users.manage', 'inventory.view', 'inventory.manage', 'finance.access', 'gl.view'],
+            'manager' => ['tx.view', 'tx.create', 'tx.approve', 'users.manage', 'inventory.view', 'inventory.manage', 'finance.access', 'gl.view', 'agents.read', 'agents.create', 'agents.update', 'efloat.issue', 'efloat.loan', 'topup.create', 'repayment.create', 'recon.ebirr', 'voucher.void', 'reports.view'],
             'sales' => ['tx.view', 'tx.create', 'telebirr.sales'],
-            'telebirr_distributor' => ['telebirr.sales'],
-            'finance' => ['finance.access', 'tx.view', 'gl.view', 'gl.create', 'gl.post', 'gl.reverse'],
+            'telebirr_distributor' => ['telebirr.sales', 'efloat.issue', 'efloat.loan', 'agents.read', 'reports.view'],
+            'finance' => ['finance.access', 'tx.view', 'gl.view', 'gl.create', 'gl.post', 'gl.reverse', 'topup.create', 'repayment.create', 'recon.ebirr', 'voucher.void', 'reports.view'],
             'inventory' => ['inventory.view', 'inventory.manage'],
             'audit' => ['audit.logs', 'gl.view'],
         ];
@@ -138,6 +149,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             BranchSeeder::class,
             ProductSeeder::class,
+            TelebirrGlAccountsSeeder::class,
+            BankAccountsSeeder::class,
         ]);
     }
 }

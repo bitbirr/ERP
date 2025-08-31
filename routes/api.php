@@ -67,4 +67,41 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->middleware('cap:receipts.create');
     Route::patch('/api/receipts/{receipt}/void', [\App\Http\Controllers\PosController::class, 'voidReceipt'])
         ->middleware('cap:receipts.void');
+
+    // Telebirr API Routes
+    // Agent routes
+    Route::get('/api/telebirr/agents', [\App\Http\Controllers\TelebirrController::class, 'agents'])
+        ->middleware('cap:telebirr.view');
+    Route::get('/api/telebirr/agents/{agent}', [\App\Http\Controllers\TelebirrController::class, 'agent'])
+        ->middleware('cap:telebirr.view');
+    Route::post('/api/telebirr/agents', [\App\Http\Controllers\TelebirrController::class, 'createAgent'])
+        ->middleware('cap:telebirr.manage');
+    Route::patch('/api/telebirr/agents/{agent}', [\App\Http\Controllers\TelebirrController::class, 'updateAgent'])
+        ->middleware('cap:telebirr.manage');
+
+    // Transaction routes
+    Route::get('/api/telebirr/transactions', [\App\Http\Controllers\TelebirrController::class, 'transactions'])
+        ->middleware('cap:telebirr.view');
+    Route::get('/api/telebirr/transactions/{transaction}', [\App\Http\Controllers\TelebirrController::class, 'transaction'])
+        ->middleware('cap:telebirr.view');
+    Route::post('/api/telebirr/transactions/topup', [\App\Http\Controllers\TelebirrController::class, 'postTopup'])
+        ->middleware('cap:telebirr.post');
+    Route::post('/api/telebirr/transactions/issue', [\App\Http\Controllers\TelebirrController::class, 'postIssue'])
+        ->middleware('cap:telebirr.post');
+    Route::post('/api/telebirr/transactions/repay', [\App\Http\Controllers\TelebirrController::class, 'postRepay'])
+        ->middleware('cap:telebirr.post');
+    Route::post('/api/telebirr/transactions/loan', [\App\Http\Controllers\TelebirrController::class, 'postLoan'])
+        ->middleware('cap:telebirr.post');
+    Route::patch('/api/telebirr/transactions/{transaction}/void', [\App\Http\Controllers\TelebirrController::class, 'voidTransaction'])
+        ->middleware('cap:telebirr.void');
+
+    // Reconciliation routes
+    Route::get('/api/telebirr/reconciliation', [\App\Http\Controllers\TelebirrController::class, 'reconciliation'])
+        ->middleware('cap:telebirr.view');
+
+    // Reporting routes
+    Route::get('/api/telebirr/reports/agent-balances', [\App\Http\Controllers\TelebirrController::class, 'agentBalances'])
+        ->middleware('cap:telebirr.view');
+    Route::get('/api/telebirr/reports/transaction-summary', [\App\Http\Controllers\TelebirrController::class, 'transactionSummary'])
+        ->middleware('cap:telebirr.view');
 });
