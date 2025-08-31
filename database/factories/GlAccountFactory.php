@@ -26,7 +26,7 @@ class GlAccountFactory extends Factory
             'parent_id' => null, // Top level by default
             'level' => 1,
             'is_postable' => $this->faker->boolean(70), // 70% chance of being postable
-            'status' => $this->faker->randomElement(['ACTIVE', 'INACTIVE']),
+            'status' => $this->faker->randomElement(['ACTIVE', 'ARCHIVED']),
             'branch_id' => null, // Simplified for testing
         ];
     }
@@ -38,10 +38,10 @@ class GlAccountFactory extends Factory
         ]);
     }
 
-    public function inactive(): static
+    public function archived(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => 'INACTIVE',
+            'status' => 'ARCHIVED',
         ]);
     }
 

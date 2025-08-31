@@ -35,6 +35,10 @@ class DatabaseSeeder extends Seeder
         // 2. Create Capabilities
         $capabilities = [
             // Telebirr capabilities
+            ['name' => 'View Telebirr', 'key' => 'telebirr.view', 'group' => 'telebirr'],
+            ['name' => 'Manage Telebirr', 'key' => 'telebirr.manage', 'group' => 'telebirr'],
+            ['name' => 'Post Telebirr Transactions', 'key' => 'telebirr.post', 'group' => 'telebirr'],
+            ['name' => 'Void Telebirr Transactions', 'key' => 'telebirr.void', 'group' => 'telebirr'],
             ['name' => 'Create Telebirr Topup', 'key' => 'telebirr.topup.create', 'group' => 'telebirr'],
             ['name' => 'Create Telebirr Issue', 'key' => 'telebirr.issue.create', 'group' => 'telebirr'],
             ['name' => 'Create Telebirr Loan', 'key' => 'telebirr.loan.create', 'group' => 'telebirr'],
@@ -48,12 +52,16 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Telebirr Reconciliation', 'key' => 'telebirr.recon.ebirr', 'group' => 'telebirr'],
 
             // GL capabilities
+            ['name' => 'View GL', 'key' => 'gl.view', 'group' => 'general_ledger'],
+            ['name' => 'Create GL', 'key' => 'gl.create', 'group' => 'general_ledger'],
+            ['name' => 'Post GL', 'key' => 'gl.post', 'group' => 'general_ledger'],
+            ['name' => 'Reverse GL', 'key' => 'gl.reverse', 'group' => 'general_ledger'],
+            ['name' => 'Manage GL Accounts', 'key' => 'gl.accounts.manage', 'group' => 'general_ledger'],
+            ['name' => 'Manage GL Journal Sources', 'key' => 'gl.sources.manage', 'group' => 'general_ledger'],
             ['name' => 'Read GL Journals', 'key' => 'gl.journals.read', 'group' => 'general_ledger'],
             ['name' => 'Create GL Journals', 'key' => 'gl.journals.create', 'group' => 'general_ledger'],
             ['name' => 'Post GL Journals', 'key' => 'gl.post.create', 'group' => 'general_ledger'],
             ['name' => 'Reverse GL Journals', 'key' => 'gl.journals.reverse', 'group' => 'general_ledger'],
-            ['name' => 'Manage GL Accounts', 'key' => 'gl.accounts.manage', 'group' => 'general_ledger'],
-            ['name' => 'Manage GL Journal Sources', 'key' => 'gl.sources.manage', 'group' => 'general_ledger'],
 
             // Audit capabilities
             ['name' => 'Read Audit Logs', 'key' => 'audit.read', 'group' => 'audit'],
@@ -83,40 +91,33 @@ class DatabaseSeeder extends Seeder
         $roleCaps = [
             'admin' => array_keys($capModels), // All capabilities
             'manager' => [ // Read/report access
-                'telebirr.tx.read',
-                'telebirr.report.read',
-                'telebirr.agents.read',
-                'gl.journals.read',
+                'telebirr.view',
+                'gl.view',
                 'audit.read',
                 'inventory.read',
                 'tx.read',
             ],
             'telebirr_distributor' => [ // Topup/issue/loan/repay
-                'telebirr.topup.create',
-                'telebirr.issue.create',
-                'telebirr.loan.create',
-                'telebirr.repay.create',
-                'telebirr.tx.read',
-                'telebirr.agents.read',
+                'telebirr.view',
+                'telebirr.post',
+                'telebirr.void',
             ],
             'sales' => [ // Basic sales capabilities
                 'tx.create',
                 'tx.read',
-                'telebirr.tx.read',
+                'telebirr.view',
             ],
             'finance' => [ // Finance and GL capabilities
                 'finance.access',
-                'gl.journals.read',
-                'gl.journals.create',
-                'gl.post.create',
-                'gl.journals.reverse',
+                'gl.view',
+                'gl.create',
+                'gl.post',
+                'gl.reverse',
                 'gl.accounts.manage',
                 'gl.sources.manage',
-                'telebirr.topup.create',
-                'telebirr.repay.create',
-                'telebirr.recon.ebirr',
-                'telebirr.voucher.void',
-                'telebirr.report.read',
+                'telebirr.view',
+                'telebirr.post',
+                'telebirr.void',
                 'tx.read',
             ],
             'inventory' => [ // Inventory management
@@ -126,7 +127,7 @@ class DatabaseSeeder extends Seeder
             'audit' => [ // Read-only audit access
                 'audit.read',
                 'audit.logs',
-                'gl.journals.read',
+                'gl.view',
             ],
         ];
         foreach ($roleCaps as $roleSlug => $capKeys) {
