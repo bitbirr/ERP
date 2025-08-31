@@ -34,4 +34,11 @@ class TelebirrAgentFactory extends Factory
             'status' => 'Inactive',
         ]);
     }
+
+    public function dormant(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'Dormant',
+        ]);
+    }
 }

@@ -212,6 +212,8 @@ class DatabaseSeeder extends Seeder
             ProductSeeder::class,
             ChartOfAccountsSeeder::class,
             BankAccountsSeeder::class,
+            TelebirrAgentsSeeder::class,
+            OpeningBalancesSeeder::class,
         ]);
     }
 }

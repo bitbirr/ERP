@@ -75,4 +75,18 @@ class TelebirrTransactionFactory extends Factory
             'tx_type' => 'LOAN',
         ]);
     }
+
+    public function success(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'Posted',
+        ]);
+    }
+
+    public function error(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => $this->faker->randomElement(['Voided', 'Draft']),
+        ]);
+    }
 }
