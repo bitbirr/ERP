@@ -74,10 +74,23 @@ class TelebirrService
      */
     private function executeTransaction(string $txType, array $payload, callable $postingResolver): TelebirrTransaction
     {
-        // Check idempotency
+        // Enhanced idempotency check
         if (isset($payload['idempotency_key'])) {
-            $existing = TelebirrTransaction::where('idempotency_key', $payload['idempotency_key'])->first();
+            $idempotencyService = app(\App\Application\Services\IdempotencyKeyService::class);
+            $existing = $idempotencyService->getExistingTransaction($payload['idempotency_key']);
+
             if ($existing) {
+                // Log idempotency hit
+                $this->auditLogger->log(
+                    'telebirr.transaction.idempotent',
+                    Auth::id(),
+                    $payload,
+                    [
+                        'existing_transaction_id' => $existing->id,
+                        'idempotency_key' => $payload['idempotency_key']
+                    ]
+                );
+
                 return $existing;
             }
         }
@@ -101,6 +114,12 @@ class TelebirrService
 
             // Create telebirr transaction record
             $transaction = $this->createTelebirrTransaction($txType, $payload, $agent, $bankAccount, $journal);
+
+            // Clear idempotency cache after successful transaction
+            if (isset($payload['idempotency_key'])) {
+                $idempotencyService = app(\App\Application\Services\IdempotencyKeyService::class);
+                $idempotencyService->clearCache($payload['idempotency_key']);
+            }
 
             // Log audit
             $this->auditLogger->log(

@@ -186,10 +186,26 @@ class TelebirrController extends Controller
         try {
             $transaction = $this->telebirrService->postTopup($request->validated());
 
+            // Check if this was an idempotent response
+            $isIdempotent = isset($request->idempotency_key) &&
+                           $transaction->idempotency_key === $request->idempotency_key &&
+                           $transaction->wasRecentlyCreated === false;
+
             return response()->json([
-                'message' => 'Topup transaction posted successfully',
+                'message' => $isIdempotent ? 'Topup transaction already processed' : 'Topup transaction posted successfully',
                 'data' => $transaction->load(['agent', 'bankAccount', 'glJournal']),
-            ], 201);
+                'idempotent' => $isIdempotent,
+            ], $isIdempotent ? 200 : 201);
+        } catch (\App\Exceptions\IdempotencyConflictException $e) {
+            return response()->json([
+                'message' => 'Transaction already processed',
+                'error' => $e->getMessage(),
+            ], 200); // Return 200 for idempotent requests
+        } catch (\App\Exceptions\GlValidationException $e) {
+            return response()->json([
+                'message' => 'GL validation failed',
+                'error' => $e->getMessage(),
+            ], 422);
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Failed to post topup transaction',
@@ -206,10 +222,26 @@ class TelebirrController extends Controller
         try {
             $transaction = $this->telebirrService->postIssue($request->validated());
 
+            // Check if this was an idempotent response
+            $isIdempotent = isset($request->idempotency_key) &&
+                           $transaction->idempotency_key === $request->idempotency_key &&
+                           $transaction->wasRecentlyCreated === false;
+
             return response()->json([
-                'message' => 'Issue transaction posted successfully',
+                'message' => $isIdempotent ? 'Issue transaction already processed' : 'Issue transaction posted successfully',
                 'data' => $transaction->load(['agent', 'glJournal']),
-            ], 201);
+                'idempotent' => $isIdempotent,
+            ], $isIdempotent ? 200 : 201);
+        } catch (\App\Exceptions\IdempotencyConflictException $e) {
+            return response()->json([
+                'message' => 'Transaction already processed',
+                'error' => $e->getMessage(),
+            ], 200);
+        } catch (\App\Exceptions\GlValidationException $e) {
+            return response()->json([
+                'message' => 'GL validation failed',
+                'error' => $e->getMessage(),
+            ], 422);
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Failed to post issue transaction',
@@ -226,10 +258,26 @@ class TelebirrController extends Controller
         try {
             $transaction = $this->telebirrService->postRepay($request->validated());
 
+            // Check if this was an idempotent response
+            $isIdempotent = isset($request->idempotency_key) &&
+                           $transaction->idempotency_key === $request->idempotency_key &&
+                           $transaction->wasRecentlyCreated === false;
+
             return response()->json([
-                'message' => 'Repay transaction posted successfully',
+                'message' => $isIdempotent ? 'Repay transaction already processed' : 'Repay transaction posted successfully',
                 'data' => $transaction->load(['agent', 'bankAccount', 'glJournal']),
-            ], 201);
+                'idempotent' => $isIdempotent,
+            ], $isIdempotent ? 200 : 201);
+        } catch (\App\Exceptions\IdempotencyConflictException $e) {
+            return response()->json([
+                'message' => 'Transaction already processed',
+                'error' => $e->getMessage(),
+            ], 200);
+        } catch (\App\Exceptions\GlValidationException $e) {
+            return response()->json([
+                'message' => 'GL validation failed',
+                'error' => $e->getMessage(),
+            ], 422);
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Failed to post repay transaction',
@@ -246,10 +294,26 @@ class TelebirrController extends Controller
         try {
             $transaction = $this->telebirrService->postLoan($request->validated());
 
+            // Check if this was an idempotent response
+            $isIdempotent = isset($request->idempotency_key) &&
+                           $transaction->idempotency_key === $request->idempotency_key &&
+                           $transaction->wasRecentlyCreated === false;
+
             return response()->json([
-                'message' => 'Loan transaction posted successfully',
+                'message' => $isIdempotent ? 'Loan transaction already processed' : 'Loan transaction posted successfully',
                 'data' => $transaction->load(['agent', 'glJournal']),
-            ], 201);
+                'idempotent' => $isIdempotent,
+            ], $isIdempotent ? 200 : 201);
+        } catch (\App\Exceptions\IdempotencyConflictException $e) {
+            return response()->json([
+                'message' => 'Transaction already processed',
+                'error' => $e->getMessage(),
+            ], 200);
+        } catch (\App\Exceptions\GlValidationException $e) {
+            return response()->json([
+                'message' => 'GL validation failed',
+                'error' => $e->getMessage(),
+            ], 422);
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Failed to post loan transaction',
