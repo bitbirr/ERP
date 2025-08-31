@@ -12,11 +12,14 @@ class GlJournalFactory extends Factory
     public function definition(): array
     {
         return [
+            'journal_no' => $this->faker->unique()->regexify('[A-Z]{3}-[0-9]{6}'),
+            'journal_date' => $this->faker->date(),
+            'currency' => 'ETB',
+            'fx_rate' => 1.0,
             'source' => $this->faker->randomElement(['TELEBIRR', 'MANUAL', 'POS']),
-            'source_id' => $this->faker->optional()->randomNumber(),
-            'branch_id' => null,
-            'date' => $this->faker->date(),
+            'reference' => $this->faker->optional()->word(),
             'memo' => $this->faker->sentence(),
+            'branch_id' => null,
             'status' => $this->faker->randomElement(['DRAFT', 'POSTED', 'VOIDED']),
         ];
     }

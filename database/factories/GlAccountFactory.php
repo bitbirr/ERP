@@ -27,7 +27,7 @@ class GlAccountFactory extends Factory
             'level' => 1,
             'is_postable' => $this->faker->boolean(70), // 70% chance of being postable
             'status' => $this->faker->randomElement(['ACTIVE', 'INACTIVE']),
-            'branch_id' => $this->faker->optional(0.3)->factory(Branch::class), // 30% chance of branch-specific
+            'branch_id' => null, // Simplified for testing
         ];
     }
 

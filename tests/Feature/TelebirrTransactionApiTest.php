@@ -15,8 +15,6 @@ class TelebirrTransactionApiTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
-    protected User $user;
-
     protected function setUp(): void
     {
         parent::setUp();
