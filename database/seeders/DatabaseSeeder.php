@@ -81,6 +81,10 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Read Transactions', 'key' => 'tx.read', 'group' => 'transactions'],
             ['name' => 'Create Transactions', 'key' => 'tx.create', 'group' => 'transactions'],
             ['name' => 'Approve Transactions', 'key' => 'tx.approve', 'group' => 'transactions'],
+
+            // POS/Receipt capabilities
+            ['name' => 'Create Receipts', 'key' => 'receipts.create', 'group' => 'pos'],
+            ['name' => 'Void Receipts', 'key' => 'receipts.void', 'group' => 'pos'],
         ];
         $capModels = [];
         foreach ($capabilities as $cap) {
@@ -96,6 +100,7 @@ class DatabaseSeeder extends Seeder
                 'audit.read',
                 'inventory.read',
                 'tx.read',
+                'receipts.void',
             ],
             'telebirr_distributor' => [ // Topup/issue/loan/repay
                 'telebirr.view',
@@ -106,6 +111,7 @@ class DatabaseSeeder extends Seeder
                 'tx.create',
                 'tx.read',
                 'telebirr.view',
+                'receipts.create',
             ],
             'finance' => [ // Finance and GL capabilities
                 'finance.access',
@@ -119,6 +125,7 @@ class DatabaseSeeder extends Seeder
                 'telebirr.post',
                 'telebirr.void',
                 'tx.read',
+                'receipts.void',
             ],
             'inventory' => [ // Inventory management
                 'inventory.read',

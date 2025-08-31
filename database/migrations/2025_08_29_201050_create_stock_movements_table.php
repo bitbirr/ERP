@@ -39,8 +39,8 @@ return new class extends Migration
             $table->foreign('created_by')->references('id')->on('users');
         });
 
-        // Add CHECK constraint for qty > 0
-        DB::statement('ALTER TABLE stock_movements ADD CONSTRAINT stock_movements_qty_positive CHECK (qty > 0);');
+        // Add CHECK constraint for qty != 0 (allow negative for issues/adjusts)
+        DB::statement('ALTER TABLE stock_movements ADD CONSTRAINT stock_movements_qty_not_zero CHECK (qty != 0);');
     }
 
     public function down()

@@ -17,6 +17,10 @@ class InventoryService
      */
     public function openingBalance(Product $product, Branch $branch, float $qty, array $ctx = []): InventoryItem
     {
+        if ($qty < 0) {
+            throw new HttpException(422, 'Opening balance quantity cannot be negative');
+        }
+
         return DB::transaction(function () use ($product, $branch, $qty, $ctx) {
             $item = InventoryItem::where('product_id', $product->id)
                 ->where('branch_id', $branch->id)
@@ -35,15 +39,17 @@ class InventoryService
             $item->on_hand += $qty;
             $item->save();
 
-            StockMovement::create([
-                'product_id' => $product->id,
-                'branch_id' => $branch->id,
-                'qty' => $qty,
-                'type' => 'OPENING',
-                'ref' => $ctx['ref'] ?? null,
-                'meta' => $ctx['meta'] ?? null,
-                'created_by' => $ctx['created_by'] ?? null,
-            ]);
+            if ($qty != 0) {
+                StockMovement::create([
+                    'product_id' => $product->id,
+                    'branch_id' => $branch->id,
+                    'qty' => $qty,
+                    'type' => 'OPENING',
+                    'ref' => $ctx['ref'] ?? null,
+                    'meta' => $ctx['meta'] ?? null,
+                    'created_by' => $ctx['created_by'] ?? null,
+                ]);
+            }
 
             return $item->fresh();
         });
@@ -54,6 +60,10 @@ class InventoryService
      */
     public function receiveStock(Product $product, Branch $branch, float $qty, ?string $ref = null, array $ctx = []): InventoryItem
     {
+        if ($qty < 0) {
+            throw new HttpException(422, 'Receive quantity cannot be negative');
+        }
+
         return DB::transaction(function () use ($product, $branch, $qty, $ref, $ctx) {
             $item = InventoryItem::where('product_id', $product->id)
                 ->where('branch_id', $branch->id)
@@ -72,15 +82,17 @@ class InventoryService
             $item->on_hand += $qty;
             $item->save();
 
-            StockMovement::create([
-                'product_id' => $product->id,
-                'branch_id' => $branch->id,
-                'qty' => $qty,
-                'type' => 'RECEIVE',
-                'ref' => $ref,
-                'meta' => $ctx['meta'] ?? null,
-                'created_by' => $ctx['created_by'] ?? null,
-            ]);
+            if ($qty != 0) {
+                StockMovement::create([
+                    'product_id' => $product->id,
+                    'branch_id' => $branch->id,
+                    'qty' => $qty,
+                    'type' => 'RECEIVE',
+                    'ref' => $ref,
+                    'meta' => $ctx['meta'] ?? null,
+                    'created_by' => $ctx['created_by'] ?? null,
+                ]);
+            }
 
             return $item->fresh();
         });
@@ -91,6 +103,10 @@ class InventoryService
      */
     public function reserve(Product $product, Branch $branch, float $qty, ?string $ref = null, array $ctx = []): InventoryItem
     {
+        if ($qty <= 0) {
+            throw new HttpException(422, 'Reserve quantity must be positive');
+        }
+
         return DB::transaction(function () use ($product, $branch, $qty, $ref, $ctx) {
             $item = InventoryItem::where('product_id', $product->id)
                 ->where('branch_id', $branch->id)
@@ -123,6 +139,10 @@ class InventoryService
      */
     public function unreserve(Product $product, Branch $branch, float $qty, ?string $ref = null, array $ctx = []): InventoryItem
     {
+        if ($qty <= 0) {
+            throw new HttpException(422, 'Unreserve quantity must be positive');
+        }
+
         return DB::transaction(function () use ($product, $branch, $qty, $ref, $ctx) {
             $item = InventoryItem::where('product_id', $product->id)
                 ->where('branch_id', $branch->id)
@@ -155,6 +175,10 @@ class InventoryService
      */
     public function issueStock(Product $product, Branch $branch, float $qty, ?string $ref = null, array $ctx = []): InventoryItem
     {
+        if ($qty <= 0) {
+            throw new HttpException(422, 'Issue quantity must be positive');
+        }
+
         return DB::transaction(function () use ($product, $branch, $qty, $ref, $ctx) {
             $item = InventoryItem::where('product_id', $product->id)
                 ->where('branch_id', $branch->id)
@@ -187,6 +211,14 @@ class InventoryService
      */
     public function transfer(Product $product, Branch $from, Branch $to, float $qty, ?string $ref = null, array $ctx = []): void
     {
+        if ($qty <= 0) {
+            throw new HttpException(422, 'Transfer quantity must be positive');
+        }
+
+        if ($from->id === $to->id) {
+            throw new HttpException(422, 'Cannot transfer to the same branch');
+        }
+
         DB::transaction(function () use ($product, $from, $to, $qty, $ref, $ctx) {
             // Lock order by (product_id, branch_id) to avoid deadlocks
             $ids = [
@@ -252,6 +284,53 @@ class InventoryService
                 'meta' => $ctx['meta'] ?? null,
                 'created_by' => $ctx['created_by'] ?? null,
             ]);
+        });
+    }
+
+    /**
+     * Adjust stock: manual correction, increment/decrement on_hand, log movement.
+     * Constraint: cannot make on_hand negative.
+     */
+    public function adjust(Product $product, Branch $branch, float $qty, ?string $ref = null, array $ctx = []): InventoryItem
+    {
+        if ($qty == 0) {
+            throw new HttpException(422, 'Adjust quantity cannot be zero');
+        }
+
+        return DB::transaction(function () use ($product, $branch, $qty, $ref, $ctx) {
+            $item = InventoryItem::where('product_id', $product->id)
+                ->where('branch_id', $branch->id)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$item) {
+                $item = InventoryItem::create([
+                    'product_id' => $product->id,
+                    'branch_id' => $branch->id,
+                    'on_hand' => 0,
+                    'reserved' => 0,
+                ]);
+            }
+
+            // Constraint: cannot make on_hand negative
+            if ($item->on_hand + $qty < 0) {
+                throw new HttpException(422, 'Adjustment would result in negative stock');
+            }
+
+            $item->on_hand += $qty;
+            $item->save();
+
+            StockMovement::create([
+                'product_id' => $product->id,
+                'branch_id' => $branch->id,
+                'qty' => $qty,
+                'type' => 'ADJUST',
+                'ref' => $ref,
+                'meta' => $ctx['meta'] ?? null,
+                'created_by' => $ctx['created_by'] ?? null,
+            ]);
+
+            return $item->fresh();
         });
     }
 }
