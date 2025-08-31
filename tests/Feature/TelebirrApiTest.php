@@ -7,6 +7,7 @@ use App\Models\TelebirrAgent;
 use App\Models\TelebirrTransaction;
 use App\Models\BankAccount;
 use App\Models\User;
+use App\Models\UserPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 
@@ -22,8 +23,22 @@ class TelebirrApiTest extends TestCase
 
         // Create a user and assign capabilities
         $this->user = User::factory()->create();
-        // Note: In a real scenario, you'd assign the necessary capabilities to the user
-        // For now, we'll assume the user has the required permissions
+
+        // Assign telebirr.view capability
+        UserPolicy::create([
+            'user_id' => $this->user->id,
+            'branch_id' => null,
+            'capability_key' => 'telebirr.view',
+            'granted' => true,
+        ]);
+
+        // Assign telebirr.void capability for void operations
+        UserPolicy::create([
+            'user_id' => $this->user->id,
+            'branch_id' => null,
+            'capability_key' => 'telebirr.void',
+            'granted' => true,
+        ]);
     }
 
     /** @test */
