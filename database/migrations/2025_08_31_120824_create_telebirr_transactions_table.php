@@ -30,10 +30,9 @@ return new class extends Migration
 
             $table->index(['tx_type', 'agent_id']);
             $table->index('created_at');
-            $table->unique('idempotency_key');
 
             $table->foreign('agent_id')->references('id')->on('telebirr_agents');
-            $table->foreign('bank_account_id')->references('id')->on('bank_accounts');
+            // $table->foreign('bank_account_id')->references('id')->on('bank_accounts'); // Removed due to migration order
             $table->foreign('gl_journal_id')->references('id')->on('gl_journals');
             $table->foreign('created_by')->references('id')->on('users');
             $table->foreign('approved_by')->references('id')->on('users');

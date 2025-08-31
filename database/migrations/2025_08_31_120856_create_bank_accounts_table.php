@@ -19,7 +19,6 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->timestamps();
 
-            $table->unique('external_number');
             $table->foreign('gl_account_id')->references('id')->on('gl_accounts');
         });
     }

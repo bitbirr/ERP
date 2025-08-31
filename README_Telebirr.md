@@ -37,16 +37,19 @@ All endpoints require authentication via Sanctum and appropriate capabilities.
 ### Agent Management
 
 #### List Agents
+
 ```http
 GET /api/telebirr/agents
 ```
 
 **Query Parameters:**
+
 - `status` (optional): Filter by status (Active/Inactive)
 - `search` (optional): Search by name, short code, or phone
 - `per_page` (optional): Items per page (default: 50)
 
 **Response:**
+
 ```json
 {
   "data": [
@@ -70,16 +73,19 @@ GET /api/telebirr/agents
 ```
 
 #### Get Agent Details
+
 ```http
 GET /api/telebirr/agents/{agent}
 ```
 
 #### Create Agent
+
 ```http
 POST /api/telebirr/agents
 ```
 
 **Request Body:**
+
 ```json
 {
   "name": "New Agent Corp",
@@ -94,6 +100,7 @@ POST /api/telebirr/agents
 **Required Capability:** `telebirr.manage`
 
 #### Update Agent
+
 ```http
 PATCH /api/telebirr/agents/{agent}
 ```
@@ -105,11 +112,13 @@ PATCH /api/telebirr/agents/{agent}
 ### Transaction Management
 
 #### List Transactions
+
 ```http
 GET /api/telebirr/transactions
 ```
 
 **Query Parameters:**
+
 - `tx_type` (optional): Filter by transaction type
 - `status` (optional): Filter by status
 - `agent_id` (optional): Filter by agent
@@ -119,16 +128,19 @@ GET /api/telebirr/transactions
 - `per_page` (optional): Items per page
 
 #### Get Transaction Details
+
 ```http
 GET /api/telebirr/transactions/{transaction}
 ```
 
 #### Post TOPUP Transaction
+
 ```http
 POST /api/telebirr/transactions/topup
 ```
 
 **Request Body:**
+
 ```json
 {
   "amount": 1000.00,
@@ -143,11 +155,13 @@ POST /api/telebirr/transactions/topup
 **Required Capability:** `telebirr.post`
 
 #### Post ISSUE Transaction
+
 ```http
 POST /api/telebirr/transactions/issue
 ```
 
 **Request Body:**
+
 ```json
 {
   "amount": 500.00,
@@ -162,11 +176,13 @@ POST /api/telebirr/transactions/issue
 **Required Capability:** `telebirr.post`
 
 #### Post REPAY Transaction
+
 ```http
 POST /api/telebirr/transactions/repay
 ```
 
 **Request Body:**
+
 ```json
 {
   "amount": 300.00,
@@ -182,6 +198,7 @@ POST /api/telebirr/transactions/repay
 **Required Capability:** `telebirr.post`
 
 #### Post LOAN Transaction
+
 ```http
 POST /api/telebirr/transactions/loan
 ```
@@ -191,6 +208,7 @@ POST /api/telebirr/transactions/loan
 **Required Capability:** `telebirr.post`
 
 #### Void Transaction
+
 ```http
 PATCH /api/telebirr/transactions/{transaction}/void
 ```
@@ -200,15 +218,18 @@ PATCH /api/telebirr/transactions/{transaction}/void
 ### Reconciliation
 
 #### Get Reconciliation Data
+
 ```http
 GET /api/telebirr/reconciliation
 ```
 
 **Query Parameters:**
+
 - `date_from` (required): Start date
 - `date_to` (required): End date
 
 **Response:**
+
 ```json
 {
   "period": {
@@ -233,11 +254,13 @@ GET /api/telebirr/reconciliation
 ### Reporting
 
 #### Agent Balances Report
+
 ```http
 GET /api/telebirr/reports/agent-balances
 ```
 
 **Response:**
+
 ```json
 {
   "data": [
@@ -261,15 +284,18 @@ GET /api/telebirr/reports/agent-balances
 ```
 
 #### Transaction Summary Report
+
 ```http
 GET /api/telebirr/reports/transaction-summary
 ```
 
 **Query Parameters:**
+
 - `date_from` (required): Start date
 - `date_to` (required): End date
 
 **Response:**
+
 ```json
 {
   "period": {
@@ -303,24 +329,28 @@ GET /api/telebirr/reports/transaction-summary
 ## Transaction Types
 
 ### TOPUP
+
 - **Purpose**: Add funds to distributor account from bank
 - **GL Entries**:
   - Debit: Bank Account
   - Credit: Distributor Cash Account
 
 ### ISSUE
+
 - **Purpose**: Issue e-float to agent
 - **GL Entries**:
   - Debit: Agent Receivable Account
   - Credit: Distributor Cash Account
 
 ### REPAY
+
 - **Purpose**: Agent repayment of outstanding balance
 - **GL Entries**:
   - Debit: Distributor Cash Account
   - Credit: Bank Account
 
 ### LOAN
+
 - **Purpose**: Issue loan e-float to agent (same as ISSUE)
 - **GL Entries**: Same as ISSUE transaction
 
@@ -352,6 +382,7 @@ return [
 ### Common Error Responses
 
 #### Validation Errors (422)
+
 ```json
 {
   "message": "Validation failed",
@@ -363,6 +394,7 @@ return [
 ```
 
 #### Business Logic Errors (400)
+
 ```json
 {
   "message": "Failed to post transaction",
@@ -371,6 +403,7 @@ return [
 ```
 
 #### Authorization Errors (403)
+
 ```json
 {
   "message": "This action is unauthorized."
@@ -384,19 +417,25 @@ All transaction endpoints support idempotency using the `idempotency_key` field.
 ## Testing
 
 ### Unit Tests
+
 Run unit tests for service methods:
+
 ```bash
 php artisan test tests/Unit/TelebirrServiceTest.php
 ```
 
 ### Feature Tests
+
 Run API endpoint tests:
+
 ```bash
 php artisan test tests/Feature/TelebirrApiTest.php
 ```
 
 ### Test Data
+
 Use the following factories for testing:
+
 - `TelebirrAgent::factory()`
 - `TelebirrTransaction::factory()`
 - `BankAccount::factory()`
@@ -412,7 +451,9 @@ Use the following factories for testing:
 ## Monitoring and Logging
 
 ### Audit Logs
+
 All Telebirr operations are logged with the following information:
+
 - User ID performing the action
 - Action type (create, update, post, void)
 - Subject type and ID
@@ -420,6 +461,7 @@ All Telebirr operations are logged with the following information:
 - Timestamp
 
 ### GL Integration
+
 All transactions automatically create GL journal entries for proper accounting integration.
 
 ## Troubleshooting
@@ -432,7 +474,9 @@ All transactions automatically create GL journal entries for proper accounting i
 4. **Idempotency Conflicts**: Use unique idempotency keys for each transaction
 
 ### Debug Mode
+
 Enable debug logging in `.env`:
+
 ```env
 LOG_LEVEL=debug
 ```
@@ -449,6 +493,7 @@ LOG_LEVEL=debug
 ## Support
 
 For technical support or questions about the Telebirr integration:
+
 - Check the audit logs for detailed error information
 - Review the test cases for usage examples
 - Contact the development team for assistance
