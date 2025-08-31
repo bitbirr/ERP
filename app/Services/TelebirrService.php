@@ -83,10 +83,10 @@ class TelebirrService
                 // Log idempotency hit
                 $this->auditLogger->log(
                     'telebirr.transaction.idempotent',
-                    Auth::id(),
+                    $existing,
                     $payload,
+                    null,
                     [
-                        'existing_transaction_id' => $existing->id,
                         'idempotency_key' => $payload['idempotency_key']
                     ]
                 );
@@ -124,9 +124,10 @@ class TelebirrService
             // Log audit
             $this->auditLogger->log(
                 'telebirr.transaction.created',
-                Auth::id(),
+                $transaction,
+                null,
                 $payload,
-                ['transaction_id' => $transaction->id, 'journal_id' => $journal->id]
+                ['journal_id' => $journal->id]
             );
 
             // Broadcast event (placeholder)
@@ -314,10 +315,16 @@ class TelebirrService
         // Create lines
         $lineNo = 1;
         foreach ($posting as $line) {
+            // Resolve account_code to account_id
+            $account = GlAccount::where('code', $line['account_code'])->first();
+            if (!$account) {
+                throw new Exception('GL account not found: ' . $line['account_code']);
+            }
+
             GlLine::create([
                 'journal_id' => $journal->id,
                 'line_no' => $lineNo++,
-                'account_code' => $line['account_code'],
+                'account_id' => $account->id,
                 'debit' => $line['debit'],
                 'credit' => $line['credit'],
                 'memo' => $line['memo'],
