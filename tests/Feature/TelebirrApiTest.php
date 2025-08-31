@@ -21,10 +21,7 @@ class TelebirrApiTest extends TestCase
     {
         parent::setUp();
 
-        // Create a user and assign capabilities
-        $this->user = User::factory()->create();
-
-        // Assign telebirr.view capability
+        // Assign telebirr.view capability to the default test user
         UserPolicy::create([
             'user_id' => $this->user->id,
             'branch_id' => null,

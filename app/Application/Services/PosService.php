@@ -10,14 +10,17 @@ use Illuminate\Support\Collection;
 use App\Models\GlJournal;
 use App\Models\GlLine;
 use App\Application\Services\InventoryService;
+use App\Domain\Audit\AuditLogger;
 
 class PosService
 {
     protected $inventoryService;
+    protected $auditLogger;
 
-    public function __construct(InventoryService $inventoryService)
+    public function __construct(InventoryService $inventoryService, ?AuditLogger $auditLogger = null)
     {
         $this->inventoryService = $inventoryService;
+        $this->auditLogger = $auditLogger ?? new AuditLogger();
     }
 
      /* Process a new receipt transaction.
@@ -35,11 +38,15 @@ class PosService
     {
         return DB::transaction(function () use ($receiptData, $lineItems) {
             $receiptData = $this->calculateReceiptTotals($lineItems, $receiptData);
+            $receiptData['number'] = $this->generateReceiptNumber($receiptData['branch_id']);
             $receipt = Receipt::create($receiptData);
+            $receipt->refresh(); // Ensure we have the latest data from DB
 
             foreach ($lineItems as $lineItem) {
                 $lineItem = $this->calculateLineTotals($lineItem);
-                $receipt->lines()->create($lineItem);
+                $lineItem['product_id'] = $lineItem['product']->id;
+                $lineItem['receipt_id'] = $receipt->id;
+                ReceiptLine::create($lineItem);
                 $this->inventoryService->issueStock(
                     $lineItem['product'],
                     $lineItem['branch'],
@@ -70,8 +77,7 @@ class PosService
             }
 
             // Log the receipt creation action
-            $auditLogger = new \App\Domain\Audit\AuditLogger();
-            $auditLogger->log(
+            $this->auditLogger->log(
                 'create_receipt',
                 $receipt,
                 null,
@@ -122,6 +128,24 @@ class PosService
     {
         $lineItem['line_total'] = ($lineItem['qty'] * $lineItem['price']) + $lineItem['tax_amount'] - $lineItem['discount'];
         return $lineItem;
+    }
+
+    /**
+     * Generate a unique receipt number for the branch.
+     *
+     * @param string $branchId
+     * @return string
+     */
+    protected function generateReceiptNumber(string $branchId): string
+    {
+        $date = now()->format('Ymd');
+        $lastReceipt = Receipt::where('branch_id', $branchId)
+            ->where('number', 'like', "{$date}%")
+            ->orderBy('number', 'desc')
+            ->first();
+
+        $sequence = $lastReceipt ? intval(substr($lastReceipt->number, 8)) + 1 : 1;
+        return $date . str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -179,8 +203,7 @@ class PosService
             ]);
 
             // Audit
-            $auditLogger = new \App\Domain\Audit\AuditLogger();
-            $auditLogger->log(
+            $this->auditLogger->log(
                 'void_receipt',
                 $receipt,
                 $receipt->toArray(),

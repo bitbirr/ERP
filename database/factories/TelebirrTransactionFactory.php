@@ -25,8 +25,8 @@ class TelebirrTransactionFactory extends Factory
             'status' => $this->faker->randomElement(['Posted', 'Voided', 'Draft']),
             'remarks' => $this->faker->optional()->sentence(),
             'external_ref' => $this->faker->optional()->uuid(),
-            'created_by' => 1, // Assuming user ID 1 exists
-            'approved_by' => $this->faker->optional()->numberBetween(1, 10),
+            'created_by' => \App\Models\User::factory(),
+            'approved_by' => $this->faker->optional()->factory(\App\Models\User::class),
             'posted_at' => $this->faker->optional()->dateTime(),
         ];
     }
