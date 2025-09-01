@@ -375,31 +375,127 @@ class TelebirrController extends Controller
         ]);
 
         // Get transactions for period
-        $transactions = TelebirrTransaction::with(['agent', 'bankAccount'])
+        $transactions = TelebirrTransaction::with(['agent', 'bankAccount', 'glJournal.lines'])
             ->whereBetween('created_at', [$request->date_from, $request->date_to])
             ->where('status', 'Posted')
             ->get();
 
-        // Calculate reconciliation data
+        // Get GL journals for the same period
+        $glJournals = GlJournal::with(['lines.account'])
+            ->where('source', 'TELEBIRR')
+            ->whereBetween('date', [$request->date_from, $request->date_to])
+            ->where('status', 'POSTED')
+            ->get();
+
+        // Calculate transaction totals
+        $transactionTotals = [
+            'total_count' => $transactions->count(),
+            'total_amount' => $transactions->sum('amount'),
+            'by_type' => $transactions->groupBy('tx_type')->map(function ($group) {
+                return [
+                    'count' => $group->count(),
+                    'amount' => $group->sum('amount'),
+                ];
+            }),
+        ];
+
+        // Calculate GL journal totals
+        $glTotals = [
+            'total_journals' => $glJournals->count(),
+            'total_debit' => $glJournals->sum(function ($journal) {
+                return $journal->lines->sum('debit');
+            }),
+            'total_credit' => $glJournals->sum(function ($journal) {
+                return $journal->lines->sum('credit');
+            }),
+        ];
+
+        // Calculate variances
+        $variances = [
+            'transaction_vs_gl_count' => $transactionTotals['total_count'] - $glTotals['total_journals'],
+            'transaction_vs_gl_amount' => $transactionTotals['total_amount'] - $glTotals['total_debit'],
+            'gl_debit_vs_credit' => $glTotals['total_debit'] - $glTotals['total_credit'],
+        ];
+
+        // Check for unmatched transactions
+        $unmatchedTransactions = $transactions->filter(function ($transaction) {
+            return !$transaction->gl_journal_id || !$transaction->glJournal;
+        });
+
+        // Check for unmatched journals
+        $unmatchedJournals = $glJournals->filter(function ($journal) {
+            return !TelebirrTransaction::where('gl_journal_id', $journal->id)->exists();
+        });
+
         $reconciliation = [
             'period' => [
                 'from' => $request->date_from,
                 'to' => $request->date_to,
             ],
+            'matched' => [
+                'status' => abs($variances['transaction_vs_gl_count']) === 0 &&
+                           abs($variances['transaction_vs_gl_amount']) === 0 &&
+                           abs($variances['gl_debit_vs_credit']) === 0,
+                'message' => $this->getReconciliationStatusMessage($variances),
+            ],
             'summary' => [
-                'total_transactions' => $transactions->count(),
-                'total_amount' => $transactions->sum('amount'),
-                'by_type' => $transactions->groupBy('tx_type')->map(function ($group) {
+                'transactions' => $transactionTotals,
+                'gl_journals' => $glTotals,
+            ],
+            'variances' => $variances,
+            'issues' => [
+                'unmatched_transactions' => $unmatchedTransactions->count(),
+                'unmatched_journals' => $unmatchedJournals->count(),
+                'unmatched_transaction_details' => $unmatchedTransactions->map(function ($tx) {
                     return [
-                        'count' => $group->count(),
-                        'amount' => $group->sum('amount'),
+                        'id' => $tx->id,
+                        'tx_type' => $tx->tx_type,
+                        'amount' => $tx->amount,
+                        'created_at' => $tx->created_at,
+                    ];
+                }),
+                'unmatched_journal_details' => $unmatchedJournals->map(function ($journal) {
+                    return [
+                        'id' => $journal->id,
+                        'memo' => $journal->memo,
+                        'date' => $journal->date,
+                        'total_debit' => $journal->lines->sum('debit'),
+                        'total_credit' => $journal->lines->sum('credit'),
                     ];
                 }),
             ],
-            'transactions' => $transactions,
+            'generated_at' => now(),
         ];
 
         return response()->json($reconciliation);
+    }
+
+    /**
+     * Get reconciliation status message
+     */
+    private function getReconciliationStatusMessage(array $variances): string
+    {
+        if (abs($variances['transaction_vs_gl_count']) === 0 &&
+            abs($variances['transaction_vs_gl_amount']) === 0 &&
+            abs($variances['gl_debit_vs_credit']) === 0) {
+            return 'All transactions and GL journals are properly matched and balanced.';
+        }
+
+        $messages = [];
+
+        if ($variances['transaction_vs_gl_count'] !== 0) {
+            $messages[] = "Transaction count variance: {$variances['transaction_vs_gl_count']}";
+        }
+
+        if ($variances['transaction_vs_gl_amount'] !== 0) {
+            $messages[] = "Amount variance: {$variances['transaction_vs_gl_amount']}";
+        }
+
+        if ($variances['gl_debit_vs_credit'] !== 0) {
+            $messages[] = "GL imbalance: {$variances['gl_debit_vs_credit']}";
+        }
+
+        return 'Reconciliation issues found: ' . implode(', ', $messages);
     }
 
     // ===== REPORTING =====

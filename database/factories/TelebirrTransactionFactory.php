@@ -27,7 +27,7 @@ class TelebirrTransactionFactory extends Factory
             'external_ref' => $this->faker->optional()->uuid(),
             'created_by' => \App\Models\User::factory(),
             'approved_by' => $this->faker->boolean(30) ? \App\Models\User::factory() : null,
-            'posted_at' => $this->faker->optional()->dateTime(),
+            'posted_at' => $this->faker->optional()->dateTimeBetween('-1 year', 'now'),
         ];
     }
 
