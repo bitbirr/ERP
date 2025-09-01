@@ -25,8 +25,16 @@ class AppServiceProvider extends ServiceProvider
             return $user->hasCapability('telebirr.view');
         });
 
+        Gate::define('telebirr.post', function ($user) {
+            return $user->hasCapability('telebirr.post');
+        });
+
         Gate::define('telebirr.void', function ($user) {
             return $user->hasCapability('telebirr.void');
+        });
+
+        Gate::define('telebirr.manage', function ($user) {
+            return $user->hasCapability('telebirr.manage');
         });
 
         // Add more capability gates as needed
