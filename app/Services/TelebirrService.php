@@ -382,7 +382,7 @@ class TelebirrService
     /**
      * Reverse a GL journal (for voiding transactions)
      */
-    public function reverseJournal(int $journalId): GlJournal
+    public function reverseJournal(string $journalId): GlJournal
     {
         $originalJournal = GlJournal::findOrFail($journalId);
 
@@ -407,7 +407,7 @@ class TelebirrService
                 GlLine::create([
                     'journal_id' => $reversingJournal->id,
                     'line_no' => $lineNo++,
-                    'account_code' => $originalLine->account_code,
+                    'account_id' => $originalLine->account_id,
                     'debit' => $originalLine->credit, // Swap debit/credit
                     'credit' => $originalLine->debit,
                     'memo' => 'Reversal: ' . $originalLine->memo,

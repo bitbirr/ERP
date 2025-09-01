@@ -342,7 +342,10 @@ class TelebirrController extends Controller
                 $transaction->update(['status' => 'Voided']);
 
                 // Reverse the GL journal
-                $this->telebirrService->reverseJournal($transaction->gl_journal_id);
+                $reversingJournal = $this->telebirrService->reverseJournal($transaction->gl_journal_id);
+
+                // Mark original journal as reversed
+                $transaction->glJournal->update(['status' => 'REVERSED']);
             });
 
             return response()->json([
