@@ -9,7 +9,7 @@ class CreateReceiptsTable extends Migration
     public function up()
     {
         Schema::create('receipts', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->uuid('id')->primary();
             $table->uuid('branch_id');
             $table->string('number');
             $table->enum('status', ['DRAFT', 'POSTED', 'VOIDED', 'REFUNDED'])->default('DRAFT');

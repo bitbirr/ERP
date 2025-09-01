@@ -70,7 +70,7 @@ return new class extends Migration
 
         // Optional: Create gl_account_balances table for running balances
         Schema::create('gl_account_balances', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->uuid('id')->primary();
             $table->uuid('account_id');
             $table->date('period');
             $table->uuid('branch_id')->nullable();

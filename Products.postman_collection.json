@@ -1,0 +1,286 @@
+{
+  "info": {
+    "name": "Products API",
+    "description": "API endpoints for managing products",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "List Products",
+      "item": [
+        {
+          "name": "GET /products - Positive",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}/products",
+              "host": ["{{baseURL}}"],
+              "path": ["products"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /products - Negative (Unauthorized)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}/products",
+              "host": ["{{baseURL}}"],
+              "path": ["products"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Create Product",
+      "item": [
+        {
+          "name": "POST /products - Positive",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"P001\",\n  \"name\": \"Test Product\",\n  \"type\": \"YIMULU\",\n  \"uom\": \"card\",\n  \"is_active\": true,\n  \"pricing_strategy\": \"FIXED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/products",
+              "host": ["{{baseURL}}"],
+              "path": ["products"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /products - Negative (Duplicate Code)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"P001\",\n  \"name\": \"Duplicate Product\",\n  \"type\": \"YIMULU\",\n  \"uom\": \"card\",\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/products",
+              "host": ["{{baseURL}}"],
+              "path": ["products"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /products - Negative (Missing Required Fields)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Incomplete Product\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/products",
+              "host": ["{{baseURL}}"],
+              "path": ["products"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Get Product",
+      "item": [
+        {
+          "name": "GET /products/{id} - Positive",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}/products/{{product_id}}",
+              "host": ["{{baseURL}}"],
+              "path": ["products", "{{product_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /products/{id} - Negative (Not Found)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}/products/non-existent-id",
+              "host": ["{{baseURL}}"],
+              "path": ["products", "non-existent-id"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Update Product",
+      "item": [
+        {
+          "name": "PATCH /products/{id} - Positive",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Product Name\",\n  \"is_active\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/products/{{product_id}}",
+              "host": ["{{baseURL}}"],
+              "path": ["products", "{{product_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /products/{id} - Negative (Not Found)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/products/non-existent-id",
+              "host": ["{{baseURL}}"],
+              "path": ["products", "non-existent-id"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Delete Product",
+      "item": [
+        {
+          "name": "DELETE /products/{id} - Positive",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}/products/{{product_id}}",
+              "host": ["{{baseURL}}"],
+              "path": ["products", "{{product_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /products/{id} - Negative (Not Found)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}/products/non-existent-id",
+              "host": ["{{baseURL}}"],
+              "path": ["products", "non-existent-id"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.request.headers.add({",
+          "    key: 'Authorization',",
+          "    value: 'Bearer ' + pm.environment.get('token')",
+          "});"
+        ]
+      }
+    }
+  ]
+}

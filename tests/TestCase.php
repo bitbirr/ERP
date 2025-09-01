@@ -28,6 +28,7 @@ abstract class TestCase extends BaseTestCase
         Auth::shouldReceive('id')->andReturn($this->user->id);
         Auth::shouldReceive('user')->andReturn($this->user);
         Auth::shouldReceive('check')->andReturn(true);
+        Auth::shouldReceive('guard')->andReturnSelf();
 
         // Create mocks for services
         $this->mockGlService = Mockery::mock(GlService::class);
@@ -37,6 +38,19 @@ abstract class TestCase extends BaseTestCase
         $this->mockAuditLogger->shouldReceive('log')->andReturn(null);
         $this->mockGlService->shouldReceive('post')->andReturn(null);
         $this->mockGlService->shouldReceive('validateDraft')->andReturn([]);
+        $this->mockGlService->shouldReceive('reverse')->andReturnUsing(function ($originalJournal, $memo) {
+            return \App\Models\GlJournal::create([
+                'journal_no' => 'REV-' . $originalJournal->journal_no,
+                'journal_date' => now()->toDateString(),
+                'currency' => $originalJournal->currency,
+                'fx_rate' => $originalJournal->fx_rate,
+                'source' => 'POS',
+                'reference' => 'REV-' . $originalJournal->reference,
+                'memo' => $memo,
+                'branch_id' => $originalJournal->branch_id,
+                'status' => 'POSTED',
+            ]);
+        });
         $this->mockGlService->shouldReceive('createJournal')->andReturnUsing(function ($data) {
             return \App\Models\GlJournal::create(array_merge($data, [
                 'status' => 'DRAFT',
@@ -57,8 +71,9 @@ abstract class TestCase extends BaseTestCase
     protected function createPosService(?InventoryService $inventoryService = null, ?AuditLogger $auditLogger = null): PosService
     {
         $inventoryService = $inventoryService ?? new InventoryService();
+        $glService = $this->mockGlService;
         $auditLogger = $auditLogger ?? $this->mockAuditLogger;
-        return new PosService($inventoryService, $auditLogger);
+        return new PosService($inventoryService, $glService, $auditLogger);
     }
 
     /**

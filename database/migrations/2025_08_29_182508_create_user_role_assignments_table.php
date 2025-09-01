@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
          Schema::create('user_role_assignments', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->uuid('id')->primary();
             $table->uuid('user_id');
             $table->uuid('role_id');
             $table->uuid('branch_id')->nullable(); // null = global

@@ -51,13 +51,13 @@ class AuditLogger
                 'subject_id'       => $subject ? (string) $subject->getKey() : null,
                 'changes_old'      => $this->maskSensitiveData($old),
                 'changes_new'      => $this->maskSensitiveData($new),
-                'context'          => array_filter([
+                'context'          => array_filter(array_merge($context, [
                     'route'       => $req?->route()?->getName(),
                     'uri'         => $req?->path(),
                     'http_method' => $req?->method(),
                     'branch_id'   => $req?->header('X-Branch-Id'),
                     'request_id'  => $req?->attributes?->get('request_id'),
-                ]),
+                ])),
                 'created_at'       => now(),
             ]);
         } catch (\Exception $e) {

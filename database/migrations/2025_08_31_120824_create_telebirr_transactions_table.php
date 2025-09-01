@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('telebirr_transactions', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->uuid('id')->primary();
             $table->enum('tx_type', ['ISSUE', 'REPAY', 'LOAN', 'TOPUP']);
             $table->uuid('agent_id')->nullable();
             $table->uuid('bank_account_id')->nullable();

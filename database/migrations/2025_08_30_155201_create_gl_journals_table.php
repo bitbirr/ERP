@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('gl_journals', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->uuid('id')->primary();
             $table->string('journal_no')->unique();
             $table->date('journal_date');
             $table->char('currency', 3)->default(config('accounting.base_currency'));

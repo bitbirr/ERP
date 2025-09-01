@@ -33,5 +33,29 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('tx.view', function ($user) {
             return $user->hasCapability('tx.view');
         });
+
+        Gate::define('receipts.create', function ($user) {
+            return $user->hasCapability('receipts.create');
+        });
+
+        Gate::define('receipts.void', function ($user) {
+            return $user->hasCapability('receipts.void');
+        });
+
+        Gate::define('gl.view', function ($user) {
+            return $user->hasCapability('gl.view');
+        });
+
+        Gate::define('gl.create', function ($user) {
+            return $user->hasCapability('gl.create');
+        });
+
+        Gate::define('gl.post', function ($user) {
+            return $user->hasCapability('gl.post');
+        });
+
+        Gate::define('gl.reverse', function ($user) {
+            return $user->hasCapability('gl.reverse');
+        });
     }
 }

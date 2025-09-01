@@ -44,14 +44,12 @@ class GlJournalResource extends JsonResource
                     return [
                         'id' => $line->id,
                         'line_no' => $line->line_no,
-                        'account' => $line->whenLoaded('account', function () use ($line) {
-                            return [
-                                'id' => $line->account->id,
-                                'code' => $line->account->code,
-                                'name' => $line->account->name,
-                                'type' => $line->account->type,
-                            ];
-                        }),
+                        'account' => $line->relationLoaded('account') ? [
+                            'id' => $line->account->id,
+                            'code' => $line->account->code,
+                            'name' => $line->account->name,
+                            'type' => $line->account->type,
+                        ] : null,
                         'debit' => $line->debit,
                         'credit' => $line->credit,
                         'memo' => $line->memo,

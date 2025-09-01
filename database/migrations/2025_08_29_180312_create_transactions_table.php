@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
        Schema::create('transactions', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->uuid('id')->primary();
             $table->decimal('amount', 16, 2);
             $table->enum('tx_type', ['ISSUE','REPAY','LOAN','TOPUP','SALE','TRANSFER','ADJUST'])->nullable(false);
             $table->enum('channel', ['WEB','MOBILE','USSD','AGENT','ADMIN'])->nullable(false);

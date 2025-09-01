@@ -124,4 +124,112 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->middleware('cap:telebirr.view');
     Route::get('/telebirr/reports/transaction-summary', [\App\Http\Controllers\TelebirrController::class, 'transactionSummary'])
         ->middleware('cap:telebirr.view');
+
+    // Products API Routes
+    Route::get('/products', [\App\Http\Controllers\ProductController::class, 'index'])
+        ->middleware('cap:products.read');
+    Route::post('/products', [\App\Http\Controllers\ProductController::class, 'store'])
+        ->middleware('cap:products.manage');
+    Route::get('/products/{product}', [\App\Http\Controllers\ProductController::class, 'show'])
+        ->middleware('cap:products.read');
+    Route::patch('/products/{product}', [\App\Http\Controllers\ProductController::class, 'update'])
+        ->middleware('cap:products.update');
+    Route::delete('/products/{product}', [\App\Http\Controllers\ProductController::class, 'destroy'])
+        ->middleware('cap:products.update');
+
+    // Inventory API Routes
+    Route::get('/inventory', [\App\Http\Controllers\InventoryController::class, 'index'])
+        ->middleware('cap:inventory.read');
+    Route::get('/inventory/{branch}/{product}', [\App\Http\Controllers\InventoryController::class, 'show'])
+        ->middleware('cap:inventory.read');
+    Route::post('/inventory/opening', [\App\Http\Controllers\InventoryController::class, 'opening'])
+        ->middleware('cap:inventory.adjust');
+    Route::post('/inventory/receive', [\App\Http\Controllers\InventoryController::class, 'receive'])
+        ->middleware('cap:inventory.receive');
+    Route::post('/inventory/reserve', [\App\Http\Controllers\InventoryController::class, 'reserve'])
+        ->middleware('cap:inventory.reserve');
+    Route::post('/inventory/unreserve', [\App\Http\Controllers\InventoryController::class, 'unreserve'])
+        ->middleware('cap:inventory.unreserve');
+    Route::post('/inventory/issue', [\App\Http\Controllers\InventoryController::class, 'issue'])
+        ->middleware('cap:inventory.issue');
+    Route::post('/inventory/transfer', [\App\Http\Controllers\InventoryController::class, 'transfer'])
+        ->middleware('cap:inventory.transfer');
+    Route::post('/inventory/adjust', [\App\Http\Controllers\InventoryController::class, 'adjust'])
+        ->middleware('cap:inventory.adjust');
+    Route::post('/inventory/receive/bulk', [\App\Http\Controllers\InventoryController::class, 'bulkReceive'])
+        ->middleware('cap:inventory.receive');
+    Route::post('/inventory/reserve/bulk', [\App\Http\Controllers\InventoryController::class, 'bulkReserve'])
+        ->middleware('cap:inventory.reserve');
+
+    // Stock Reporting API Routes
+    Route::get('/reports/stock/onhand', [\App\Http\Controllers\InventoryController::class, 'stockOnHand'])
+        ->middleware('cap:inventory.read');
+    Route::get('/reports/stock/movements', [\App\Http\Controllers\InventoryController::class, 'stockMovements'])
+        ->middleware('cap:inventory.read');
+    Route::get('/reports/stock/valuation', [\App\Http\Controllers\InventoryController::class, 'stockValuation'])
+        ->middleware('cap:inventory.read');
+    Route::get('/reports/stock/reserved-backlog', [\App\Http\Controllers\InventoryController::class, 'reservedBacklog'])
+        ->middleware('cap:inventory.read');
+    Route::get('/audit/stock-movements', [\App\Http\Controllers\InventoryController::class, 'auditStockMovements'])
+        ->middleware('cap:inventory.read');
+
+    // Stock Movement API Routes
+    Route::get('/stock-movements', [\App\Http\Controllers\StockMovementController::class, 'index'])
+        ->middleware('cap:inventory.view');
+    Route::get('/stock-movements/{stockMovement}', [\App\Http\Controllers\StockMovementController::class, 'show'])
+        ->middleware('cap:inventory.view');
+    Route::get('/stock-movements/reports/summary', [\App\Http\Controllers\StockMovementController::class, 'summary'])
+        ->middleware('cap:inventory.view');
+    Route::get('/stock-movements/reports/by-product/{product}', [\App\Http\Controllers\StockMovementController::class, 'byProduct'])
+        ->middleware('cap:inventory.view');
+    Route::get('/stock-movements/reports/by-branch/{branch}', [\App\Http\Controllers\StockMovementController::class, 'byBranch'])
+        ->middleware('cap:inventory.read');
+
+    // Reports API Routes
+    Route::get('/reports/summary', [\App\Http\Controllers\ReportController::class, 'summary'])
+        ->middleware('cap:reports.view');
+    Route::get('/reports/inventory', [\App\Http\Controllers\ReportController::class, 'inventory'])
+        ->middleware('cap:reports.view');
+    Route::get('/reports/products', [\App\Http\Controllers\ReportController::class, 'products'])
+        ->middleware('cap:reports.view');
+
+    // Audit API Routes
+    Route::get('/audit/logs', [\App\Http\Controllers\AuditController::class, 'logs'])
+        ->middleware('cap:audit.view');
+    Route::get('/audit/logs/{log}', [\App\Http\Controllers\AuditController::class, 'show'])
+        ->middleware('cap:audit.view');
+
+    // Voucher API Routes
+    Route::post('/vouchers/batches', [\App\Http\Controllers\VoucherController::class, 'receiveBatch'])
+        ->middleware('cap:vouchers.manage');
+    Route::get('/vouchers/batches', [\App\Http\Controllers\VoucherController::class, 'listBatches'])
+        ->middleware('cap:vouchers.view');
+    Route::get('/vouchers/batches/{batchNumber}', [\App\Http\Controllers\VoucherController::class, 'getBatch'])
+        ->middleware('cap:vouchers.view');
+    Route::get('/vouchers/batches/{batchNumber}/available', [\App\Http\Controllers\VoucherController::class, 'getAvailableVouchers'])
+        ->middleware('cap:vouchers.view');
+
+    // Voucher Reservation Routes
+    Route::post('/vouchers/reserve', [\App\Http\Controllers\VoucherController::class, 'reserveVouchers'])
+        ->middleware('cap:vouchers.manage');
+    Route::delete('/vouchers/reservations/{reservationId}', [\App\Http\Controllers\VoucherController::class, 'cancelReservation'])
+        ->middleware('cap:vouchers.manage');
+    Route::get('/vouchers/orders/{orderId}/reservations', [\App\Http\Controllers\VoucherController::class, 'getOrderReservations'])
+        ->middleware('cap:vouchers.view');
+    Route::patch('/vouchers/reservations/{reservationId}/extend', [\App\Http\Controllers\VoucherController::class, 'extendReservation'])
+        ->middleware('cap:vouchers.manage');
+    Route::post('/vouchers/reservations/cleanup', [\App\Http\Controllers\VoucherController::class, 'cleanupExpiredReservations'])
+        ->middleware('cap:vouchers.manage');
+
+    // Voucher Issuance Routes
+    Route::post('/vouchers/issue', [\App\Http\Controllers\VoucherController::class, 'issueVouchers'])
+        ->middleware('cap:vouchers.manage');
+    Route::post('/vouchers/issue-by-reservations', [\App\Http\Controllers\VoucherController::class, 'issueVouchersByReservations'])
+        ->middleware('cap:vouchers.manage');
+    Route::get('/vouchers/orders/{orderId}/issuances', [\App\Http\Controllers\VoucherController::class, 'getOrderIssuances'])
+        ->middleware('cap:vouchers.view');
+    Route::get('/vouchers/fulfillments/{fulfillmentId}/issuances', [\App\Http\Controllers\VoucherController::class, 'getFulfillmentIssuances'])
+        ->middleware('cap:vouchers.view');
+    Route::patch('/vouchers/issuances/{issuanceId}/void', [\App\Http\Controllers\VoucherController::class, 'voidIssuance'])
+        ->middleware('cap:vouchers.manage');
 });

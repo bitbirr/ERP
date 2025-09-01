@@ -20,12 +20,10 @@ class DatabaseSeeder extends Seeder
         // 1. Create Roles
         $roles = [
             ['slug' => 'admin', 'name' => 'Admin', 'is_system' => true],
-            ['slug' => 'manager', 'name' => 'Manager', 'is_system' => true],
-            ['slug' => 'sales', 'name' => 'Sales', 'is_system' => true],
-            ['slug' => 'telebirr_distributor', 'name' => 'Telebirr Distributor', 'is_system' => true],
             ['slug' => 'finance', 'name' => 'Finance', 'is_system' => true],
-            ['slug' => 'inventory', 'name' => 'Inventory', 'is_system' => true],
-            ['slug' => 'audit', 'name' => 'Audit', 'is_system' => true],
+            ['slug' => 'sales', 'name' => 'Sales', 'is_system' => true],
+            ['slug' => 'auditor', 'name' => 'Auditor', 'is_system' => true],
+            ['slug' => 'api_client', 'name' => 'API Client', 'is_system' => true],
         ];
         $roleModels = [];
         foreach ($roles as $role) {
@@ -34,53 +32,32 @@ class DatabaseSeeder extends Seeder
 
         // 2. Create Capabilities
         $capabilities = [
-            // Telebirr capabilities
-            ['name' => 'View Telebirr', 'key' => 'telebirr.view', 'group' => 'telebirr'],
-            ['name' => 'Manage Telebirr', 'key' => 'telebirr.manage', 'group' => 'telebirr'],
-            ['name' => 'Post Telebirr Transactions', 'key' => 'telebirr.post', 'group' => 'telebirr'],
-            ['name' => 'Void Telebirr Transactions', 'key' => 'telebirr.void', 'group' => 'telebirr'],
-            ['name' => 'Create Telebirr Topup', 'key' => 'telebirr.topup.create', 'group' => 'telebirr'],
-            ['name' => 'Create Telebirr Issue', 'key' => 'telebirr.issue.create', 'group' => 'telebirr'],
-            ['name' => 'Create Telebirr Loan', 'key' => 'telebirr.loan.create', 'group' => 'telebirr'],
-            ['name' => 'Create Telebirr Repay', 'key' => 'telebirr.repay.create', 'group' => 'telebirr'],
-            ['name' => 'Read Telebirr Transactions', 'key' => 'telebirr.tx.read', 'group' => 'telebirr'],
-            ['name' => 'Read Telebirr Reports', 'key' => 'telebirr.report.read', 'group' => 'telebirr'],
-            ['name' => 'View Telebirr Agents', 'key' => 'telebirr.agents.read', 'group' => 'telebirr'],
-            ['name' => 'Create Telebirr Agents', 'key' => 'telebirr.agents.create', 'group' => 'telebirr'],
-            ['name' => 'Update Telebirr Agents', 'key' => 'telebirr.agents.update', 'group' => 'telebirr'],
-            ['name' => 'Void Telebirr Voucher', 'key' => 'telebirr.voucher.void', 'group' => 'telebirr'],
-            ['name' => 'Telebirr Reconciliation', 'key' => 'telebirr.recon.ebirr', 'group' => 'telebirr'],
-
-            // GL capabilities
-            ['name' => 'View GL', 'key' => 'gl.view', 'group' => 'general_ledger'],
-            ['name' => 'Create GL', 'key' => 'gl.create', 'group' => 'general_ledger'],
-            ['name' => 'Post GL', 'key' => 'gl.post', 'group' => 'general_ledger'],
-            ['name' => 'Reverse GL', 'key' => 'gl.reverse', 'group' => 'general_ledger'],
-            ['name' => 'Manage GL Accounts', 'key' => 'gl.accounts.manage', 'group' => 'general_ledger'],
-            ['name' => 'Manage GL Journal Sources', 'key' => 'gl.sources.manage', 'group' => 'general_ledger'],
-            ['name' => 'Read GL Journals', 'key' => 'gl.journals.read', 'group' => 'general_ledger'],
-            ['name' => 'Create GL Journals', 'key' => 'gl.journals.create', 'group' => 'general_ledger'],
-            ['name' => 'Post GL Journals', 'key' => 'gl.post.create', 'group' => 'general_ledger'],
-            ['name' => 'Reverse GL Journals', 'key' => 'gl.journals.reverse', 'group' => 'general_ledger'],
-
-            // Audit capabilities
-            ['name' => 'Read Audit Logs', 'key' => 'audit.read', 'group' => 'audit'],
-            ['name' => 'Audit Logs', 'key' => 'audit.logs', 'group' => 'audit'],
-
-            // User management
-            ['name' => 'Manage Users', 'key' => 'users.manage', 'group' => 'users'],
+            // Products capabilities
+            ['name' => 'Read Products', 'key' => 'products.read', 'group' => 'products'],
+            ['name' => 'Create Products', 'key' => 'products.create', 'group' => 'products'],
+            ['name' => 'Update Products', 'key' => 'products.update', 'group' => 'products'],
 
             // Inventory capabilities
-            ['name' => 'Manage Inventory', 'key' => 'inventory.manage', 'group' => 'inventory'],
             ['name' => 'Read Inventory', 'key' => 'inventory.read', 'group' => 'inventory'],
+            ['name' => 'Receive Inventory', 'key' => 'inventory.receive', 'group' => 'inventory'],
+            ['name' => 'Reserve Inventory', 'key' => 'inventory.reserve', 'group' => 'inventory'],
+            ['name' => 'Unreserve Inventory', 'key' => 'inventory.unreserve', 'group' => 'inventory'],
+            ['name' => 'Issue Inventory', 'key' => 'inventory.issue', 'group' => 'inventory'],
+            ['name' => 'Transfer Inventory', 'key' => 'inventory.transfer', 'group' => 'inventory'],
+            ['name' => 'Adjust Inventory', 'key' => 'inventory.adjust', 'group' => 'inventory'],
 
-            // Finance capabilities
-            ['name' => 'Finance Access', 'key' => 'finance.access', 'group' => 'finance'],
+            // Reports capabilities
+            ['name' => 'View Reports', 'key' => 'reports.view', 'group' => 'reports'],
 
-            // Transaction capabilities
+            // Audit capabilities
+            ['name' => 'View Audit Logs', 'key' => 'audit.view', 'group' => 'audit'],
+
+            // Additional capabilities for completeness
+            ['name' => 'Manage Users', 'key' => 'users.manage', 'group' => 'users'],
             ['name' => 'Read Transactions', 'key' => 'tx.read', 'group' => 'transactions'],
             ['name' => 'Create Transactions', 'key' => 'tx.create', 'group' => 'transactions'],
-            ['name' => 'Approve Transactions', 'key' => 'tx.approve', 'group' => 'transactions'],
+            ['name' => 'Create Receipts', 'key' => 'receipts.create', 'group' => 'pos'],
+            ['name' => 'Void Receipts', 'key' => 'receipts.void', 'group' => 'pos'],
         ];
         $capModels = [];
         foreach ($capabilities as $cap) {
@@ -90,44 +67,37 @@ class DatabaseSeeder extends Seeder
         // 3. Attach Capabilities to Roles
         $roleCaps = [
             'admin' => array_keys($capModels), // All capabilities
-            'manager' => [ // Read/report access
-                'telebirr.view',
-                'gl.view',
-                'audit.read',
-                'inventory.read',
+            'finance' => [ // Finance role: inventory operations + products.read, no products.create/update, no audit.view
+                'inventory.receive',
+                'inventory.reserve',
+                'inventory.unreserve',
+                'inventory.issue',
+                'inventory.transfer',
+                'inventory.adjust',
+                'products.read',
                 'tx.read',
-            ],
-            'telebirr_distributor' => [ // Topup/issue/loan/repay
-                'telebirr.view',
-                'telebirr.post',
-                'telebirr.void',
-            ],
-            'sales' => [ // Basic sales capabilities
                 'tx.create',
-                'tx.read',
-                'telebirr.view',
+                'receipts.create',
+                'receipts.void',
             ],
-            'finance' => [ // Finance and GL capabilities
-                'finance.access',
-                'gl.view',
-                'gl.create',
-                'gl.post',
-                'gl.reverse',
-                'gl.accounts.manage',
-                'gl.sources.manage',
-                'telebirr.view',
-                'telebirr.post',
-                'telebirr.void',
+            'sales' => [ // Sales role: reserve/issue via POS + products.read, no receive/transfer/adjust
+                'inventory.reserve',
+                'inventory.issue',
+                'products.read',
+                'tx.read',
+                'tx.create',
+                'receipts.create',
+            ],
+            'auditor' => [ // Auditor role: reports.view, audit.view, products.read, no mutations
+                'reports.view',
+                'audit.view',
+                'products.read',
                 'tx.read',
             ],
-            'inventory' => [ // Inventory management
+            'api_client' => [ // API Client: scoped to configured capabilities (will be set per client)
+                'products.read',
                 'inventory.read',
-                'inventory.manage',
-            ],
-            'audit' => [ // Read-only audit access
-                'audit.read',
-                'audit.logs',
-                'gl.view',
+                'tx.read',
             ],
         ];
         foreach ($roleCaps as $roleSlug => $capKeys) {
@@ -138,9 +108,9 @@ class DatabaseSeeder extends Seeder
 
         // 4. Create Branches (static + factory for realistic data)
         $branches = [
-            ['name' => 'Main Branch', 'code' => 'main'],
-            ['name' => 'Hamda Hotel Branch', 'code' => 'hamda'],
-            ['name' => 'Chinaksan Branch', 'code' => 'chinaksan'],
+            ['name' => 'Main', 'code' => 'main'],
+            ['name' => 'Hamada', 'code' => 'hamada'],
+            ['name' => 'Chinaksen', 'code' => 'chinaksen'],
         ];
         $branchModels = [];
         foreach ($branches as $branch) {
@@ -151,11 +121,12 @@ class DatabaseSeeder extends Seeder
 
         // 4b. Create Products (static + factory for realistic data)
         $products = [
-            ['code' => 'P001', 'name' => 'Yimulu', 'type' => 'YIMULU', 'uom' => 'card', 'is_active' => true],
-            ['code' => 'P002', 'name' => 'Voucher card', 'type' => 'VOUCHER', 'uom' => 'airtime', 'is_active' => true],
-            ['code' => 'P003', 'name' => 'EVD', 'type' => 'EVD', 'uom' => 'pcs', 'is_active' => true],
-            ['code' => 'P004', 'name' => 'simcard', 'type' => 'SIM', 'uom' => 'pcs', 'is_active' => true],
-            ['code' => 'P005', 'name' => 'telebirr', 'type' => 'TELEBIRR', 'uom' => 'amount', 'is_active' => true],
+            ['id' => (string) Str::uuid(), 'code' => 'SIM-PREP-4G', 'name' => 'SIM Card 4G', 'type' => 'SIM', 'uom' => 'pcs', 'is_active' => true, 'meta' => ['iccid_range' => '8901000000000000000-8901000000000009999']],
+            ['id' => (string) Str::uuid(), 'code' => 'VCH-100', 'name' => 'Voucher 100', 'type' => 'VOUCHER', 'uom' => 'card', 'is_active' => true, 'meta' => ['serials' => ['VCH001', 'VCH002'], 'batch' => 'BATCH001']],
+            ['id' => (string) Str::uuid(), 'code' => 'EVD-TOPUP', 'name' => 'EVD Topup', 'type' => 'EVD', 'uom' => 'amount', 'is_active' => true],
+            ['id' => (string) Str::uuid(), 'code' => 'AIR-ET', 'name' => 'Ethio Telecom Airtime', 'type' => 'E_AIRTIME', 'uom' => 'amount', 'is_active' => true],
+            ['id' => (string) Str::uuid(), 'code' => 'TB-CASHIN', 'name' => 'Telebirr Cash In', 'type' => 'TELEBIRR', 'uom' => 'amount', 'is_active' => true],
+            ['id' => (string) Str::uuid(), 'code' => 'YIM-SVC', 'name' => 'Yimulu Service', 'type' => 'YIMULU', 'uom' => 'card', 'is_active' => true],
         ];
         foreach ($products as $product) {
             \App\Models\Product::firstOrCreate(['code' => $product['code']], $product);
@@ -167,16 +138,14 @@ class DatabaseSeeder extends Seeder
         $users = [
             // Main Branch
             ['name' => 'Ismail', 'email' => 'admin@example.com', 'password' => bcrypt('secret123'), 'role' => 'admin', 'branch' => 'main'],
-            ['name' => 'Najo', 'email' => 'manager@example.com', 'password' => bcrypt('secret123'), 'role' => 'manager', 'branch' => 'main'],
-            ['name' => 'mawlid', 'email' => 'distributor@example.com', 'password' => bcrypt('secret123'), 'role' => 'telebirr_distributor', 'branch' => 'main'],
-            ['name' => 'hamze', 'email' => 'sales@example.com', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'main'],
             ['name' => 'nimco', 'email' => 'finance@example.com', 'password' => bcrypt('secret123'), 'role' => 'finance', 'branch' => 'main'],
-            ['name' => 'ikran', 'email' => 'inventory@example.com', 'password' => bcrypt('secret123'), 'role' => 'inventory', 'branch' => 'main'],
-            ['name' => 'yasmin', 'email' => 'audit@example.com', 'password' => bcrypt('secret123'), 'role' => 'audit', 'branch' => 'main'],
+            ['name' => 'hamze', 'email' => 'sales@example.com', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'main'],
+            ['name' => 'yasmin', 'email' => 'auditor@example.com', 'password' => bcrypt('secret123'), 'role' => 'auditor', 'branch' => 'main'],
+            ['name' => 'api_client', 'email' => 'api@example.com', 'password' => bcrypt('secret123'), 'role' => 'api_client', 'branch' => 'main'],
             // Variants
             ['name' => 'Disabled User', 'email' => 'disabled@example.com', 'password' => bcrypt('secret123'), 'role' => null, 'branch' => null], // No role - disabled
             ['name' => 'Expired Token User', 'email' => 'expired@example.com', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'main'],
-            ['name' => 'Wrong Branch User', 'email' => 'wrongbranch@example.com', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'hamda'], // Assigned to hamda but maybe should be main
+            ['name' => 'Wrong Branch User', 'email' => 'wrongbranch@example.com', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'hamada'], // Assigned to hamada but maybe should be main
         ];
         foreach ($users as $u) {
             $user = User::firstOrCreate(
@@ -222,6 +191,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             BranchesSeeder::class,
             ProductSeeder::class,
+            InventorySeeder::class,
             ChartOfAccountsSeeder::class,
             BankAccountsSeeder::class,
             TelebirrAgentsSeeder::class,

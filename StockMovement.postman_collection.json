@@ -1,0 +1,206 @@
+{
+  "info": {
+    "name": "Stock Movement API",
+    "description": "API endpoints for viewing stock movement history",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "List Stock Movements",
+      "item": [
+        {
+          "name": "GET /stock-movements - Positive",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}/stock-movements",
+              "host": ["{{baseURL}}"],
+              "path": ["stock-movements"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /stock-movements - With Filters",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}/stock-movements?product_id={{product_id}}&branch_id={{branch_id}}&type=ISSUE",
+              "host": ["{{baseURL}}"],
+              "path": ["stock-movements"],
+              "query": [
+                {
+                  "key": "product_id",
+                  "value": "{{product_id}}"
+                },
+                {
+                  "key": "branch_id",
+                  "value": "{{branch_id}}"
+                },
+                {
+                  "key": "type",
+                  "value": "ISSUE"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /stock-movements - Negative (Unauthorized)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}/stock-movements",
+              "host": ["{{baseURL}}"],
+              "path": ["stock-movements"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Get Stock Movement",
+      "item": [
+        {
+          "name": "GET /stock-movements/{id} - Positive",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}/stock-movements/{{stock_movement_id}}",
+              "host": ["{{baseURL}}"],
+              "path": ["stock-movements", "{{stock_movement_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /stock-movements/{id} - Negative (Not Found)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}/stock-movements/non-existent-id",
+              "host": ["{{baseURL}}"],
+              "path": ["stock-movements", "non-existent-id"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Stock Movement Reports",
+      "item": [
+        {
+          "name": "GET /stock-movements/reports/summary - Positive",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}/stock-movements/reports/summary?start_date=2025-01-01&end_date=2025-12-31",
+              "host": ["{{baseURL}}"],
+              "path": ["stock-movements", "reports", "summary"],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "2025-01-01"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2025-12-31"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /stock-movements/reports/by-product - Positive",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}/stock-movements/reports/by-product/{{product_id}}",
+              "host": ["{{baseURL}}"],
+              "path": ["stock-movements", "reports", "by-product", "{{product_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /stock-movements/reports/by-branch - Positive",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}/stock-movements/reports/by-branch/{{branch_id}}",
+              "host": ["{{baseURL}}"],
+              "path": ["stock-movements", "reports", "by-branch", "{{branch_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.request.headers.add({",
+          "    key: 'Authorization',",
+          "    value: 'Bearer ' + pm.environment.get('token')",
+          "});"
+        ]
+      }
+    }
+  ]
+}

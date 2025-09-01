@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     protected $table = 'products';
     protected $keyType = 'string';
@@ -35,5 +36,10 @@ class Product extends Model
     public function inventoryItems()
     {
         return $this->hasMany(InventoryItem::class);
+    }
+
+    public function receiptLines()
+    {
+        return $this->hasMany(ReceiptLine::class);
     }
 }

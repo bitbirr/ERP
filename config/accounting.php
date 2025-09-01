@@ -134,6 +134,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | POS Posting Rules
+    |--------------------------------------------------------------------------
+    |
+    | Define GL account mappings for POS transactions.
+    | Set 'enabled' to false to disable GL posting for POS.
+    |
+    */
+
+    'pos_posting' => [
+        'enabled' => env('POS_GL_POSTING_ENABLED', true),
+        'rules' => [
+            'sales_revenue' => env('POS_SALES_REVENUE_ACCOUNT', '4000'), // Revenue account
+            'cash_receipt' => env('POS_CASH_ACCOUNT', '1001'), // Cash/Bank account
+            'tax_payable' => env('POS_TAX_PAYABLE_ACCOUNT', '2001'), // Tax payable account
+            'discount_expense' => env('POS_DISCOUNT_ACCOUNT', '5001'), // Discount expense account
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Reporting Settings
     |--------------------------------------------------------------------------
     |
