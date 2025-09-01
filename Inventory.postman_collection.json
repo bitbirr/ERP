@@ -1,0 +1,556 @@
+{
+  "info": {
+    "name": "Inventory API",
+    "description": "API endpoints for managing inventory operations",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "List Inventory Items",
+      "item": [
+        {
+          "name": "GET /inventory - Positive",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}/inventory",
+              "host": ["{{baseURL}}"],
+              "path": ["inventory"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /inventory - Negative (Unauthorized)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}/inventory",
+              "host": ["{{baseURL}}"],
+              "path": ["inventory"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Get Inventory Item",
+      "item": [
+        {
+          "name": "GET /inventory/{product}/{branch} - Positive",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}/inventory/{{product_id}}/{{branch_id}}",
+              "host": ["{{baseURL}}"],
+              "path": ["inventory", "{{product_id}}", "{{branch_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /inventory/{product}/{branch} - Negative (Not Found)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}/inventory/non-existent-product/non-existent-branch",
+              "host": ["{{baseURL}}"],
+              "path": ["inventory", "non-existent-product", "non-existent-branch"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Opening Balance",
+      "item": [
+        {
+          "name": "POST /inventory/opening - Positive",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"branch_id\": \"{{branch_id}}\",\n  \"qty\": 100\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/inventory/opening",
+              "host": ["{{baseURL}}"],
+              "path": ["inventory", "opening"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /inventory/opening - Negative (Zero Quantity)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"branch_id\": \"{{branch_id}}\",\n  \"qty\": 0\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/inventory/opening",
+              "host": ["{{baseURL}}"],
+              "path": ["inventory", "opening"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /inventory/opening - Negative (Negative Quantity)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"branch_id\": \"{{branch_id}}\",\n  \"qty\": -10\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/inventory/opening",
+              "host": ["{{baseURL}}"],
+              "path": ["inventory", "opening"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Receive Stock",
+      "item": [
+        {
+          "name": "POST /inventory/receive - Positive",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"branch_id\": \"{{branch_id}}\",\n  \"qty\": 50\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/inventory/receive",
+              "host": ["{{baseURL}}"],
+              "path": ["inventory", "receive"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /inventory/receive - Negative (Zero Quantity)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"branch_id\": \"{{branch_id}}\",\n  \"qty\": 0\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/inventory/receive",
+              "host": ["{{baseURL}}"],
+              "path": ["inventory", "receive"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reserve Stock",
+      "item": [
+        {
+          "name": "POST /inventory/reserve - Positive",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"branch_id\": \"{{branch_id}}\",\n  \"qty\": 20\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/inventory/reserve",
+              "host": ["{{baseURL}}"],
+              "path": ["inventory", "reserve"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /inventory/reserve - Negative (Insufficient Stock)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"branch_id\": \"{{branch_id}}\",\n  \"qty\": 1000\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/inventory/reserve",
+              "host": ["{{baseURL}}"],
+              "path": ["inventory", "reserve"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Unreserve Stock",
+      "item": [
+        {
+          "name": "POST /inventory/unreserve - Positive",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"branch_id\": \"{{branch_id}}\",\n  \"qty\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/inventory/unreserve",
+              "host": ["{{baseURL}}"],
+              "path": ["inventory", "unreserve"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /inventory/unreserve - Negative (More than Reserved)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"branch_id\": \"{{branch_id}}\",\n  \"qty\": 1000\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/inventory/unreserve",
+              "host": ["{{baseURL}}"],
+              "path": ["inventory", "unreserve"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Issue Stock",
+      "item": [
+        {
+          "name": "POST /inventory/issue - Positive",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"branch_id\": \"{{branch_id}}\",\n  \"qty\": 15\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/inventory/issue",
+              "host": ["{{baseURL}}"],
+              "path": ["inventory", "issue"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /inventory/issue - Negative (Insufficient Stock)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"branch_id\": \"{{branch_id}}\",\n  \"qty\": 1000\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/inventory/issue",
+              "host": ["{{baseURL}}"],
+              "path": ["inventory", "issue"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Transfer Stock",
+      "item": [
+        {
+          "name": "POST /inventory/transfer - Positive",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"from_branch_id\": \"{{branch_id}}\",\n  \"to_branch_id\": \"{{to_branch_id}}\",\n  \"qty\": 25\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/inventory/transfer",
+              "host": ["{{baseURL}}"],
+              "path": ["inventory", "transfer"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /inventory/transfer - Negative (Same Branch)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"from_branch_id\": \"{{branch_id}}\",\n  \"to_branch_id\": \"{{branch_id}}\",\n  \"qty\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/inventory/transfer",
+              "host": ["{{baseURL}}"],
+              "path": ["inventory", "transfer"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Adjust Stock",
+      "item": [
+        {
+          "name": "POST /inventory/adjust - Positive (Increase)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"branch_id\": \"{{branch_id}}\",\n  \"qty\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/inventory/adjust",
+              "host": ["{{baseURL}}"],
+              "path": ["inventory", "adjust"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /inventory/adjust - Positive (Decrease)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"branch_id\": \"{{branch_id}}\",\n  \"qty\": -5\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/inventory/adjust",
+              "host": ["{{baseURL}}"],
+              "path": ["inventory", "adjust"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /inventory/adjust - Negative (Would go negative)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"branch_id\": \"{{branch_id}}\",\n  \"qty\": -1000\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/inventory/adjust",
+              "host": ["{{baseURL}}"],
+              "path": ["inventory", "adjust"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.request.headers.add({",
+          "    key: 'Authorization',",
+          "    value: 'Bearer ' + pm.environment.get('token')",
+          "});"
+        ]
+      }
+    }
+  ]
+}
