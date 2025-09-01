@@ -127,35 +127,35 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Products API Routes
     Route::get('/products', [\App\Http\Controllers\ProductController::class, 'index'])
-        ->middleware('cap:products.view');
+        ->middleware('cap:products.read');
     Route::post('/products', [\App\Http\Controllers\ProductController::class, 'store'])
-        ->middleware('cap:products.manage');
+        ->middleware('cap:products.create');
     Route::get('/products/{product}', [\App\Http\Controllers\ProductController::class, 'show'])
-        ->middleware('cap:products.view');
+        ->middleware('cap:products.read');
     Route::patch('/products/{product}', [\App\Http\Controllers\ProductController::class, 'update'])
-        ->middleware('cap:products.manage');
+        ->middleware('cap:products.update');
     Route::delete('/products/{product}', [\App\Http\Controllers\ProductController::class, 'destroy'])
-        ->middleware('cap:products.manage');
+        ->middleware('cap:products.update');
 
     // Inventory API Routes
     Route::get('/inventory', [\App\Http\Controllers\InventoryController::class, 'index'])
-        ->middleware('cap:inventory.view');
+        ->middleware('cap:inventory.read');
     Route::get('/inventory/{product}/{branch}', [\App\Http\Controllers\InventoryController::class, 'show'])
-        ->middleware('cap:inventory.view');
+        ->middleware('cap:inventory.read');
     Route::post('/inventory/opening', [\App\Http\Controllers\InventoryController::class, 'opening'])
-        ->middleware('cap:inventory.manage');
+        ->middleware('cap:inventory.adjust');
     Route::post('/inventory/receive', [\App\Http\Controllers\InventoryController::class, 'receive'])
-        ->middleware('cap:inventory.manage');
+        ->middleware('cap:inventory.receive');
     Route::post('/inventory/reserve', [\App\Http\Controllers\InventoryController::class, 'reserve'])
-        ->middleware('cap:inventory.manage');
+        ->middleware('cap:inventory.reserve');
     Route::post('/inventory/unreserve', [\App\Http\Controllers\InventoryController::class, 'unreserve'])
-        ->middleware('cap:inventory.manage');
+        ->middleware('cap:inventory.unreserve');
     Route::post('/inventory/issue', [\App\Http\Controllers\InventoryController::class, 'issue'])
-        ->middleware('cap:inventory.manage');
+        ->middleware('cap:inventory.issue');
     Route::post('/inventory/transfer', [\App\Http\Controllers\InventoryController::class, 'transfer'])
-        ->middleware('cap:inventory.manage');
+        ->middleware('cap:inventory.transfer');
     Route::post('/inventory/adjust', [\App\Http\Controllers\InventoryController::class, 'adjust'])
-        ->middleware('cap:inventory.manage');
+        ->middleware('cap:inventory.adjust');
 
     // Stock Movement API Routes
     Route::get('/stock-movements', [\App\Http\Controllers\StockMovementController::class, 'index'])
@@ -167,5 +167,19 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/stock-movements/reports/by-product/{product}', [\App\Http\Controllers\StockMovementController::class, 'byProduct'])
         ->middleware('cap:inventory.view');
     Route::get('/stock-movements/reports/by-branch/{branch}', [\App\Http\Controllers\StockMovementController::class, 'byBranch'])
-        ->middleware('cap:inventory.view');
+        ->middleware('cap:inventory.read');
+
+    // Reports API Routes
+    Route::get('/reports/summary', [\App\Http\Controllers\ReportController::class, 'summary'])
+        ->middleware('cap:reports.view');
+    Route::get('/reports/inventory', [\App\Http\Controllers\ReportController::class, 'inventory'])
+        ->middleware('cap:reports.view');
+    Route::get('/reports/products', [\App\Http\Controllers\ReportController::class, 'products'])
+        ->middleware('cap:reports.view');
+
+    // Audit API Routes
+    Route::get('/audit/logs', [\App\Http\Controllers\AuditController::class, 'logs'])
+        ->middleware('cap:audit.view');
+    Route::get('/audit/logs/{log}', [\App\Http\Controllers\AuditController::class, 'show'])
+        ->middleware('cap:audit.view');
 });
