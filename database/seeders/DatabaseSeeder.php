@@ -152,9 +152,9 @@ class DatabaseSeeder extends Seeder
 
         // 4. Create Branches (static + factory for realistic data)
         $branches = [
-            ['name' => 'Main Branch', 'code' => 'main'],
-            ['name' => 'Hamda Hotel Branch', 'code' => 'hamda'],
-            ['name' => 'Chinaksan Branch', 'code' => 'chinaksan'],
+            ['name' => 'Main', 'code' => 'main'],
+            ['name' => 'Hamada', 'code' => 'hamada'],
+            ['name' => 'Chinaksen', 'code' => 'chinaksen'],
         ];
         $branchModels = [];
         foreach ($branches as $branch) {
@@ -165,11 +165,12 @@ class DatabaseSeeder extends Seeder
 
         // 4b. Create Products (static + factory for realistic data)
         $products = [
-            ['id' => (string) Str::uuid(), 'code' => 'P001', 'name' => 'Yimulu', 'type' => 'YIMULU', 'uom' => 'card', 'is_active' => true],
-            ['id' => (string) Str::uuid(), 'code' => 'P002', 'name' => 'Voucher card', 'type' => 'VOUCHER', 'uom' => 'airtime', 'is_active' => true],
-            ['id' => (string) Str::uuid(), 'code' => 'P003', 'name' => 'EVD', 'type' => 'EVD', 'uom' => 'pcs', 'is_active' => true],
-            ['id' => (string) Str::uuid(), 'code' => 'P004', 'name' => 'simcard', 'type' => 'SIM', 'uom' => 'pcs', 'is_active' => true],
-            ['id' => (string) Str::uuid(), 'code' => 'P005', 'name' => 'telebirr', 'type' => 'TELEBIRR', 'uom' => 'amount', 'is_active' => true],
+            ['id' => (string) Str::uuid(), 'code' => 'SIM-PREP-4G', 'name' => 'SIM Card 4G', 'type' => 'SIM', 'uom' => 'pcs', 'is_active' => true, 'meta' => ['iccid_range' => '8901000000000000000-8901000000000009999']],
+            ['id' => (string) Str::uuid(), 'code' => 'VCH-100', 'name' => 'Voucher 100', 'type' => 'VOUCHER', 'uom' => 'card', 'is_active' => true, 'meta' => ['serials' => ['VCH001', 'VCH002'], 'batch' => 'BATCH001']],
+            ['id' => (string) Str::uuid(), 'code' => 'EVD-TOPUP', 'name' => 'EVD Topup', 'type' => 'EVD', 'uom' => 'amount', 'is_active' => true],
+            ['id' => (string) Str::uuid(), 'code' => 'AIR-ET', 'name' => 'Ethio Telecom Airtime', 'type' => 'E_AIRTIME', 'uom' => 'amount', 'is_active' => true],
+            ['id' => (string) Str::uuid(), 'code' => 'TB-CASHIN', 'name' => 'Telebirr Cash In', 'type' => 'TELEBIRR', 'uom' => 'amount', 'is_active' => true],
+            ['id' => (string) Str::uuid(), 'code' => 'YIM-SVC', 'name' => 'Yimulu Service', 'type' => 'YIMULU', 'uom' => 'card', 'is_active' => true],
         ];
         foreach ($products as $product) {
             \App\Models\Product::firstOrCreate(['code' => $product['code']], $product);
@@ -190,7 +191,7 @@ class DatabaseSeeder extends Seeder
             // Variants
             ['name' => 'Disabled User', 'email' => 'disabled@example.com', 'password' => bcrypt('secret123'), 'role' => null, 'branch' => null], // No role - disabled
             ['name' => 'Expired Token User', 'email' => 'expired@example.com', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'main'],
-            ['name' => 'Wrong Branch User', 'email' => 'wrongbranch@example.com', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'hamda'], // Assigned to hamda but maybe should be main
+            ['name' => 'Wrong Branch User', 'email' => 'wrongbranch@example.com', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'hamada'], // Assigned to hamada but maybe should be main
         ];
         foreach ($users as $u) {
             $user = User::firstOrCreate(

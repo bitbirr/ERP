@@ -13,8 +13,9 @@ class BranchesSeeder extends Seeder
     public function run(): void
     {
         $branches = [
-            ['name' => 'Main Branch', 'code' => 'main'],
-            ['name' => 'Secondary Branch', 'code' => 'secondary'],
+            ['name' => 'Main', 'code' => 'main'],
+            ['name' => 'Hamada', 'code' => 'hamada'],
+            ['name' => 'Chinaksen', 'code' => 'chinaksen'],
         ];
 
         foreach ($branches as $branch) {
