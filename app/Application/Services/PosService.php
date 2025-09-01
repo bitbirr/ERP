@@ -125,16 +125,22 @@ class PosService
             $receipt = Receipt::create($receiptData);
             $receipt->refresh(); // Ensure we have the latest data from DB
 
-            foreach ($lineItems as $lineItem) {
+            foreach ($lineItems as $index => $lineItem) {
                 $lineItem = $this->calculateLineTotals($lineItem);
                 $lineItem['product_id'] = $lineItem['product']->id;
                 $lineItem['receipt_id'] = $receipt->id;
+
+                // Generate unique stock movement reference for this line
+                $stockMovementRef = $receipt->id . '-L' . $index;
+
+                $lineItem['stock_movement_ref'] = $stockMovementRef;
                 ReceiptLine::create($lineItem);
+
                 $this->inventoryService->issueStock(
                     $lineItem['product'],
                     $lineItem['branch'],
                     $lineItem['qty'],
-                    $receipt->id,
+                    $stockMovementRef,
                     ['created_by' => $receiptData['created_by']]
                 );
             }
@@ -240,7 +246,7 @@ class PosService
     public function voidReceipt(Receipt $receipt, array $ctx = [])
     {
         return DB::transaction(function () use ($receipt, $ctx) {
-            if ($receipt->status !== 'posted') {
+            if ($receipt->status !== 'POSTED') {
                 throw new \Exception('Only posted receipts can be voided');
             }
 
@@ -266,7 +272,7 @@ class PosService
 
             // Update receipt
             $receipt->update([
-                'status' => 'voided',
+                'status' => 'VOIDED',
                 'voided_at' => now(),
                 'voided_by' => $ctx['voided_by'] ?? null,
             ]);

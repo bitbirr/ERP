@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class ReceiptLine extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     protected $keyType = 'string';
     public $incrementing = false;
@@ -22,6 +23,7 @@ class ReceiptLine extends Model
         'tax_rate',
         'tax_amount',
         'line_total',
+        'stock_movement_ref',
         'meta',
     ];
 
@@ -33,5 +35,10 @@ class ReceiptLine extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function stockMovement()
+    {
+        return $this->belongsTo(StockMovement::class, 'stock_movement_ref', 'ref');
     }
 }
