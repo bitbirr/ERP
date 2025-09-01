@@ -24,12 +24,36 @@ This repository contains Postman collections and environments for testing the ER
 ### 2. Configure Environment
 
 1. Select "ERP API Environments" from the environment dropdown
-2. Update the token variables with actual JWT tokens from your Laravel application:
-   - `admin_token`
-   - `manager_token`
-   - `inventory_token`
-   - `sales_token`
-   - `audit_token`
+2. Update the `baseURL` variable to match your Laravel application:
+   - Local: `http://localhost:8000/api`
+   - Staging: `https://your-staging-domain.com/api`
+   - Production: `https://your-production-domain.com/api`
+
+3. Update the token variables with actual JWT tokens from your Laravel application:
+   - `admin_token` - For admin operations (full access)
+   - `manager_token` - For management operations
+   - `inventory_token` - For inventory operations
+   - `sales_token` - For sales operations
+   - `audit_token` - For read-only access
+
+### 3. Get Authentication Tokens
+
+Use the existing `/api/sanctum/token` endpoint to obtain tokens:
+
+```bash
+POST http://localhost:8000/api/sanctum/token
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "secret123",
+  "device_name": "Postman"
+}
+```
+
+**Example working token:** `24|hoCUoBbmKN8T4ScjsSM7aMweruenHRwoohap03B7a8709f15`
+
+Replace the placeholder tokens in the environment with actual tokens.
 
 ### 3. Get Authentication Tokens
 
@@ -113,12 +137,42 @@ Each collection includes:
 - `stock_movement_id` - Sample stock movement UUID
 - `receipt_id` - Sample receipt UUID
 
+## Working API Examples
+
+### Products API
+```bash
+# List Products
+GET http://localhost:8000/api/products
+Authorization: Bearer 24|hoCUoBbmKN8T4ScjsSM7aMweruenHRwoohap03B7a8709f15
+
+# Response: Returns paginated list of 145 products including Yimulu, Voucher cards, EVD, etc.
+```
+
+### Inventory API
+```bash
+# List Inventory Items
+GET http://localhost:8000/api/inventory
+Authorization: Bearer 24|hoCUoBbmKN8T4ScjsSM7aMweruenHRwoohap03B7a8709f15
+
+# Response: Returns inventory data showing 67 units on hand, 67 reserved for Yimulu product
+```
+
+### Stock Movements API
+```bash
+# List Stock Movements
+GET http://localhost:8000/api/stock-movements
+Authorization: Bearer 24|hoCUoBbmKN8T4ScjsSM7aMweruenHRwoohap03B7a8709f15
+
+# Response: Returns 34 stock movement records including OPENING, RESERVE, ISSUE operations
+```
+
 ## Usage Tips
 
 1. **Switch Roles**: Change the `token` variable to test different user roles
 2. **Environment Switching**: Use different baseURL variables for local/staging/production
 3. **Test Data**: Update sample IDs with actual data from your database
 4. **Sequential Testing**: Run inventory operations in sequence to maintain data consistency
+5. **RBAC Testing**: Test with different user roles to verify capability restrictions
 
 ## Security Notes
 

@@ -124,4 +124,48 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->middleware('cap:telebirr.view');
     Route::get('/telebirr/reports/transaction-summary', [\App\Http\Controllers\TelebirrController::class, 'transactionSummary'])
         ->middleware('cap:telebirr.view');
+
+    // Products API Routes
+    Route::get('/products', [\App\Http\Controllers\ProductController::class, 'index'])
+        ->middleware('cap:products.view');
+    Route::post('/products', [\App\Http\Controllers\ProductController::class, 'store'])
+        ->middleware('cap:products.manage');
+    Route::get('/products/{product}', [\App\Http\Controllers\ProductController::class, 'show'])
+        ->middleware('cap:products.view');
+    Route::patch('/products/{product}', [\App\Http\Controllers\ProductController::class, 'update'])
+        ->middleware('cap:products.manage');
+    Route::delete('/products/{product}', [\App\Http\Controllers\ProductController::class, 'destroy'])
+        ->middleware('cap:products.manage');
+
+    // Inventory API Routes
+    Route::get('/inventory', [\App\Http\Controllers\InventoryController::class, 'index'])
+        ->middleware('cap:inventory.view');
+    Route::get('/inventory/{product}/{branch}', [\App\Http\Controllers\InventoryController::class, 'show'])
+        ->middleware('cap:inventory.view');
+    Route::post('/inventory/opening', [\App\Http\Controllers\InventoryController::class, 'opening'])
+        ->middleware('cap:inventory.manage');
+    Route::post('/inventory/receive', [\App\Http\Controllers\InventoryController::class, 'receive'])
+        ->middleware('cap:inventory.manage');
+    Route::post('/inventory/reserve', [\App\Http\Controllers\InventoryController::class, 'reserve'])
+        ->middleware('cap:inventory.manage');
+    Route::post('/inventory/unreserve', [\App\Http\Controllers\InventoryController::class, 'unreserve'])
+        ->middleware('cap:inventory.manage');
+    Route::post('/inventory/issue', [\App\Http\Controllers\InventoryController::class, 'issue'])
+        ->middleware('cap:inventory.manage');
+    Route::post('/inventory/transfer', [\App\Http\Controllers\InventoryController::class, 'transfer'])
+        ->middleware('cap:inventory.manage');
+    Route::post('/inventory/adjust', [\App\Http\Controllers\InventoryController::class, 'adjust'])
+        ->middleware('cap:inventory.manage');
+
+    // Stock Movement API Routes
+    Route::get('/stock-movements', [\App\Http\Controllers\StockMovementController::class, 'index'])
+        ->middleware('cap:inventory.view');
+    Route::get('/stock-movements/{stockMovement}', [\App\Http\Controllers\StockMovementController::class, 'show'])
+        ->middleware('cap:inventory.view');
+    Route::get('/stock-movements/reports/summary', [\App\Http\Controllers\StockMovementController::class, 'summary'])
+        ->middleware('cap:inventory.view');
+    Route::get('/stock-movements/reports/by-product/{product}', [\App\Http\Controllers\StockMovementController::class, 'byProduct'])
+        ->middleware('cap:inventory.view');
+    Route::get('/stock-movements/reports/by-branch/{branch}', [\App\Http\Controllers\StockMovementController::class, 'byBranch'])
+        ->middleware('cap:inventory.view');
 });

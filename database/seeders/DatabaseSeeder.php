@@ -70,7 +70,12 @@ class DatabaseSeeder extends Seeder
             // User management
             ['name' => 'Manage Users', 'key' => 'users.manage', 'group' => 'users'],
 
+            // Products capabilities
+            ['name' => 'View Products', 'key' => 'products.view', 'group' => 'products'],
+            ['name' => 'Manage Products', 'key' => 'products.manage', 'group' => 'products'],
+
             // Inventory capabilities
+            ['name' => 'View Inventory', 'key' => 'inventory.view', 'group' => 'inventory'],
             ['name' => 'Manage Inventory', 'key' => 'inventory.manage', 'group' => 'inventory'],
             ['name' => 'Read Inventory', 'key' => 'inventory.read', 'group' => 'inventory'],
 
@@ -95,6 +100,7 @@ class DatabaseSeeder extends Seeder
         $roleCaps = [
             'admin' => array_keys($capModels), // All capabilities
             'manager' => [ // Read/report access
+                'products.view',
                 'telebirr.view',
                 'gl.view',
                 'audit.read',
@@ -128,6 +134,7 @@ class DatabaseSeeder extends Seeder
                 'receipts.void',
             ],
             'inventory' => [ // Inventory management
+                'products.view',
                 'inventory.read',
                 'inventory.manage',
             ],
