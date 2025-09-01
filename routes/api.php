@@ -186,4 +186,38 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->middleware('cap:audit.view');
     Route::get('/audit/logs/{log}', [\App\Http\Controllers\AuditController::class, 'show'])
         ->middleware('cap:audit.view');
+
+    // Voucher API Routes
+    Route::post('/vouchers/batches', [\App\Http\Controllers\VoucherController::class, 'receiveBatch'])
+        ->middleware('cap:vouchers.manage');
+    Route::get('/vouchers/batches', [\App\Http\Controllers\VoucherController::class, 'listBatches'])
+        ->middleware('cap:vouchers.view');
+    Route::get('/vouchers/batches/{batchNumber}', [\App\Http\Controllers\VoucherController::class, 'getBatch'])
+        ->middleware('cap:vouchers.view');
+    Route::get('/vouchers/batches/{batchNumber}/available', [\App\Http\Controllers\VoucherController::class, 'getAvailableVouchers'])
+        ->middleware('cap:vouchers.view');
+
+    // Voucher Reservation Routes
+    Route::post('/vouchers/reserve', [\App\Http\Controllers\VoucherController::class, 'reserveVouchers'])
+        ->middleware('cap:vouchers.manage');
+    Route::delete('/vouchers/reservations/{reservationId}', [\App\Http\Controllers\VoucherController::class, 'cancelReservation'])
+        ->middleware('cap:vouchers.manage');
+    Route::get('/vouchers/orders/{orderId}/reservations', [\App\Http\Controllers\VoucherController::class, 'getOrderReservations'])
+        ->middleware('cap:vouchers.view');
+    Route::patch('/vouchers/reservations/{reservationId}/extend', [\App\Http\Controllers\VoucherController::class, 'extendReservation'])
+        ->middleware('cap:vouchers.manage');
+    Route::post('/vouchers/reservations/cleanup', [\App\Http\Controllers\VoucherController::class, 'cleanupExpiredReservations'])
+        ->middleware('cap:vouchers.manage');
+
+    // Voucher Issuance Routes
+    Route::post('/vouchers/issue', [\App\Http\Controllers\VoucherController::class, 'issueVouchers'])
+        ->middleware('cap:vouchers.manage');
+    Route::post('/vouchers/issue-by-reservations', [\App\Http\Controllers\VoucherController::class, 'issueVouchersByReservations'])
+        ->middleware('cap:vouchers.manage');
+    Route::get('/vouchers/orders/{orderId}/issuances', [\App\Http\Controllers\VoucherController::class, 'getOrderIssuances'])
+        ->middleware('cap:vouchers.view');
+    Route::get('/vouchers/fulfillments/{fulfillmentId}/issuances', [\App\Http\Controllers\VoucherController::class, 'getFulfillmentIssuances'])
+        ->middleware('cap:vouchers.view');
+    Route::patch('/vouchers/issuances/{issuanceId}/void', [\App\Http\Controllers\VoucherController::class, 'voidIssuance'])
+        ->middleware('cap:vouchers.manage');
 });

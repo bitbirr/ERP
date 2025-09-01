@@ -8,6 +8,7 @@ This repository contains Postman collections and environments for testing the ER
 2. **Inventory.postman_collection.json** - Inventory management operations
 3. **StockMovement.postman_collection.json** - Stock movement history and reporting
 4. **ERP_API_Environments.postman_environment.json** - Environment variables for different roles and environments
+5. **Vouchers API** - Digital voucher lifecycle management (implemented in this task)
 
 ## Setup Instructions
 
@@ -106,6 +107,22 @@ Update the `baseURL` variable based on your environment:
 - `GET /stock-movements/reports/by-product/{id}` - Movements by product
 - `GET /stock-movements/reports/by-branch/{id}` - Movements by branch
 
+### Voucher API
+- `POST /vouchers/batches` - Receive voucher batch
+- `GET /vouchers/batches` - List voucher batches
+- `GET /vouchers/batches/{batchNumber}` - Get specific voucher batch
+- `GET /vouchers/batches/{batchNumber}/available` - Get available vouchers in batch
+- `POST /vouchers/reserve` - Reserve vouchers for order
+- `DELETE /vouchers/reservations/{reservationId}` - Cancel voucher reservation
+- `GET /vouchers/orders/{orderId}/reservations` - Get reservations for order
+- `PATCH /vouchers/reservations/{reservationId}/extend` - Extend reservation expiry
+- `POST /vouchers/reservations/cleanup` - Cleanup expired reservations
+- `POST /vouchers/issue` - Issue vouchers for fulfillment
+- `POST /vouchers/issue-by-reservations` - Issue vouchers by reservation IDs
+- `GET /vouchers/orders/{orderId}/issuances` - Get issuances for order
+- `GET /vouchers/fulfillments/{fulfillmentId}/issuances` - Get issuances for fulfillment
+- `PATCH /vouchers/issuances/{issuanceId}/void` - Void voucher issuance
+
 ## Authentication
 
 All requests automatically include the `Authorization: Bearer {{token}}` header via pre-request scripts.
@@ -136,6 +153,9 @@ Each collection includes:
 - `to_branch_id` - Destination branch for transfers
 - `stock_movement_id` - Sample stock movement UUID
 - `receipt_id` - Sample receipt UUID
+- `voucher_batch_number` - Sample voucher batch number
+- `order_id` - Sample order ID
+- `fulfillment_id` - Sample fulfillment ID
 
 ## Working API Examples
 
@@ -166,6 +186,152 @@ Authorization: Bearer 24|hoCUoBbmKN8T4ScjsSM7aMweruenHRwoohap03B7a8709f15
 # Response: Returns 34 stock movement records including OPENING, RESERVE, ISSUE operations
 ```
 
+### Voucher API
+
+#### 1. Receive Voucher Batch
+```bash
+POST http://localhost:8000/api/vouchers/batches
+Authorization: Bearer 24|hoCUoBbmKN8T4ScjsSM7aMweruenHRwoohap03B7a8709f15
+Content-Type: application/json
+
+{
+  "batch_number": "VOUCHER_BATCH_001",
+  "serial_start": "000100",
+  "serial_end": "000105",
+  "total_vouchers": 6,
+  "metadata": {
+    "supplier": "Test Supplier",
+    "batch_date": "2025-01-01",
+    "voucher_type": "gift_card"
+  }
+}
+
+# Response: Creates batch and 6 individual vouchers with serial numbers 000100-000105
+```
+
+#### 2. Reserve Vouchers for Order
+```bash
+POST http://localhost:8000/api/vouchers/reserve
+Authorization: Bearer 24|hoCUoBbmKN8T4ScjsSM7aMweruenHRwoohap03B7a8709f15
+Content-Type: application/json
+
+{
+  "order_id": "ORDER_12345",
+  "quantity": 3,
+  "batch_number": "VOUCHER_BATCH_001"
+}
+
+# Response: Reserves 3 vouchers for the order, changes status from 'available' to 'reserved'
+```
+
+#### 3. Issue Vouchers on Fulfillment
+```bash
+POST http://localhost:8000/api/vouchers/issue
+Authorization: Bearer 24|hoCUoBbmKN8T4ScjsSM7aMweruenHRwoohap03B7a8709f15
+Content-Type: application/json
+
+{
+  "order_id": "ORDER_12345",
+  "fulfillment_id": "FULFILLMENT_001",
+  "voucher_ids": [1, 2, 3]
+}
+
+# Response: Issues reserved vouchers, changes status to 'issued', creates issuance records
+```
+
+#### 4. Get Voucher Batch Details
+```bash
+GET http://localhost:8000/api/vouchers/batches/VOUCHER_BATCH_001
+Authorization: Bearer 24|hoCUoBbmKN8T4ScjsSM7aMweruenHRwoohap03B7a8709f15
+
+# Response: Returns batch details including serial range metadata and voucher counts
+```
+
+#### 5. Get Available Vouchers in Batch
+```bash
+GET http://localhost:8000/api/vouchers/batches/VOUCHER_BATCH_001/available
+Authorization: Bearer 24|hoCUoBbmKN8T4ScjsSM7aMweruenHRwoohap03B7a8709f15
+
+# Response: Returns list of available vouchers in the batch
+```
+
+#### 6. Get Order Reservations
+```bash
+GET http://localhost:8000/api/vouchers/orders/ORDER_12345/reservations
+Authorization: Bearer 24|hoCUoBbmKN8T4ScjsSM7aMweruenHRwoohap03B7a8709f15
+
+# Response: Returns all voucher reservations for the specified order
+```
+
+#### 7. Cancel Reservation
+```bash
+DELETE http://localhost:8000/api/vouchers/reservations/1
+Authorization: Bearer 24|hoCUoBbmKN8T4ScjsSM7aMweruenHRwoohap03B7a8709f15
+
+# Response: Cancels reservation, makes voucher available again
+```
+
+#### 8. Extend Reservation
+```bash
+PATCH http://localhost:8000/api/vouchers/reservations/1/extend
+Authorization: Bearer 24|hoCUoBbmKN8T4ScjsSM7aMweruenHRwoohap03B7a8709f15
+Content-Type: application/json
+
+{
+  "hours": 48
+}
+
+# Response: Extends reservation expiry by 48 hours
+```
+
+#### 9. Void Issuance
+```bash
+PATCH http://localhost:8000/api/vouchers/issuances/1/void
+Authorization: Bearer 24|hoCUoBbmKN8T4ScjsSM7aMweruenHRwoohap03B7a8709f15
+Content-Type: application/json
+
+{
+  "reason": "Customer return"
+}
+
+# Response: Voids issuance, makes voucher available again
+```
+
+## Voucher Lifecycle Business Process
+
+The voucher system implements a complete digital voucher lifecycle with the following states:
+
+### 1. Batch Reception
+- Receive voucher batches with serial number ranges
+- Automatically generate individual voucher records
+- Store serial range metadata for audit and tracking
+- Status: `received` → `processed`
+
+### 2. Voucher Reservation
+- Reserve specific vouchers for customer orders
+- Prevent double-booking of vouchers
+- Automatic expiry handling (default 24 hours)
+- Status: `available` → `reserved`
+
+### 3. Fulfillment & Issuance
+- Issue reserved vouchers upon order fulfillment
+- Create issuance records for tracking
+- Update voucher status to issued
+- Status: `reserved` → `issued`
+
+### 4. Management Operations
+- Cancel reservations (returns vouchers to available pool)
+- Extend reservation expiry times
+- Void issuances for returns/refunds
+- Cleanup expired reservations automatically
+
+### Key Features
+- **Serial Range Tracking**: Complete serial number ranges stored in metadata
+- **Audit Trail**: Full history of voucher state changes
+- **Idempotent Operations**: Safe retry of operations
+- **RBAC Integration**: Capability-based access control
+- **Batch Processing**: Efficient handling of large voucher batches
+
 ## Usage Tips
 
 1. **Switch Roles**: Change the `token` variable to test different user roles
@@ -173,6 +339,7 @@ Authorization: Bearer 24|hoCUoBbmKN8T4ScjsSM7aMweruenHRwoohap03B7a8709f15
 3. **Test Data**: Update sample IDs with actual data from your database
 4. **Sequential Testing**: Run inventory operations in sequence to maintain data consistency
 5. **RBAC Testing**: Test with different user roles to verify capability restrictions
+6. **Voucher Lifecycle**: Test complete voucher workflows from batch reception to issuance
 
 ## Security Notes
 
