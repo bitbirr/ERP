@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 use App\Models\Product;
 use App\Models\Branch;
 use App\Models\InventoryItem;
@@ -53,7 +54,7 @@ class InventoryController extends Controller
     /**
      * Display the specified inventory item.
      */
-    public function show(Product $product, Branch $branch): JsonResponse
+    public function show(Branch $branch, Product $product): JsonResponse
     {
         $inventoryItem = InventoryItem::where('product_id', $product->id)
             ->where('branch_id', $branch->id)
@@ -326,6 +327,152 @@ class InventoryController extends Controller
             );
 
             return response()->json($inventoryItem);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+    }
+
+    /**
+     * Bulk receive stock for multiple products at a branch.
+     */
+    public function bulkReceive(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'branch_id' => 'required|exists:branches,id',
+            'items' => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.qty' => 'required|numeric|min:0.01',
+            'items.*.ref' => 'nullable|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $branch = Branch::findOrFail($request->branch_id);
+            $results = [];
+            $errors = [];
+
+            DB::transaction(function () use ($request, $branch, &$results, &$errors) {
+                foreach ($request->items as $index => $item) {
+                    try {
+                        $product = Product::findOrFail($item['product_id']);
+
+                        $inventoryItem = $this->inventoryService->receiveStock(
+                            $product,
+                            $branch,
+                            $item['qty'],
+                            $item['ref'] ?? null,
+                            $request->input('context', [])
+                        );
+
+                        $results[] = [
+                            'index' => $index,
+                            'product_id' => $item['product_id'],
+                            'qty' => $item['qty'],
+                            'inventory_item' => $inventoryItem
+                        ];
+                    } catch (\Exception $e) {
+                        $errors[] = [
+                            'index' => $index,
+                            'product_id' => $item['product_id'],
+                            'error' => $e->getMessage()
+                        ];
+                        throw $e; // Re-throw to rollback transaction
+                    }
+                }
+            });
+
+            if (!empty($errors)) {
+                return response()->json([
+                    'message' => 'Bulk receive partially failed',
+                    'successful' => $results,
+                    'failed' => $errors
+                ], 422);
+            }
+
+            return response()->json([
+                'message' => 'Bulk receive completed successfully',
+                'results' => $results
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+    }
+
+    /**
+     * Bulk reserve stock for multiple products at a branch.
+     */
+    public function bulkReserve(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'branch_id' => 'required|exists:branches,id',
+            'items' => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.qty' => 'required|numeric|min:0.01',
+            'items.*.ref' => 'nullable|string|max:255'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $branch = Branch::findOrFail($request->branch_id);
+            $results = [];
+            $errors = [];
+
+            DB::transaction(function () use ($request, $branch, &$results, &$errors) {
+                foreach ($request->items as $index => $item) {
+                    try {
+                        $product = Product::findOrFail($item['product_id']);
+
+                        $inventoryItem = $this->inventoryService->reserve(
+                            $product,
+                            $branch,
+                            $item['qty'],
+                            $item['ref'] ?? null,
+                            $request->input('context', [])
+                        );
+
+                        $results[] = [
+                            'index' => $index,
+                            'product_id' => $item['product_id'],
+                            'qty' => $item['qty'],
+                            'inventory_item' => $inventoryItem
+                        ];
+                    } catch (\Exception $e) {
+                        $errors[] = [
+                            'index' => $index,
+                            'product_id' => $item['product_id'],
+                            'error' => $e->getMessage()
+                        ];
+                        throw $e; // Re-throw to rollback transaction
+                    }
+                }
+            });
+
+            if (!empty($errors)) {
+                return response()->json([
+                    'message' => 'Bulk reserve partially failed',
+                    'successful' => $results,
+                    'failed' => $errors
+                ], 422);
+            }
+
+            return response()->json([
+                'message' => 'Bulk reserve completed successfully',
+                'results' => $results
+            ]);
+
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 422);
         }

@@ -129,7 +129,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/products', [\App\Http\Controllers\ProductController::class, 'index'])
         ->middleware('cap:products.read');
     Route::post('/products', [\App\Http\Controllers\ProductController::class, 'store'])
-        ->middleware('cap:products.create');
+        ->middleware('cap:products.manage');
     Route::get('/products/{product}', [\App\Http\Controllers\ProductController::class, 'show'])
         ->middleware('cap:products.read');
     Route::patch('/products/{product}', [\App\Http\Controllers\ProductController::class, 'update'])
@@ -140,7 +140,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Inventory API Routes
     Route::get('/inventory', [\App\Http\Controllers\InventoryController::class, 'index'])
         ->middleware('cap:inventory.read');
-    Route::get('/inventory/{product}/{branch}', [\App\Http\Controllers\InventoryController::class, 'show'])
+    Route::get('/inventory/{branch}/{product}', [\App\Http\Controllers\InventoryController::class, 'show'])
         ->middleware('cap:inventory.read');
     Route::post('/inventory/opening', [\App\Http\Controllers\InventoryController::class, 'opening'])
         ->middleware('cap:inventory.adjust');
@@ -156,6 +156,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->middleware('cap:inventory.transfer');
     Route::post('/inventory/adjust', [\App\Http\Controllers\InventoryController::class, 'adjust'])
         ->middleware('cap:inventory.adjust');
+    Route::post('/inventory/receive/bulk', [\App\Http\Controllers\InventoryController::class, 'bulkReceive'])
+        ->middleware('cap:inventory.receive');
+    Route::post('/inventory/reserve/bulk', [\App\Http\Controllers\InventoryController::class, 'bulkReserve'])
+        ->middleware('cap:inventory.reserve');
 
     // Stock Movement API Routes
     Route::get('/stock-movements', [\App\Http\Controllers\StockMovementController::class, 'index'])

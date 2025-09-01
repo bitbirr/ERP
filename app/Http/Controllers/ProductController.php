@@ -26,8 +26,8 @@ class ProductController extends Controller
             $query->where('is_active', $request->boolean('is_active'));
         }
 
-        if ($request->has('search')) {
-            $search = $request->search;
+        if ($request->has('q')) {
+            $search = $request->q;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'ilike', "%{$search}%")
                   ->orWhere('code', 'ilike', "%{$search}%");
@@ -94,6 +94,15 @@ class ProductController extends Controller
                 'message' => 'Validation failed',
                 'errors' => $validator->errors()
             ], 422);
+        }
+
+        // Check if type is being changed and if product has stock
+        if ($request->has('type') && $request->type !== $product->type) {
+            if ($product->inventoryItems()->where('on_hand', '>', 0)->exists()) {
+                return response()->json([
+                    'message' => 'Cannot change product type when stock exists'
+                ], 422);
+            }
         }
 
         $product->update($request->all());
