@@ -403,14 +403,21 @@ class InventoryService
     /**
      * Adjust stock: manual correction, increment/decrement on_hand, log movement.
      * Constraint: cannot make on_hand negative.
+     * Requires 'inventory.adjust' capability.
      */
-    public function adjust(Product $product, Branch $branch, float $qty, ?string $ref = null, array $ctx = []): InventoryItem
+    public function adjust(Product $product, Branch $branch, float $qty, ?string $reason = null, ?string $ref = null, array $ctx = []): InventoryItem
     {
         if ($qty == 0) {
             throw new HttpException(422, 'Adjust quantity cannot be zero');
         }
 
-        return DB::transaction(function () use ($product, $branch, $qty, $ref, $ctx) {
+        // Check if user has inventory.adjust capability
+        $user = auth()->user();
+        if (!$user || !$user->hasCapability('inventory.adjust', $branch)) {
+            throw new HttpException(403, 'Insufficient permissions to adjust inventory');
+        }
+
+        return DB::transaction(function () use ($product, $branch, $qty, $reason, $ref, $ctx) {
             $item = InventoryItem::where('product_id', $product->id)
                 ->where('branch_id', $branch->id)
                 ->lockForUpdate()
@@ -444,18 +451,41 @@ class InventoryService
                 }
             }
 
+            $previousOnHand = $item->on_hand;
             $item->on_hand += $qty;
             $item->save();
 
-            StockMovement::create([
+            // Prepare meta data with reason
+            $meta = $ctx['meta'] ?? [];
+            if ($reason) {
+                $meta['reason'] = $reason;
+            }
+
+            $movement = StockMovement::create([
                 'product_id' => $product->id,
                 'branch_id' => $branch->id,
                 'qty' => $qty,
                 'type' => 'ADJUST',
                 'ref' => $ref,
-                'meta' => $ctx['meta'] ?? null,
+                'meta' => $meta,
                 'created_by' => $ctx['created_by'] ?? null,
             ]);
+
+            // Audit the stock adjustment
+            $this->auditLogger->log(
+                'inventory.stock.adjusted',
+                $movement,
+                null,
+                $movement->toArray(),
+                array_merge($ctx, [
+                    'product_name' => $product->name,
+                    'branch_name' => $branch->name,
+                    'reason' => $reason,
+                    'previous_on_hand' => $previousOnHand,
+                    'new_on_hand' => $item->on_hand,
+                    'adjusted_quantity' => $qty,
+                ])
+            );
 
             return $item->fresh();
         });

@@ -304,6 +304,7 @@ class InventoryController extends Controller
             'product_id' => 'required|exists:products,id',
             'branch_id' => 'required|exists:branches,id',
             'qty' => 'required|numeric',
+            'reason' => 'nullable|string|max:255',
             'ref' => 'nullable|string|max:255'
         ]);
 
@@ -322,6 +323,7 @@ class InventoryController extends Controller
                 $product,
                 $branch,
                 $request->qty,
+                $request->reason,
                 $request->ref,
                 $request->input('context', [])
             );
