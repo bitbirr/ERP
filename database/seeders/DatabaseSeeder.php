@@ -165,11 +165,11 @@ class DatabaseSeeder extends Seeder
 
         // 4b. Create Products (static + factory for realistic data)
         $products = [
-            ['code' => 'P001', 'name' => 'Yimulu', 'type' => 'YIMULU', 'uom' => 'card', 'is_active' => true],
-            ['code' => 'P002', 'name' => 'Voucher card', 'type' => 'VOUCHER', 'uom' => 'airtime', 'is_active' => true],
-            ['code' => 'P003', 'name' => 'EVD', 'type' => 'EVD', 'uom' => 'pcs', 'is_active' => true],
-            ['code' => 'P004', 'name' => 'simcard', 'type' => 'SIM', 'uom' => 'pcs', 'is_active' => true],
-            ['code' => 'P005', 'name' => 'telebirr', 'type' => 'TELEBIRR', 'uom' => 'amount', 'is_active' => true],
+            ['id' => (string) Str::uuid(), 'code' => 'P001', 'name' => 'Yimulu', 'type' => 'YIMULU', 'uom' => 'card', 'is_active' => true],
+            ['id' => (string) Str::uuid(), 'code' => 'P002', 'name' => 'Voucher card', 'type' => 'VOUCHER', 'uom' => 'airtime', 'is_active' => true],
+            ['id' => (string) Str::uuid(), 'code' => 'P003', 'name' => 'EVD', 'type' => 'EVD', 'uom' => 'pcs', 'is_active' => true],
+            ['id' => (string) Str::uuid(), 'code' => 'P004', 'name' => 'simcard', 'type' => 'SIM', 'uom' => 'pcs', 'is_active' => true],
+            ['id' => (string) Str::uuid(), 'code' => 'P005', 'name' => 'telebirr', 'type' => 'TELEBIRR', 'uom' => 'amount', 'is_active' => true],
         ];
         foreach ($products as $product) {
             \App\Models\Product::firstOrCreate(['code' => $product['code']], $product);

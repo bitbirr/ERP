@@ -10,7 +10,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('inventory_items', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->uuid('id')->primary();
             $table->uuid('product_id');
             $table->uuid('branch_id');
             $table->decimal('on_hand', 16, 3)->default(0);

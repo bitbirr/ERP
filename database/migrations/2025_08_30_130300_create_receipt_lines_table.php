@@ -9,7 +9,7 @@ class CreateReceiptLinesTable extends Migration
     public function up()
     {
         Schema::create('receipt_lines', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->uuid('id')->primary();
             $table->uuid('receipt_id');
             $table->uuid('product_id');
             $table->string('uom', 10)->default('PCS');

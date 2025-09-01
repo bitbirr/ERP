@@ -67,4 +67,12 @@ class RbacCacheBuilder
             );
         });
     }
+
+    public static function rebuildAll(): void
+    {
+        $users = User::all();
+        foreach ($users as $user) {
+            app(self::class)->rebuildForUser($user);
+        }
+    }
 }

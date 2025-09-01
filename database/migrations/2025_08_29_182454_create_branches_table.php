@@ -15,7 +15,7 @@ return new class extends Migration
         DB::unprepared("CREATE EXTENSION IF NOT EXISTS pgcrypto;");
 
         Schema::create('branches', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->uuid('id')->primary();
             $table->string('name');
             $table->string('code')->unique();
             $table->timestamps();

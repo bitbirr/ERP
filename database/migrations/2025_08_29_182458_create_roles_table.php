@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
          Schema::create('roles', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->uuid('id')->primary();
             $table->string('name')->unique();
             $table->string('slug')->unique();
             $table->boolean('is_system')->default(false);
@@ -21,7 +21,7 @@ return new class extends Migration
         });
 
         Schema::create('capabilities', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->uuid('id')->primary();
             $table->string('name')->unique();
             $table->string('key')->unique(); // e.g., tx.view
             $table->string('group')->nullable(); // e.g., transactions

@@ -13,7 +13,7 @@ return new class extends Migration
         DB::statement('CREATE EXTENSION IF NOT EXISTS "pgcrypto";');
 
         Schema::create('products', function (Blueprint $table) {
-            $table->uuid('id')->primary()->default(DB::raw('gen_random_uuid()'));
+            $table->uuid('id')->primary();
             $table->string('code')->unique();
             $table->string('name')->index();
             $table->string('type')->index(); // e.g., YIMULU, VOUCHER, EVD, SIM, TELEBIRR, E_AIRTIME
