@@ -161,6 +161,18 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/inventory/reserve/bulk', [\App\Http\Controllers\InventoryController::class, 'bulkReserve'])
         ->middleware('cap:inventory.reserve');
 
+    // Stock Reporting API Routes
+    Route::get('/reports/stock/onhand', [\App\Http\Controllers\InventoryController::class, 'stockOnHand'])
+        ->middleware('cap:inventory.read');
+    Route::get('/reports/stock/movements', [\App\Http\Controllers\InventoryController::class, 'stockMovements'])
+        ->middleware('cap:inventory.read');
+    Route::get('/reports/stock/valuation', [\App\Http\Controllers\InventoryController::class, 'stockValuation'])
+        ->middleware('cap:inventory.read');
+    Route::get('/reports/stock/reserved-backlog', [\App\Http\Controllers\InventoryController::class, 'reservedBacklog'])
+        ->middleware('cap:inventory.read');
+    Route::get('/audit/stock-movements', [\App\Http\Controllers\InventoryController::class, 'auditStockMovements'])
+        ->middleware('cap:inventory.read');
+
     // Stock Movement API Routes
     Route::get('/stock-movements', [\App\Http\Controllers\StockMovementController::class, 'index'])
         ->middleware('cap:inventory.view');

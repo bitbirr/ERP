@@ -500,4 +500,285 @@ class InventoryController extends Controller
             return response()->json(['message' => $e->getMessage()], 422);
         }
     }
+
+    /**
+     * Get stock on-hand report.
+     * Sums by product/branch; includes reserved/available; filterable by branch and type.
+     */
+    public function stockOnHand(Request $request): JsonResponse
+    {
+        $query = InventoryItem::with(['product', 'branch'])
+            ->select([
+                'inventory_items.product_id',
+                'inventory_items.branch_id',
+                'inventory_items.on_hand',
+                'inventory_items.reserved',
+                DB::raw('(inventory_items.on_hand - inventory_items.reserved) as available')
+            ]);
+
+        // Filter by branch
+        if ($request->has('branch')) {
+            $query->where('inventory_items.branch_id', $request->branch);
+        }
+
+        // Filter by product type
+        if ($request->has('type')) {
+            $query->join('products', 'inventory_items.product_id', '=', 'products.id')
+                ->where('products.type', $request->type);
+        }
+
+        // Group by product and branch, sum quantities
+        $results = $query->get()
+            ->groupBy(['product_id', 'branch_id'])
+            ->map(function ($items) {
+                $item = $items->first();
+                return [
+                    'product_id' => $item->product_id,
+                    'product_name' => $item->product->name,
+                    'product_code' => $item->product->code,
+                    'product_type' => $item->product->type,
+                    'branch_id' => $item->branch_id,
+                    'branch_name' => $item->branch->name,
+                    'on_hand' => $items->sum('on_hand'),
+                    'reserved' => $items->sum('reserved'),
+                    'available' => $items->sum('available')
+                ];
+            })
+            ->values();
+
+        return response()->json([
+            'data' => $results,
+            'total' => $results->count()
+        ]);
+    }
+
+    /**
+     * Get stock movements report.
+     * Paginated ledger; totals by movement_type.
+     */
+    public function stockMovements(Request $request): JsonResponse
+    {
+        $query = StockMovement::with(['product', 'branch'])
+            ->select([
+                'stock_movements.id',
+                'stock_movements.product_id',
+                'stock_movements.branch_id',
+                'stock_movements.qty',
+                'stock_movements.type',
+                'stock_movements.ref',
+                'stock_movements.created_at',
+                'stock_movements.created_by'
+            ]);
+
+        // Filter by date range
+        if ($request->has('from')) {
+            $query->where('created_at', '>=', $request->from);
+        }
+        if ($request->has('to')) {
+            $query->where('created_at', '<=', $request->to);
+        }
+
+        // Filter by type
+        if ($request->has('type')) {
+            $query->where('type', $request->type);
+        }
+
+        // Filter by branch
+        if ($request->has('branch')) {
+            $query->where('branch_id', $request->branch);
+        }
+
+        // Get paginated results
+        $movements = $query->orderBy('created_at', 'desc')
+            ->paginate($request->get('per_page', 50));
+
+        // Calculate totals by movement type
+        $totals = StockMovement::select('type', DB::raw('SUM(qty) as total_qty'), DB::raw('COUNT(*) as count'))
+            ->when($request->has('from'), fn($q) => $q->where('created_at', '>=', $request->from))
+            ->when($request->has('to'), fn($q) => $q->where('created_at', '<=', $request->to))
+            ->when($request->has('type'), fn($q) => $q->where('type', $request->type))
+            ->when($request->has('branch'), fn($q) => $q->where('branch_id', $request->branch))
+            ->groupBy('type')
+            ->get()
+            ->keyBy('type');
+
+        return response()->json([
+            'data' => $movements,
+            'totals' => $totals
+        ]);
+    }
+
+    /**
+     * Get stock valuation report.
+     * Cost*qty for physical goods; strategy flag for digital.
+     */
+    public function stockValuation(Request $request): JsonResponse
+    {
+        $asOf = $request->get('as_of', now());
+
+        $query = InventoryItem::with(['product', 'branch'])
+            ->select([
+                'inventory_items.product_id',
+                'inventory_items.branch_id',
+                'inventory_items.on_hand',
+                'products.cost',
+                'products.type',
+                'products.pricing_strategy'
+            ])
+            ->join('products', 'inventory_items.product_id', '=', 'products.id');
+
+        // Filter by branch
+        if ($request->has('branch')) {
+            $query->where('inventory_items.branch_id', $request->branch);
+        }
+
+        $results = $query->get()
+            ->groupBy(['product_id', 'branch_id'])
+            ->map(function ($items) {
+                $item = $items->first();
+                $totalQty = $items->sum('on_hand');
+
+                // Calculate valuation based on product type
+                if ($item->type === 'digital') {
+                    $valuation = 0; // Zero-cost for digital goods
+                    if ($item->pricing_strategy === 'nominal') {
+                        $valuation = $totalQty * 0.01; // Nominal value
+                    }
+                } else {
+                    $valuation = $totalQty * $item->cost;
+                }
+
+                return [
+                    'product_id' => $item->product_id,
+                    'product_name' => $item->product->name,
+                    'product_code' => $item->product->code,
+                    'product_type' => $item->type,
+                    'pricing_strategy' => $item->pricing_strategy,
+                    'branch_id' => $item->branch_id,
+                    'branch_name' => $item->branch->name,
+                    'quantity' => $totalQty,
+                    'unit_cost' => $item->cost,
+                    'total_value' => $valuation
+                ];
+            })
+            ->values();
+
+        $totalValuation = $results->sum('total_value');
+
+        return response()->json([
+            'data' => $results,
+            'total_valuation' => $totalValuation,
+            'as_of' => $asOf
+        ]);
+    }
+
+    /**
+     * Get reserved backlog report.
+     * Aging of reservations; identify stale holds.
+     */
+    public function reservedBacklog(Request $request): JsonResponse
+    {
+        $olderThan = $request->get('older_than', now()->subDays(30));
+
+        $query = StockMovement::with(['product', 'branch'])
+            ->select([
+                'stock_movements.product_id',
+                'stock_movements.branch_id',
+                'stock_movements.qty',
+                'stock_movements.ref',
+                'stock_movements.created_at',
+                'stock_movements.created_by',
+                DB::raw('SUM(stock_movements.qty) as reserved_qty')
+            ])
+            ->where('type', 'RESERVE')
+            ->where('created_at', '<=', $olderThan)
+            ->groupBy(['product_id', 'branch_id', 'ref', 'created_at', 'created_by']);
+
+        // Filter by branch
+        if ($request->has('branch')) {
+            $query->where('branch_id', $request->branch);
+        }
+
+        $reservations = $query->get()
+            ->map(function ($reservation) {
+                $daysOld = now()->diffInDays($reservation->created_at);
+
+                return [
+                    'product_id' => $reservation->product_id,
+                    'product_name' => $reservation->product->name,
+                    'product_code' => $reservation->product->code,
+                    'branch_id' => $reservation->branch_id,
+                    'branch_name' => $reservation->branch->name,
+                    'reserved_qty' => $reservation->reserved_qty,
+                    'ref' => $reservation->ref,
+                    'created_at' => $reservation->created_at,
+                    'created_by' => $reservation->created_by,
+                    'days_old' => $daysOld,
+                    'is_stale' => $daysOld > 60 // Consider >60 days as stale
+                ];
+            })
+            ->sortByDesc('days_old')
+            ->values();
+
+        return response()->json([
+            'data' => $reservations,
+            'total_reservations' => $reservations->count(),
+            'total_reserved_qty' => $reservations->sum('reserved_qty'),
+            'stale_reservations' => $reservations->where('is_stale', true)->count(),
+            'older_than' => $olderThan
+        ]);
+    }
+
+    /**
+     * Get stock movements audit report.
+     * Filter by ref (receipt/supplier), movement_type, user_id.
+     */
+    public function auditStockMovements(Request $request): JsonResponse
+    {
+        $query = StockMovement::with(['product', 'branch'])
+            ->select([
+                'stock_movements.id',
+                'stock_movements.product_id',
+                'stock_movements.branch_id',
+                'stock_movements.qty',
+                'stock_movements.type',
+                'stock_movements.ref',
+                'stock_movements.meta',
+                'stock_movements.created_at',
+                'stock_movements.created_by'
+            ]);
+
+        // Filter by ref
+        if ($request->has('ref')) {
+            $query->where('ref', $request->ref);
+        }
+
+        // Filter by user
+        if ($request->has('user')) {
+            $query->where('created_by', $request->user);
+        }
+
+        // Filter by type
+        if ($request->has('type')) {
+            $query->where('type', $request->type);
+        }
+
+        // Filter by branch
+        if ($request->has('branch')) {
+            $query->where('branch_id', $request->branch);
+        }
+
+        // Filter by date range
+        if ($request->has('from')) {
+            $query->where('created_at', '>=', $request->from);
+        }
+        if ($request->has('to')) {
+            $query->where('created_at', '<=', $request->to);
+        }
+
+        $movements = $query->orderBy('created_at', 'desc')
+            ->paginate($request->get('per_page', 50));
+
+        return response()->json($movements);
+    }
 }
