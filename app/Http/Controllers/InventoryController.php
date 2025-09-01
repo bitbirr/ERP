@@ -172,6 +172,8 @@ class InventoryController extends Controller
             );
 
             return response()->json($inventoryItem);
+        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+            return response()->json(['message' => $e->getMessage()], $e->getStatusCode());
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 422);
         }
@@ -246,6 +248,8 @@ class InventoryController extends Controller
             );
 
             return response()->json($inventoryItem);
+        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+            return response()->json(['message' => $e->getMessage()], $e->getStatusCode());
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 422);
         }
@@ -290,6 +294,8 @@ class InventoryController extends Controller
             );
 
             return response()->json(['message' => 'Stock transferred successfully']);
+        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+            return response()->json(['message' => $e->getMessage()], $e->getStatusCode());
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 422);
         }
@@ -451,6 +457,14 @@ class InventoryController extends Controller
                             'qty' => $item['qty'],
                             'inventory_item' => $inventoryItem
                         ];
+                    } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+                        $errors[] = [
+                            'index' => $index,
+                            'product_id' => $item['product_id'],
+                            'error' => $e->getMessage(),
+                            'status_code' => $e->getStatusCode()
+                        ];
+                        throw $e; // Re-throw to rollback transaction
                     } catch (\Exception $e) {
                         $errors[] = [
                             'index' => $index,
@@ -463,11 +477,18 @@ class InventoryController extends Controller
             });
 
             if (!empty($errors)) {
+                // Check if any errors were HttpExceptions with 409 status
+                $hasConcurrencyErrors = collect($errors)->contains(function ($error) {
+                    return isset($error['status_code']) && $error['status_code'] === 409;
+                });
+
+                $statusCode = $hasConcurrencyErrors ? 409 : 422;
+
                 return response()->json([
                     'message' => 'Bulk reserve partially failed',
                     'successful' => $results,
                     'failed' => $errors
-                ], 422);
+                ], $statusCode);
             }
 
             return response()->json([

@@ -143,6 +143,11 @@ class InventoryService
             throw new HttpException(422, 'Reserve quantity must be positive');
         }
 
+        // Check if product is active
+        if (!$product->is_active) {
+            throw new HttpException(422, 'Cannot reserve stock for inactive product');
+        }
+
         return DB::transaction(function () use ($product, $branch, $qty, $ref, $ctx) {
             $item = InventoryItem::where('product_id', $product->id)
                 ->where('branch_id', $branch->id)
@@ -150,7 +155,7 @@ class InventoryService
                 ->first();
 
             if (!$item || $item->on_hand - $item->reserved < $qty) {
-                throw new HttpException(422, 'Not enough available stock to reserve');
+                throw new HttpException(409, 'Not enough available stock to reserve - concurrent request conflict');
             }
 
             // Check for idempotency if ref is provided
@@ -243,6 +248,11 @@ class InventoryService
             throw new HttpException(422, 'Issue quantity must be positive');
         }
 
+        // Check if product is active
+        if (!$product->is_active) {
+            throw new HttpException(422, 'Cannot issue stock for inactive product');
+        }
+
         return DB::transaction(function () use ($product, $branch, $qty, $ref, $ctx) {
             $item = InventoryItem::where('product_id', $product->id)
                 ->where('branch_id', $branch->id)
@@ -250,7 +260,7 @@ class InventoryService
                 ->first();
 
             if (!$item || $item->on_hand - $item->reserved < $qty) {
-                throw new HttpException(422, 'Not enough available stock to issue');
+                throw new HttpException(409, 'Not enough available stock to issue - concurrent request conflict');
             }
 
             // Check for idempotency if ref is provided
@@ -312,6 +322,11 @@ class InventoryService
             throw new HttpException(422, 'Cannot transfer to the same branch');
         }
 
+        // Check if product is active
+        if (!$product->is_active) {
+            throw new HttpException(422, 'Cannot transfer stock for inactive product');
+        }
+
         DB::transaction(function () use ($product, $from, $to, $qty, $ref, $ctx) {
             // Check for idempotency if ref is provided
             if ($ref) {
@@ -357,7 +372,7 @@ class InventoryService
 
             // Source must exist and have enough available
             if (!$source || $source->on_hand - $source->reserved < $qty) {
-                throw new HttpException(422, 'Not enough available stock to transfer');
+                throw new HttpException(409, 'Not enough available stock to transfer - concurrent request conflict');
             }
 
             // Decrement source

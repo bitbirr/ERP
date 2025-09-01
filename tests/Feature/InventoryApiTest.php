@@ -669,4 +669,209 @@ class InventoryApiTest extends TestCase
         $this->inventoryItem->refresh();
         $this->assertEquals(50, $this->inventoryItem->on_hand);
     }
+
+    /** @test */
+    public function cannot_reserve_stock_for_inactive_product()
+    {
+        // Deactivate the product
+        $this->product->update(['is_active' => false]);
+
+        $reserveData = [
+            'product_id' => $this->product->id,
+            'branch_id' => $this->branch->id,
+            'qty' => 10,
+            'ref' => 'RSV001'
+        ];
+
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->postJson('/api/inventory/reserve', $reserveData);
+
+        $response->assertStatus(422)
+            ->assertJson(['message' => 'Cannot reserve stock for inactive product']);
+    }
+
+    /** @test */
+    public function cannot_issue_stock_for_inactive_product()
+    {
+        // Deactivate the product
+        $this->product->update(['is_active' => false]);
+
+        $issueData = [
+            'product_id' => $this->product->id,
+            'branch_id' => $this->branch->id,
+            'qty' => 10,
+            'ref' => 'ISS001'
+        ];
+
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->postJson('/api/inventory/issue', $issueData);
+
+        $response->assertStatus(422)
+            ->assertJson(['message' => 'Cannot issue stock for inactive product']);
+    }
+
+    /** @test */
+    public function cannot_transfer_stock_for_inactive_product()
+    {
+        // Deactivate the product
+        $this->product->update(['is_active' => false]);
+
+        $toBranch = Branch::create([
+            'name' => 'Destination Branch',
+            'code' => 'TB002',
+            'is_active' => true
+        ]);
+
+        $transferData = [
+            'product_id' => $this->product->id,
+            'from_branch_id' => $this->branch->id,
+            'to_branch_id' => $toBranch->id,
+            'qty' => 10,
+            'ref' => 'TRF001'
+        ];
+
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->postJson('/api/inventory/transfer', $transferData);
+
+        $response->assertStatus(422)
+            ->assertJson(['message' => 'Cannot transfer stock for inactive product']);
+    }
+
+    /** @test */
+    public function reserve_returns_409_for_concurrent_conflict()
+    {
+        // First reserve some stock to reduce available
+        $this->inventoryItem->update(['reserved' => 90]); // Only 10 available
+
+        $reserveData = [
+            'product_id' => $this->product->id,
+            'branch_id' => $this->branch->id,
+            'qty' => 20, // More than available
+            'ref' => 'RSV001'
+        ];
+
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->postJson('/api/inventory/reserve', $reserveData);
+
+        $response->assertStatus(409)
+            ->assertJson(['message' => 'Not enough available stock to reserve - concurrent request conflict']);
+    }
+
+    /** @test */
+    public function issue_returns_409_for_concurrent_conflict()
+    {
+        // First reserve some stock to reduce available
+        $this->inventoryItem->update(['reserved' => 90]); // Only 10 available
+
+        $issueData = [
+            'product_id' => $this->product->id,
+            'branch_id' => $this->branch->id,
+            'qty' => 20, // More than available
+            'ref' => 'ISS001'
+        ];
+
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->postJson('/api/inventory/issue', $issueData);
+
+        $response->assertStatus(409)
+            ->assertJson(['message' => 'Not enough available stock to issue - concurrent request conflict']);
+    }
+
+    /** @test */
+    public function transfer_returns_409_for_concurrent_conflict()
+    {
+        // First reserve most of the stock to reduce available
+        $this->inventoryItem->update(['reserved' => 90]); // Only 10 available
+
+        $toBranch = Branch::create([
+            'name' => 'Destination Branch',
+            'code' => 'TB002',
+            'is_active' => true
+        ]);
+
+        $transferData = [
+            'product_id' => $this->product->id,
+            'from_branch_id' => $this->branch->id,
+            'to_branch_id' => $toBranch->id,
+            'qty' => 20, // More than available
+            'ref' => 'TRF001'
+        ];
+
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->postJson('/api/inventory/transfer', $transferData);
+
+        $response->assertStatus(409)
+            ->assertJson(['message' => 'Not enough available stock to transfer - concurrent request conflict']);
+    }
+
+    /** @test */
+    public function bulk_reserve_returns_409_when_concurrency_conflicts_occur()
+    {
+        $product2 = Product::create([
+            'code' => 'TEST002',
+            'name' => 'Test Product 2',
+            'type' => 'YIMULU',
+            'uom' => 'PCS',
+            'is_active' => true
+        ]);
+
+        // Create inventory for second product with limited stock
+        InventoryItem::create([
+            'product_id' => $product2->id,
+            'branch_id' => $this->branch->id,
+            'on_hand' => 50,
+            'reserved' => 40 // Only 10 available
+        ]);
+
+        $bulkData = [
+            'branch_id' => $this->branch->id,
+            'items' => [
+                [
+                    'product_id' => $this->product->id,
+                    'qty' => 20, // More than available (only 100 total, but let's say concurrent access)
+                    'ref' => 'BRSV001'
+                ],
+                [
+                    'product_id' => $product2->id,
+                    'qty' => 5, // This should succeed
+                    'ref' => 'BRSV002'
+                ]
+            ]
+        ];
+
+        // Simulate concurrency by reserving most of first product
+        $this->inventoryItem->update(['reserved' => 90]); // Only 10 available
+
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->postJson('/api/inventory/reserve/bulk', $bulkData);
+
+        $response->assertStatus(409)
+            ->assertJson([
+                'message' => 'Bulk reserve partially failed'
+            ])
+            ->assertJsonStructure([
+                'successful',
+                'failed'
+            ]);
+    }
+
+    /** @test */
+    public function can_still_read_inventory_for_inactive_product()
+    {
+        // Deactivate the product
+        $this->product->update(['is_active' => false]);
+
+        $response = $this->actingAs($this->user, 'sanctum')
+            ->getJson("/api/inventory/{$this->branch->id}/{$this->product->id}");
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'id' => $this->inventoryItem->id,
+                'product_id' => $this->product->id,
+                'branch_id' => $this->branch->id,
+                'on_hand' => 100,
+                'reserved' => 0,
+                'available' => 100
+            ]);
+    }
 }
