@@ -23,6 +23,8 @@ class DatabaseSeeder extends Seeder
             ['slug' => 'finance', 'name' => 'Finance', 'is_system' => true],
             ['slug' => 'sales', 'name' => 'Sales', 'is_system' => true],
             ['slug' => 'auditor', 'name' => 'Auditor', 'is_system' => true],
+            ['slug' => 'telebirr_distributor', 'name' => 'Telebirr Distributor', 'is_system' => true],
+            ['slug' => 'telebirr_manager', 'name' => 'Telebirr Manager', 'is_system' => true],
             ['slug' => 'api_client', 'name' => 'API Client', 'is_system' => true],
         ];
         $roleModels = [];
@@ -52,6 +54,12 @@ class DatabaseSeeder extends Seeder
             // Audit capabilities
             ['name' => 'View Audit Logs', 'key' => 'audit.view', 'group' => 'audit'],
 
+            // Telebirr capabilities
+            ['name' => 'View Telebirr', 'key' => 'telebirr.view', 'group' => 'telebirr'],
+            ['name' => 'Manage Telebirr Agents', 'key' => 'telebirr.manage', 'group' => 'telebirr'],
+            ['name' => 'Post Telebirr Transactions', 'key' => 'telebirr.post', 'group' => 'telebirr'],
+            ['name' => 'Void Telebirr Transactions', 'key' => 'telebirr.void', 'group' => 'telebirr'],
+
             // Additional capabilities for completeness
             ['name' => 'Manage Users', 'key' => 'users.manage', 'group' => 'users'],
             ['name' => 'Read Transactions', 'key' => 'tx.read', 'group' => 'transactions'],
@@ -79,6 +87,9 @@ class DatabaseSeeder extends Seeder
                 'tx.create',
                 'receipts.create',
                 'receipts.void',
+                'telebirr.view',
+                'telebirr.post', // Finance can post topup transactions
+                'telebirr.void',
             ],
             'sales' => [ // Sales role: reserve/issue via POS + products.read, no receive/transfer/adjust
                 'inventory.reserve',
@@ -93,11 +104,21 @@ class DatabaseSeeder extends Seeder
                 'audit.view',
                 'products.read',
                 'tx.read',
+                'telebirr.view', // Auditor can view telebirr data
+            ],
+            'telebirr_distributor' => [ // Telebirr Distributor: can post transactions but not manage agents
+                'telebirr.view',
+                'telebirr.post', // Can post ISSUE, TOPUP, REPAY, LOAN
+                'telebirr.void',
+            ],
+            'telebirr_manager' => [ // Telebirr Manager: read-only reporting, cannot post/void
+                'telebirr.view', // Can view agents, transactions, reports
             ],
             'api_client' => [ // API Client: scoped to configured capabilities (will be set per client)
                 'products.read',
                 'inventory.read',
                 'tx.read',
+                'telebirr.view',
             ],
         ];
         foreach ($roleCaps as $roleSlug => $capKeys) {
@@ -141,6 +162,8 @@ class DatabaseSeeder extends Seeder
             ['name' => 'nimco', 'email' => 'finance@example.com', 'password' => bcrypt('secret123'), 'role' => 'finance', 'branch' => 'main'],
             ['name' => 'hamze', 'email' => 'sales@example.com', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'main'],
             ['name' => 'yasmin', 'email' => 'auditor@example.com', 'password' => bcrypt('secret123'), 'role' => 'auditor', 'branch' => 'main'],
+            ['name' => 'Telebirr Distributor', 'email' => 'distributor@example.com', 'password' => bcrypt('secret123'), 'role' => 'telebirr_distributor', 'branch' => 'main'],
+            ['name' => 'Telebirr Manager', 'email' => 'manager@example.com', 'password' => bcrypt('secret123'), 'role' => 'telebirr_manager', 'branch' => 'main'],
             ['name' => 'api_client', 'email' => 'api@example.com', 'password' => bcrypt('secret123'), 'role' => 'api_client', 'branch' => 'main'],
             // Variants
             ['name' => 'Disabled User', 'email' => 'disabled@example.com', 'password' => bcrypt('secret123'), 'role' => null, 'branch' => null], // No role - disabled

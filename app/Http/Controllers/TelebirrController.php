@@ -82,17 +82,18 @@ class TelebirrController extends Controller
     }
 
     /**
-     * Create new agent
-     */
-    public function createAgent(CreateAgentRequest $request): JsonResponse
-    {
-        $agent = TelebirrAgent::create($request->validated());
+     /**
+      * Create new agent
+      */
+     public function createAgent(CreateAgentRequest $request): JsonResponse
+     {
+         $agent = TelebirrAgent::create($request->validated());
 
-        return response()->json([
-            'message' => 'Agent created successfully',
-            'data' => $agent,
-        ], 201);
-    }
+         return response()->json([
+             'message' => 'Agent created successfully',
+             'data' => $agent,
+         ], 201);
+     }
 
     /**
      * Update agent
