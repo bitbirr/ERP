@@ -236,6 +236,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             BranchesSeeder::class,
             ProductSeeder::class,
+            InventorySeeder::class,
             ChartOfAccountsSeeder::class,
             BankAccountsSeeder::class,
             TelebirrAgentsSeeder::class,
