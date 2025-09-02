@@ -232,4 +232,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->middleware('cap:vouchers.view');
     Route::patch('/vouchers/issuances/{issuanceId}/void', [\App\Http\Controllers\VoucherController::class, 'voidIssuance'])
         ->middleware('cap:vouchers.manage');
+
+    // Customer API Routes
+    Route::get('/customers', [\App\Http\Controllers\CustomerController::class, 'index'])
+        ->middleware('cap:customers.view');
+    Route::post('/customers', [\App\Http\Controllers\CustomerController::class, 'store'])
+        ->middleware('cap:customers.manage');
+    Route::get('/customers/{customer}', [\App\Http\Controllers\CustomerController::class, 'show'])
+        ->middleware('cap:customers.view');
+    Route::patch('/customers/{customer}', [\App\Http\Controllers\CustomerController::class, 'update'])
+        ->middleware('cap:customers.manage');
+    Route::delete('/customers/{customer}', [\App\Http\Controllers\CustomerController::class, 'destroy'])
+        ->middleware('cap:customers.manage');
 });
