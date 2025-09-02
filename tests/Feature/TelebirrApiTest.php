@@ -294,12 +294,34 @@ class TelebirrApiTest extends TestCase
                     'from',
                     'to',
                 ],
-                'summary' => [
-                    'total_transactions',
-                    'total_amount',
-                    'by_type',
+                'matched' => [
+                    'status',
+                    'message',
                 ],
-                'transactions',
+                'summary' => [
+                    'transactions' => [
+                        'total_count',
+                        'total_amount',
+                        'by_type',
+                    ],
+                    'gl_journals' => [
+                        'total_journals',
+                        'total_debit',
+                        'total_credit',
+                    ],
+                ],
+                'variances' => [
+                    'transaction_vs_gl_count',
+                    'transaction_vs_gl_amount',
+                    'gl_debit_vs_credit',
+                ],
+                'issues' => [
+                    'unmatched_transactions',
+                    'unmatched_journals',
+                    'unmatched_transaction_details',
+                    'unmatched_journal_details',
+                ],
+                'generated_at',
             ]);
     }
 
@@ -335,7 +357,7 @@ class TelebirrApiTest extends TestCase
         $toDate = '2024-01-31';
 
         TelebirrTransaction::factory()->count(10)->create([
-            'created_at' => now()->between($fromDate, $toDate),
+            'created_at' => $this->faker->dateTimeBetween($fromDate, $toDate),
         ]);
 
         $response = $this->actingAs($this->user)

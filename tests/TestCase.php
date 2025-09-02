@@ -24,12 +24,6 @@ abstract class TestCase extends BaseTestCase
         // Create a default user for testing
         $this->user = User::factory()->create();
 
-        // Set up authentication context
-        Auth::shouldReceive('id')->andReturn($this->user->id);
-        Auth::shouldReceive('user')->andReturn($this->user);
-        Auth::shouldReceive('check')->andReturn(true);
-        Auth::shouldReceive('guard')->andReturnSelf();
-
         // Create mocks for services
         $this->mockGlService = Mockery::mock(GlService::class);
         $this->mockAuditLogger = Mockery::mock(AuditLogger::class);

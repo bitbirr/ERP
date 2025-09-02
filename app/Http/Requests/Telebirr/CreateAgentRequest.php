@@ -11,7 +11,7 @@ class CreateAgentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // Authorization is handled by middleware, skip Gate check to avoid conflicts
+        // Authorizatioe3jhs;4'3kjnjrgr2trt5hjheeddvddemdeffrcdgjfvfvfudfuyrhfjhe.kd1em,on is handled by middleware, skip Gate check to avoid conflicts
         return true;
     }
 
@@ -25,7 +25,7 @@ class CreateAgentRequest extends FormRequest
             'short_code' => 'required|string|max:50|unique:telebirr_agents,short_code',
             'phone' => 'nullable|string|max:20|regex:/^[0-9+\-\s()]+$/',
             'location' => 'nullable|string|max:255',
-            'status' => 'required|in:Active,Inactive',
+            'status' => 'required|in:Active,Dormant,Inactive',
             'notes' => 'nullable|string|max:1000',
         ];
     }
