@@ -22,7 +22,7 @@ class CustomerController extends Controller
     /**
      * Display a listing of customers.
      */
-    public function index(Request $request, CustomerService $customerService): JsonResponse
+    public function index(Request $request, CustomerService $customerService)
     {
         $this->authorize('viewAny', Customer::class);
 
@@ -35,7 +35,7 @@ class CustomerController extends Controller
     /**
      * Store a newly created customer.
      */
-    public function store(StoreCustomerRequest $request, CustomerService $customerService): JsonResponse
+    public function store(StoreCustomerRequest $request, CustomerService $customerService)
     {
         $this->authorize('create', Customer::class);
 
@@ -59,7 +59,7 @@ class CustomerController extends Controller
     /**
      * Display the specified customer.
      */
-    public function show(Request $request, Customer $customer): CustomerResource
+    public function show(Request $request, Customer $customer)
     {
         $this->authorize('view', $customer);
 
@@ -76,7 +76,7 @@ class CustomerController extends Controller
     /**
      * Update the specified customer.
      */
-    public function update(UpdateCustomerRequest $request, Customer $customer, CustomerService $customerService): JsonResponse
+    public function update(UpdateCustomerRequest $request, Customer $customer, CustomerService $customerService)
     {
         $this->authorize('update', $customer);
 
@@ -102,7 +102,7 @@ class CustomerController extends Controller
     /**
      * Remove the specified customer.
      */
-    public function destroy(Request $request, Customer $customer): JsonResponse
+    public function destroy(Request $request, Customer $customer)
     {
         $this->authorize('delete', $customer);
 
