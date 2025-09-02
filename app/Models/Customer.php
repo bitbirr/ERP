@@ -65,7 +65,7 @@ class Customer extends Model
      */
     public function segments(): BelongsToMany
     {
-        return $this->belongsToMany(CustomerSegment::class, 'customer_segment_assignments');
+        return $this->belongsToMany(CustomerSegment::class, 'customer_segment_assignments', 'customer_id', 'segment_id');
     }
 
     /**
