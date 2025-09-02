@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
         // 1. Create Roles
         $roles = [
             ['slug' => 'admin', 'name' => 'Admin', 'is_system' => true],
+            ['slug' => 'manager', 'name' => 'Manager', 'is_system' => true],
             ['slug' => 'finance', 'name' => 'Finance', 'is_system' => true],
             ['slug' => 'sales', 'name' => 'Sales', 'is_system' => true],
             ['slug' => 'auditor', 'name' => 'Auditor', 'is_system' => true],
@@ -60,6 +61,20 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Post Telebirr Transactions', 'key' => 'telebirr.post', 'group' => 'telebirr'],
             ['name' => 'Void Telebirr Transactions', 'key' => 'telebirr.void', 'group' => 'telebirr'],
 
+            // Customer capabilities
+            ['name' => 'View Customers', 'key' => 'customer.view', 'group' => 'customers'],
+            ['name' => 'Create Customers', 'key' => 'customer.create', 'group' => 'customers'],
+            ['name' => 'Update Customers', 'key' => 'customer.update', 'group' => 'customers'],
+            ['name' => 'Delete Customers', 'key' => 'customer.delete', 'group' => 'customers'],
+            ['name' => 'Restore Customers', 'key' => 'customer.restore', 'group' => 'customers'],
+            ['name' => 'Merge Customers', 'key' => 'customer.merge', 'group' => 'customers'],
+            ['name' => 'Import Customers', 'key' => 'customer.import', 'group' => 'customers'],
+            ['name' => 'Export Customers', 'key' => 'customer.export', 'group' => 'customers'],
+            ['name' => 'Manage Customer Tags', 'key' => 'customer.tag.manage', 'group' => 'customers'],
+            ['name' => 'Manage Customer Notes', 'key' => 'customer.note.manage', 'group' => 'customers'],
+            ['name' => 'Manage Customer Files', 'key' => 'customer.file.manage', 'group' => 'customers'],
+            ['name' => 'Manage Customer Segments', 'key' => 'customer.segment.manage', 'group' => 'customers'],
+
             // Additional capabilities for completeness
             ['name' => 'Manage Users', 'key' => 'users.manage', 'group' => 'users'],
             ['name' => 'Read Transactions', 'key' => 'tx.read', 'group' => 'transactions'],
@@ -75,7 +90,18 @@ class DatabaseSeeder extends Seeder
         // 3. Attach Capabilities to Roles
         $roleCaps = [
             'admin' => array_keys($capModels), // All capabilities
+            'manager' => [ // Manager role: customer management + limited operations
+                'customer.view',
+                'customer.export',
+                'customer.segment.manage',
+                'inventory.read',
+                'products.read',
+                'tx.read',
+                'reports.view',
+            ],
             'finance' => [ // Finance role: inventory operations + products.read, no products.create/update, no audit.view
+                'customer.view',
+                'customer.export',
                 'inventory.receive',
                 'inventory.reserve',
                 'inventory.unreserve',
@@ -91,7 +117,12 @@ class DatabaseSeeder extends Seeder
                 'telebirr.post', // Finance can post topup transactions
                 'telebirr.void',
             ],
-            'sales' => [ // Sales role: reserve/issue via POS + products.read, no receive/transfer/adjust
+            'sales' => [ // Sales role: customer management + reserve/issue via POS + products.read, no receive/transfer/adjust
+                'customer.view',
+                'customer.create',
+                'customer.update',
+                'customer.note.manage',
+                'customer.file.manage',
                 'inventory.reserve',
                 'inventory.issue',
                 'products.read',
@@ -100,6 +131,7 @@ class DatabaseSeeder extends Seeder
                 'receipts.create',
             ],
             'auditor' => [ // Auditor role: reports.view, audit.view, products.read, no mutations
+                'customer.view',
                 'reports.view',
                 'audit.view',
                 'products.read',
@@ -107,14 +139,17 @@ class DatabaseSeeder extends Seeder
                 'telebirr.view', // Auditor can view telebirr data
             ],
             'telebirr_distributor' => [ // Telebirr Distributor: can post transactions but not manage agents
+                'customer.view', // Can view customers to link telebirr agents
                 'telebirr.view',
                 'telebirr.post', // Can post ISSUE, TOPUP, REPAY, LOAN
                 'telebirr.void',
             ],
             'telebirr_manager' => [ // Telebirr Manager: read-only reporting, cannot post/void
+                'customer.view',
                 'telebirr.view', // Can view agents, transactions, reports
             ],
             'api_client' => [ // API Client: scoped to configured capabilities (will be set per client)
+                'customer.view',
                 'products.read',
                 'inventory.read',
                 'tx.read',
@@ -159,11 +194,12 @@ class DatabaseSeeder extends Seeder
         $users = [
             // Main Branch
             ['name' => 'Ismail', 'email' => 'admin@example.com', 'password' => bcrypt('secret123'), 'role' => 'admin', 'branch' => 'main'],
+            ['name' => 'Manager User', 'email' => 'manager@example.com', 'password' => bcrypt('secret123'), 'role' => 'manager', 'branch' => 'main'],
             ['name' => 'nimco', 'email' => 'finance@example.com', 'password' => bcrypt('secret123'), 'role' => 'finance', 'branch' => 'main'],
             ['name' => 'hamze', 'email' => 'sales@example.com', 'password' => bcrypt('secret123'), 'role' => 'sales', 'branch' => 'main'],
             ['name' => 'yasmin', 'email' => 'auditor@example.com', 'password' => bcrypt('secret123'), 'role' => 'auditor', 'branch' => 'main'],
             ['name' => 'Telebirr Distributor', 'email' => 'distributor@example.com', 'password' => bcrypt('secret123'), 'role' => 'telebirr_distributor', 'branch' => 'main'],
-            ['name' => 'Telebirr Manager', 'email' => 'manager@example.com', 'password' => bcrypt('secret123'), 'role' => 'telebirr_manager', 'branch' => 'main'],
+            ['name' => 'Telebirr Manager', 'email' => 'telebirrman@example.com', 'password' => bcrypt('secret123'), 'role' => 'telebirr_manager', 'branch' => 'main'],
             ['name' => 'api_client', 'email' => 'api@example.com', 'password' => bcrypt('secret123'), 'role' => 'api_client', 'branch' => 'main'],
             // Variants
             ['name' => 'Disabled User', 'email' => 'disabled@example.com', 'password' => bcrypt('secret123'), 'role' => null, 'branch' => null], // No role - disabled

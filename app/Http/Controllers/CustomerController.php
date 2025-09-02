@@ -24,10 +24,7 @@ class CustomerController extends Controller
      */
     public function index(Request $request, CustomerService $customerService): JsonResponse
     {
-        // Check permission
-        if (!$request->user()->hasCapability('view_customers')) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+        $this->authorize('viewAny', Customer::class);
 
         $filters = $request->only(['type', 'is_active', 'segment_id', 'region', 'q', 'tag', 'per_page']);
         $customers = $customerService->searchCustomers($filters);
@@ -40,6 +37,8 @@ class CustomerController extends Controller
      */
     public function store(StoreCustomerRequest $request, CustomerService $customerService): JsonResponse
     {
+        $this->authorize('create', Customer::class);
+
         $customer = $customerService->createCustomer($request->validated());
 
         // Log audit
@@ -62,10 +61,7 @@ class CustomerController extends Controller
      */
     public function show(Request $request, Customer $customer): CustomerResource
     {
-        // Check permission
-        if (!$request->user()->hasCapability('view_customers')) {
-            abort(403, 'Unauthorized');
-        }
+        $this->authorize('view', $customer);
 
         return new CustomerResource($customer->load([
             'contacts',
@@ -82,6 +78,8 @@ class CustomerController extends Controller
      */
     public function update(UpdateCustomerRequest $request, Customer $customer, CustomerService $customerService): JsonResponse
     {
+        $this->authorize('update', $customer);
+
         $oldData = $customer->toArray();
         $customer = $customerService->updateCustomer($customer, $request->validated());
 
@@ -106,10 +104,7 @@ class CustomerController extends Controller
      */
     public function destroy(Request $request, Customer $customer): JsonResponse
     {
-        // Check permission
-        if (!$request->user()->hasCapability('manage_customers')) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+        $this->authorize('delete', $customer);
 
         // Check if customer has related data
         if ($customer->interactions()->exists()) {

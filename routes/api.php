@@ -234,14 +234,31 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->middleware('cap:vouchers.manage');
 
     // Customer API Routes
-    Route::get('/customers', [\App\Http\Controllers\CustomerController::class, 'index'])
-        ->middleware('cap:customers.view');
-    Route::post('/customers', [\App\Http\Controllers\CustomerController::class, 'store'])
-        ->middleware('cap:customers.manage');
-    Route::get('/customers/{customer}', [\App\Http\Controllers\CustomerController::class, 'show'])
-        ->middleware('cap:customers.view');
-    Route::patch('/customers/{customer}', [\App\Http\Controllers\CustomerController::class, 'update'])
-        ->middleware('cap:customers.manage');
-    Route::delete('/customers/{customer}', [\App\Http\Controllers\CustomerController::class, 'destroy'])
-        ->middleware('cap:customers.manage');
+    Route::get('/customers', [\App\Http\Controllers\CustomerController::class, 'index']);
+    Route::post('/customers', [\App\Http\Controllers\CustomerController::class, 'store']);
+    Route::get('/customers/{customer}', [\App\Http\Controllers\CustomerController::class, 'show']);
+    Route::patch('/customers/{customer}', [\App\Http\Controllers\CustomerController::class, 'update']);
+    Route::delete('/customers/{customer}', [\App\Http\Controllers\CustomerController::class, 'destroy']);
+
+    // Customer nested resources
+    Route::get('/customers/{customer}/contacts', [\App\Http\Controllers\CustomerContactController::class, 'index']);
+    Route::post('/customers/{customer}/contacts', [\App\Http\Controllers\CustomerContactController::class, 'store']);
+    Route::get('/customers/{customer}/contacts/{contact}', [\App\Http\Controllers\CustomerContactController::class, 'show']);
+    Route::patch('/customers/{customer}/contacts/{contact}', [\App\Http\Controllers\CustomerContactController::class, 'update']);
+    Route::delete('/customers/{customer}/contacts/{contact}', [\App\Http\Controllers\CustomerContactController::class, 'destroy']);
+
+    Route::get('/customers/{customer}/addresses', [\App\Http\Controllers\CustomerAddressController::class, 'index']);
+    Route::post('/customers/{customer}/addresses', [\App\Http\Controllers\CustomerAddressController::class, 'store']);
+    Route::get('/customers/{customer}/addresses/{address}', [\App\Http\Controllers\CustomerAddressController::class, 'show']);
+    Route::patch('/customers/{customer}/addresses/{address}', [\App\Http\Controllers\CustomerAddressController::class, 'update']);
+    Route::delete('/customers/{customer}/addresses/{address}', [\App\Http\Controllers\CustomerAddressController::class, 'destroy']);
+
+    // Customer segments
+    Route::get('/segments', [\App\Http\Controllers\CustomerSegmentController::class, 'index']);
+    Route::post('/segments', [\App\Http\Controllers\CustomerSegmentController::class, 'store']);
+    Route::get('/segments/{segment}', [\App\Http\Controllers\CustomerSegmentController::class, 'show']);
+    Route::patch('/segments/{segment}', [\App\Http\Controllers\CustomerSegmentController::class, 'update']);
+    Route::delete('/segments/{segment}', [\App\Http\Controllers\CustomerSegmentController::class, 'destroy']);
+    Route::get('/segments/{segment}/members', [\App\Http\Controllers\CustomerSegmentController::class, 'members']);
+    Route::post('/segments/preview', [\App\Http\Controllers\CustomerSegmentController::class, 'preview']);
 });
