@@ -24,6 +24,14 @@ class CustomerResource extends JsonResource
             'description' => $this->description,
             'is_active' => $this->is_active,
             'metadata' => $this->metadata,
+            'category_id' => $this->category_id,
+            'category' => $this->whenLoaded('category', function () {
+                return [
+                    'id' => $this->category->id,
+                    'name' => $this->category->name,
+                    'description' => $this->category->description,
+                ];
+            }),
             'contacts' => $this->whenLoaded('contacts', function () {
                 return $this->contacts->map(function ($contact) {
                     return [

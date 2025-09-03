@@ -178,7 +178,12 @@ class CustomerService
             });
         }
 
-        return $query->with(['contacts', 'addresses', 'tags', 'segments'])
+        // Category filter
+        if (!empty($filters['category_id'])) {
+            $query->where('category_id', $filters['category_id']);
+        }
+
+        return $query->with(['contacts', 'addresses', 'tags', 'segments', 'category'])
                     ->orderBy('name')
                     ->paginate($filters['per_page'] ?? 50);
     }

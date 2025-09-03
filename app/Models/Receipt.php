@@ -44,4 +44,9 @@ class Receipt extends Model
     {
         return $this->belongsTo(Branch::class);
     }
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
 }

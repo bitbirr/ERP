@@ -38,7 +38,7 @@ class CustomerContactController extends Controller
 
         $contact = $customer->contacts()->create($validated);
 
-        return new CustomerContactResource($contact);
+        return response()->json(new CustomerContactResource($contact), 201);
     }
 
     /**

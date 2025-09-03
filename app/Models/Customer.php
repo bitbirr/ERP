@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\DB;
+use App\Models\Receipt;
 
 class Customer extends Model
 {
@@ -83,6 +85,25 @@ class Customer extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    /**
+     * Get the receipts (orders/invoices) for the customer.
+     */
+    public function receipts(): HasMany
+    {
+        return $this->hasMany(Receipt::class);
+    }
+
+    /**
+     * Get the pending debt amount for the customer.
+     */
+    public function getPendingDebtAttribute(): float
+    {
+        return $this->receipts()
+            ->where('status', 'posted')
+            ->whereColumn('paid_total', '<', 'grand_total')
+            ->sum(\DB::raw('grand_total - paid_total'));
     }
 
     /**

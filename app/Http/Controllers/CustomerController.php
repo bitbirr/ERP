@@ -26,7 +26,7 @@ class CustomerController extends Controller
     {
         $this->authorize('viewAny', Customer::class);
 
-        $filters = $request->only(['type', 'is_active', 'segment_id', 'region', 'q', 'tag', 'per_page']);
+        $filters = $request->only(['type', 'is_active', 'segment_id', 'region', 'q', 'tag', 'category_id', 'per_page']);
         $customers = $customerService->searchCustomers($filters);
 
         return new CustomerCollection($customers);
@@ -130,5 +130,44 @@ class CustomerController extends Controller
         ]);
 
         return response()->json(['message' => 'Customer deleted successfully']);
+    }
+
+    /**
+     * Get customer orders (receipts).
+     */
+    public function orders(Request $request, Customer $customer)
+    {
+        $this->authorize('view', $customer);
+
+        $receipts = $customer->receipts()
+            ->with(['lines', 'branch'])
+            ->orderBy('created_at', 'desc')
+            ->paginate($request->get('per_page', 50));
+
+        return response()->json([
+            'data' => $receipts->items(),
+            'meta' => [
+                'current_page' => $receipts->currentPage(),
+                'per_page' => $receipts->perPage(),
+                'total' => $receipts->total(),
+                'last_page' => $receipts->lastPage(),
+            ]
+        ]);
+    }
+
+    /**
+     * Get customer pending debt.
+     */
+    public function pendingDebt(Request $request, Customer $customer)
+    {
+        $this->authorize('view', $customer);
+
+        $pendingDebt = $customer->pending_debt;
+
+        return response()->json([
+            'customer_id' => $customer->id,
+            'pending_debt' => $pendingDebt,
+            'currency' => 'ETB', // Assuming Ethiopian Birr
+        ]);
     }
 }

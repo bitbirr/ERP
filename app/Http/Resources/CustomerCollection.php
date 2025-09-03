@@ -24,6 +24,14 @@ class CustomerCollection extends ResourceCollection
                     'phone' => $customer->phone,
                     'tax_id' => $customer->tax_id,
                     'is_active' => $customer->is_active,
+                    'category_id' => $customer->category_id,
+                    'category' => $customer->whenLoaded('category', function () use ($customer) {
+                        return [
+                            'id' => $customer->category->id,
+                            'name' => $customer->category->name,
+                            'description' => $customer->category->description,
+                        ];
+                    }),
                     'primary_contact' => $customer->primaryContact() ? [
                         'type' => $customer->primaryContact()->type,
                         'value' => $customer->primaryContact()->value,

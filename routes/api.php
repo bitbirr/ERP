@@ -240,6 +240,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::patch('/customers/{customer}', [\App\Http\Controllers\CustomerController::class, 'update']);
     Route::delete('/customers/{customer}', [\App\Http\Controllers\CustomerController::class, 'destroy']);
 
+    // Customer orders and debt routes
+    Route::get('/customers/{customer}/orders', [\App\Http\Controllers\CustomerController::class, 'orders']);
+    Route::get('/customers/{customer}/pending-debt', [\App\Http\Controllers\CustomerController::class, 'pendingDebt']);
+
     // Customer nested resources
     Route::get('/customers/{customer}/contacts', [\App\Http\Controllers\CustomerContactController::class, 'index']);
     Route::post('/customers/{customer}/contacts', [\App\Http\Controllers\CustomerContactController::class, 'store']);
@@ -281,4 +285,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->middleware('cap:category.assign');
     Route::get('/categories/stats', [\App\Http\Controllers\CategoryController::class, 'stats'])
         ->middleware('cap:category.view');
+
+    // Loyalty API Routes
+    Route::get('/loyalty/top-customers', [\App\Http\Controllers\LoyaltyController::class, 'getTopCustomers'])
+        ->middleware('cap:loyalty.view');
+    Route::post('/loyalty/discounts/generate', [\App\Http\Controllers\LoyaltyController::class, 'generateDiscount'])
+        ->middleware('cap:loyalty.manage');
+    Route::get('/loyalty/customers/{customer}/points', [\App\Http\Controllers\LoyaltyController::class, 'getCustomerPoints'])
+        ->middleware('cap:loyalty.view');
+    Route::get('/loyalty/customers/{customer}/discounts', [\App\Http\Controllers\LoyaltyController::class, 'getCustomerDiscounts'])
+        ->middleware('cap:loyalty.view');
 });
