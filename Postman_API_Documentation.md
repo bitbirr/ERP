@@ -7,8 +7,10 @@ This repository contains Postman collections and environments for testing the ER
 1. **Products.postman_collection.json** - Complete CRUD operations for products
 2. **Inventory.postman_collection.json** - Inventory management operations
 3. **StockMovement.postman_collection.json** - Stock movement history and reporting
-4. **ERP_API_Environments.postman_environment.json** - Environment variables for different roles and environments
-5. **Vouchers API** - Digital voucher lifecycle management (implemented in this task)
+4. **Customer.postman_collection.json** - Customer management operations
+5. **ERP_API_Environments.postman_environment.json** - Environment variables for different roles and environments
+6. **Vouchers API** - Digital voucher lifecycle management
+7. **Categories API** - Customer categorization system (implemented in this task)
 
 ## Setup Instructions
 
@@ -122,6 +124,16 @@ Update the `baseURL` variable based on your environment:
 - `GET /vouchers/orders/{orderId}/issuances` - Get issuances for order
 - `GET /vouchers/fulfillments/{fulfillmentId}/issuances` - Get issuances for fulfillment
 - `PATCH /vouchers/issuances/{issuanceId}/void` - Void voucher issuance
+
+### Categories API
+- `GET /categories` - List all categories with pagination and search
+- `POST /categories` - Create new category
+- `GET /categories/{id}` - Get specific category with customers
+- `PATCH /categories/{id}` - Update category
+- `DELETE /categories/{id}` - Delete category (only if empty)
+- `POST /categories/assign-customer` - Assign customer to category
+- `POST /categories/remove-customer` - Remove customer from category
+- `GET /categories/stats` - Get category statistics
 
 ## Authentication
 
@@ -296,6 +308,141 @@ Content-Type: application/json
 
 # Response: Voids issuance, makes voucher available again
 ```
+
+### Categories API
+
+#### 1. List Categories
+```bash
+GET http://localhost:8000/api/categories
+Authorization: Bearer 24|hoCUoBbmKN8T4ScjsSM7aMweruenHRwoohap03B7a8709f15
+
+# Optional query parameters:
+# ?q=search_term - Search by name or description
+# ?per_page=20 - Items per page
+# ?sort_by=name - Sort field (name, created_at, customer_count)
+# ?sort_direction=desc - Sort direction
+
+# Response: Returns paginated list of categories with customer counts
+```
+
+#### 2. Create Category
+```bash
+POST http://localhost:8000/api/categories
+Authorization: Bearer 24|hoCUoBbmKN8T4ScjsSM7aMweruenHRwoohap03B7a8709f15
+Content-Type: application/json
+
+{
+  "name": "Premium Customers",
+  "description": "High-value customers with special pricing"
+}
+
+# Response: Returns created category with 201 status
+```
+
+#### 3. Get Category Details
+```bash
+GET http://localhost:8000/api/categories/{category_id}
+Authorization: Bearer 24|hoCUoBbmKN8T4ScjsSM7aMweruenHRwoohap03B7a8709f15
+
+# Response: Returns category with full customer list
+```
+
+#### 4. Update Category
+```bash
+PATCH http://localhost:8000/api/categories/{category_id}
+Authorization: Bearer 24|hoCUoBbmKN8T4ScjsSM7aMweruenHRwoohap03B7a8709f15
+Content-Type: application/json
+
+{
+  "name": "VIP Customers",
+  "description": "Very important premium customers"
+}
+
+# Response: Returns updated category
+```
+
+#### 5. Delete Category
+```bash
+DELETE http://localhost:8000/api/categories/{category_id}
+Authorization: Bearer 24|hoCUoBbmKN8T4ScjsSM7aMweruenHRwoohap03B7a8709f15
+
+# Response: Returns success message (only works if category has no customers)
+```
+
+#### 6. Assign Customer to Category
+```bash
+POST http://localhost:8000/api/categories/assign-customer
+Authorization: Bearer 24|hoCUoBbmKN8T4ScjsSM7aMweruenHRwoohap03B7a8709f15
+Content-Type: application/json
+
+{
+  "customer_id": "uuid-of-customer",
+  "category_id": "uuid-of-category"
+}
+
+# Response: Returns updated customer with category relationship
+```
+
+#### 7. Remove Customer from Category
+```bash
+POST http://localhost:8000/api/categories/remove-customer
+Authorization: Bearer 24|hoCUoBbmKN8T4ScjsSM7aMweruenHRwoohap03B7a8709f15
+Content-Type: application/json
+
+{
+  "customer_id": "uuid-of-customer"
+}
+
+# Response: Returns customer with null category
+```
+
+#### 8. Get Category Statistics
+```bash
+GET http://localhost:8000/api/categories/stats
+Authorization: Bearer 24|hoCUoBbmKN8T4ScjsSM7aMweruenHRwoohap03B7a8709f15
+
+# Response: Returns category statistics
+{
+  "total_categories": 5,
+  "categories_with_customers": 3,
+  "categories_without_customers": 2,
+  "total_customers_categorized": 15
+}
+```
+
+## Category Management Business Process
+
+The customer categorization system provides:
+
+### 1. Category Management
+- Create, update, and delete customer categories
+- Hierarchical organization of customers
+- Automatic customer count tracking
+- Search and filter capabilities
+
+### 2. Customer Assignment
+- Assign customers to categories
+- Move customers between categories
+- Remove customers from categories
+- Automatic count updates
+
+### 3. Access Control
+- **Admin**: Full CRUD operations on categories
+- **Manager**: Create, update, assign customers (cannot delete)
+- **User**: Read-only access to categories
+
+### 4. Data Integrity
+- Prevent deletion of categories with assigned customers
+- Unique category names
+- Foreign key constraints
+- Audit logging for all operations
+
+### Key Features
+- **Automatic Counting**: Real-time customer count per category
+- **Audit Trail**: Full history of category operations
+- **RBAC Integration**: Role-based access control
+- **Search & Filter**: Advanced querying capabilities
+- **Relationship Management**: Seamless customer-category associations
 
 ## Voucher Lifecycle Business Process
 

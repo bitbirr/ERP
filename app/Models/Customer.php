@@ -21,6 +21,7 @@ class Customer extends Model
         'description',
         'is_active',
         'metadata',
+        'category_id',
     ];
 
     protected $casts = [
@@ -74,6 +75,14 @@ class Customer extends Model
     public function interactions(): HasMany
     {
         return $this->hasMany(CustomerInteraction::class);
+    }
+
+    /**
+     * Get the category for the customer.
+     */
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 
     /**

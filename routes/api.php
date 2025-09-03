@@ -261,4 +261,24 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('/segments/{segment}', [\App\Http\Controllers\CustomerSegmentController::class, 'destroy']);
     Route::get('/segments/{segment}/members', [\App\Http\Controllers\CustomerSegmentController::class, 'members']);
     Route::post('/segments/preview', [\App\Http\Controllers\CustomerSegmentController::class, 'preview']);
+
+    // Category API Routes
+    Route::get('/categories', [\App\Http\Controllers\CategoryController::class, 'index'])
+        ->middleware('cap:category.view');
+    Route::post('/categories', [\App\Http\Controllers\CategoryController::class, 'store'])
+        ->middleware('cap:category.create');
+    Route::get('/categories/{category}', [\App\Http\Controllers\CategoryController::class, 'show'])
+        ->middleware('cap:category.view');
+    Route::patch('/categories/{category}', [\App\Http\Controllers\CategoryController::class, 'update'])
+        ->middleware('cap:category.update');
+    Route::delete('/categories/{category}', [\App\Http\Controllers\CategoryController::class, 'destroy'])
+        ->middleware('cap:category.delete');
+
+    // Category management routes
+    Route::post('/categories/assign-customer', [\App\Http\Controllers\CategoryController::class, 'assignCustomer'])
+        ->middleware('cap:category.assign');
+    Route::post('/categories/remove-customer', [\App\Http\Controllers\CategoryController::class, 'removeCustomer'])
+        ->middleware('cap:category.assign');
+    Route::get('/categories/stats', [\App\Http\Controllers\CategoryController::class, 'stats'])
+        ->middleware('cap:category.view');
 });
