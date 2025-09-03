@@ -232,4 +232,67 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->middleware('cap:vouchers.view');
     Route::patch('/vouchers/issuances/{issuanceId}/void', [\App\Http\Controllers\VoucherController::class, 'voidIssuance'])
         ->middleware('cap:vouchers.manage');
+
+    // Customer API Routes
+    Route::get('/customers', [\App\Http\Controllers\CustomerController::class, 'index']);
+    Route::post('/customers', [\App\Http\Controllers\CustomerController::class, 'store']);
+    Route::get('/customers/{customer}', [\App\Http\Controllers\CustomerController::class, 'show']);
+    Route::patch('/customers/{customer}', [\App\Http\Controllers\CustomerController::class, 'update']);
+    Route::delete('/customers/{customer}', [\App\Http\Controllers\CustomerController::class, 'destroy']);
+
+    // Customer orders and debt routes
+    Route::get('/customers/{customer}/orders', [\App\Http\Controllers\CustomerController::class, 'orders']);
+    Route::get('/customers/{customer}/pending-debt', [\App\Http\Controllers\CustomerController::class, 'pendingDebt']);
+
+    // Customer nested resources
+    Route::get('/customers/{customer}/contacts', [\App\Http\Controllers\CustomerContactController::class, 'index']);
+    Route::post('/customers/{customer}/contacts', [\App\Http\Controllers\CustomerContactController::class, 'store']);
+    Route::get('/customers/{customer}/contacts/{contact}', [\App\Http\Controllers\CustomerContactController::class, 'show']);
+    Route::patch('/customers/{customer}/contacts/{contact}', [\App\Http\Controllers\CustomerContactController::class, 'update']);
+    Route::delete('/customers/{customer}/contacts/{contact}', [\App\Http\Controllers\CustomerContactController::class, 'destroy']);
+
+    Route::get('/customers/{customer}/addresses', [\App\Http\Controllers\CustomerAddressController::class, 'index']);
+    Route::post('/customers/{customer}/addresses', [\App\Http\Controllers\CustomerAddressController::class, 'store']);
+    Route::get('/customers/{customer}/addresses/{address}', [\App\Http\Controllers\CustomerAddressController::class, 'show']);
+    Route::patch('/customers/{customer}/addresses/{address}', [\App\Http\Controllers\CustomerAddressController::class, 'update']);
+    Route::delete('/customers/{customer}/addresses/{address}', [\App\Http\Controllers\CustomerAddressController::class, 'destroy']);
+
+    // Customer segments
+    Route::get('/segments', [\App\Http\Controllers\CustomerSegmentController::class, 'index']);
+    Route::post('/segments', [\App\Http\Controllers\CustomerSegmentController::class, 'store']);
+    Route::get('/segments/{segment}', [\App\Http\Controllers\CustomerSegmentController::class, 'show']);
+    Route::patch('/segments/{segment}', [\App\Http\Controllers\CustomerSegmentController::class, 'update']);
+    Route::delete('/segments/{segment}', [\App\Http\Controllers\CustomerSegmentController::class, 'destroy']);
+    Route::get('/segments/{segment}/members', [\App\Http\Controllers\CustomerSegmentController::class, 'members']);
+    Route::post('/segments/preview', [\App\Http\Controllers\CustomerSegmentController::class, 'preview']);
+
+    // Category API Routes
+    Route::get('/categories', [\App\Http\Controllers\CategoryController::class, 'index'])
+        ->middleware('cap:category.view');
+    Route::post('/categories', [\App\Http\Controllers\CategoryController::class, 'store'])
+        ->middleware('cap:category.create');
+    Route::get('/categories/{category}', [\App\Http\Controllers\CategoryController::class, 'show'])
+        ->middleware('cap:category.view');
+    Route::patch('/categories/{category}', [\App\Http\Controllers\CategoryController::class, 'update'])
+        ->middleware('cap:category.update');
+    Route::delete('/categories/{category}', [\App\Http\Controllers\CategoryController::class, 'destroy'])
+        ->middleware('cap:category.delete');
+
+    // Category management routes
+    Route::post('/categories/assign-customer', [\App\Http\Controllers\CategoryController::class, 'assignCustomer'])
+        ->middleware('cap:category.assign');
+    Route::post('/categories/remove-customer', [\App\Http\Controllers\CategoryController::class, 'removeCustomer'])
+        ->middleware('cap:category.assign');
+    Route::get('/categories/stats', [\App\Http\Controllers\CategoryController::class, 'stats'])
+        ->middleware('cap:category.view');
+
+    // Loyalty API Routes
+    Route::get('/loyalty/top-customers', [\App\Http\Controllers\LoyaltyController::class, 'getTopCustomers'])
+        ->middleware('cap:loyalty.view');
+    Route::post('/loyalty/discounts/generate', [\App\Http\Controllers\LoyaltyController::class, 'generateDiscount'])
+        ->middleware('cap:loyalty.manage');
+    Route::get('/loyalty/customers/{customer}/points', [\App\Http\Controllers\LoyaltyController::class, 'getCustomerPoints'])
+        ->middleware('cap:loyalty.view');
+    Route::get('/loyalty/customers/{customer}/discounts', [\App\Http\Controllers\LoyaltyController::class, 'getCustomerDiscounts'])
+        ->middleware('cap:loyalty.view');
 });
