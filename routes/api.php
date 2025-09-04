@@ -297,4 +297,30 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->middleware('cap:loyalty.view');
     Route::get('/loyalty/customers/{customer}/discounts', [\App\Http\Controllers\LoyaltyController::class, 'getCustomerDiscounts'])
         ->middleware('cap:loyalty.view');
+
+    // Branch API Routes
+    Route::get('/branches', [\App\Http\Controllers\BranchController::class, 'index'])
+        ->middleware('cap:branches.view');
+    Route::post('/branches', [\App\Http\Controllers\BranchController::class, 'store'])
+        ->middleware('cap:branches.create');
+    Route::get('/branches/{branch}', [\App\Http\Controllers\BranchController::class, 'show'])
+        ->middleware('cap:branches.view');
+    Route::patch('/branches/{branch}', [\App\Http\Controllers\BranchController::class, 'update'])
+        ->middleware('cap:branches.update');
+    Route::delete('/branches/{branch}', [\App\Http\Controllers\BranchController::class, 'destroy'])
+        ->middleware('cap:branches.delete');
+    Route::get('/branches/uuids', [\App\Http\Controllers\BranchController::class, 'fetchUuids'])
+        ->middleware('cap:branches.view');
+
+    // Bank Account API Routes
+    Route::get('/accounts', [\App\Http\Controllers\BankAccountController::class, 'index'])
+        ->middleware('cap:accounts.view');
+    Route::post('/accounts', [\App\Http\Controllers\BankAccountController::class, 'store'])
+        ->middleware('cap:accounts.create');
+    Route::get('/accounts/{account}', [\App\Http\Controllers\BankAccountController::class, 'show'])
+        ->middleware('cap:accounts.view');
+    Route::patch('/accounts/{account}', [\App\Http\Controllers\BankAccountController::class, 'update'])
+        ->middleware('cap:accounts.update');
+    Route::delete('/accounts/{account}', [\App\Http\Controllers\BankAccountController::class, 'destroy'])
+        ->middleware('cap:accounts.delete');
 });

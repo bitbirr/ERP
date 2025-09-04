@@ -18,6 +18,10 @@ class BankAccount extends Model
         'account_number',
         'gl_account_id',
         'is_active',
+        'account_type',
+        'balance',
+        'branch_id',
+        'customer_id',
     ];
 
     protected $casts = [
@@ -86,5 +90,20 @@ class BankAccount extends Model
                          $transactions->where('tx_type', 'REPAY')->sum('amount'),
             'transaction_count' => $transactions->count(),
         ];
+    }
+    /**
+     * Get the branch for this bank account
+     */
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class, 'branch_id');
+    }
+
+    /**
+     * Get the customer for this bank account
+     */
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class, 'customer_id');
     }
 }
