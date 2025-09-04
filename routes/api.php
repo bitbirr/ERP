@@ -47,10 +47,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::middleware(['auth:sanctum', 'cap:users.manage'])->group(function () {
+    Route::post('/users', [\App\Http\Controllers\UserController::class, 'store']);
     Route::post('/rbac/roles', [\App\Http\Controllers\RbacController::class, 'createRole']);
     Route::patch('/rbac/roles/{id}', [\App\Http\Controllers\RbacController::class, 'updateRole']);
     Route::post('/rbac/roles/{id}/capabilities', [\App\Http\Controllers\RbacController::class, 'syncRoleCapabilities']);
     Route::post('/rbac/users/{user}/roles', [\App\Http\Controllers\RbacController::class, 'assignUserRole']);
+    Route::get('/rbac/users/{user}/permissions', [\App\Http\Controllers\RbacController::class, 'getUserPermissions']);
     Route::post('/rbac/rebuild', [\App\Http\Controllers\RbacController::class, 'rebuildRbacCache']);
 });
 

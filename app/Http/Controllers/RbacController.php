@@ -72,6 +72,29 @@ class RbacController extends Controller
         return response()->json($assignment, 201);
     }
 
+    // GET /api/rbac/users/{userId}/permissions
+    public function getUserPermissions(Request $request, $userId)
+    {
+        $user = User::findOrFail($userId);
+        $branchId = $request->header('X-Branch-Id');
+        $branch = null;
+        if ($branchId) {
+            $branch = Branch::find($branchId);
+        }
+
+        $capabilities = $user->userPolicies()
+            ->when($branch, fn($q) => $q->where('branch_id', $branch->id)->orWhereNull('branch_id'))
+            ->when(!$branch, fn($q) => $q->whereNull('branch_id'))
+            ->pluck('capability_key')
+            ->unique()
+            ->values();
+
+        return response()->json([
+            'user_id' => $user->id,
+            'capabilities' => $capabilities,
+        ]);
+    }
+
     // POST /api/rbac/rebuild
     public function rebuildRbacCache(Request $request)
     {
