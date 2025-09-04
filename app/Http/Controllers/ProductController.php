@@ -18,6 +18,10 @@ class ProductController extends Controller
         $query = Product::query();
 
         // Apply filters
+        if ($request->has('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
         if ($request->has('type')) {
             $query->where('type', $request->type);
         }
@@ -45,10 +49,14 @@ class ProductController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
+            'category_id' => 'nullable|uuid|exists:product_categories,id',
             'code' => 'required|string|max:50|unique:products,code',
             'name' => 'required|string|max:255',
             'type' => ['required', Rule::in(['YIMULU', 'SERVICE', 'OTHER'])],
             'uom' => 'required|string|max:10',
+            'price' => 'nullable|numeric|min:0',
+            'cost' => 'nullable|numeric|min:0',
+            'discount_percent' => 'nullable|numeric|min:0|max:100',
             'is_active' => 'boolean',
             'pricing_strategy' => ['nullable', Rule::in(['FIXED', 'PERCENTAGE', 'MARGIN'])],
             'description' => 'nullable|string|max:1000'
@@ -71,7 +79,7 @@ class ProductController extends Controller
      */
     public function show(Product $product): JsonResponse
     {
-        return response()->json($product->load(['inventoryItems', 'receiptLines']));
+        return response()->json($product->load(['inventoryItems', 'receiptLines', 'category']));
     }
 
     /**
@@ -80,10 +88,14 @@ class ProductController extends Controller
     public function update(Request $request, Product $product): JsonResponse
     {
         $validator = Validator::make($request->all(), [
+            'category_id' => 'nullable|uuid|exists:product_categories,id',
             'code' => ['sometimes', 'required', 'string', 'max:50', Rule::unique('products')->ignore($product->id)],
             'name' => 'sometimes|required|string|max:255',
             'type' => ['sometimes', 'required', Rule::in(['YIMULU', 'SERVICE', 'OTHER'])],
             'uom' => 'sometimes|required|string|max:10',
+            'price' => 'nullable|numeric|min:0',
+            'cost' => 'nullable|numeric|min:0',
+            'discount_percent' => 'nullable|numeric|min:0|max:100',
             'is_active' => 'boolean',
             'pricing_strategy' => ['nullable', Rule::in(['FIXED', 'PERCENTAGE', 'MARGIN'])],
             'description' => 'nullable|string|max:1000'

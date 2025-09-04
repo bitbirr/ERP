@@ -16,6 +16,7 @@ class Product extends Model
 
     protected $fillable = [
         'id',
+        'category_id',
         'code',
         'name',
         'type',
@@ -26,6 +27,7 @@ class Product extends Model
         'pricing_strategy',
         'is_active',
         'meta',
+        'description',
     ];
 
     protected $casts = [
@@ -41,5 +43,10 @@ class Product extends Model
     public function receiptLines()
     {
         return $this->hasMany(ReceiptLine::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(ProductCategory::class, 'category_id');
     }
 }

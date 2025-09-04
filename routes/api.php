@@ -85,10 +85,30 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->middleware('cap:gl.view');
 
     // POS Receipt routes
+    Route::get('/receipts', [\App\Http\Controllers\PosController::class, 'index'])
+        ->middleware('cap:receipts.view');
     Route::post('/receipts', [\App\Http\Controllers\PosController::class, 'createReceipt'])
         ->middleware('cap:receipts.create');
+    Route::get('/receipts/{receipt}', [\App\Http\Controllers\PosController::class, 'show'])
+        ->middleware('cap:receipts.view');
     Route::patch('/receipts/{receipt}/void', [\App\Http\Controllers\PosController::class, 'voidReceipt'])
         ->middleware('cap:receipts.void');
+
+    // Order routes
+    Route::get('/orders', [\App\Http\Controllers\OrderController::class, 'index'])
+        ->middleware('cap:orders.view');
+    Route::post('/orders', [\App\Http\Controllers\OrderController::class, 'store'])
+        ->middleware('cap:orders.create');
+    Route::get('/orders/{order}', [\App\Http\Controllers\OrderController::class, 'show'])
+        ->middleware('cap:orders.view');
+    Route::patch('/orders/{order}', [\App\Http\Controllers\OrderController::class, 'update'])
+        ->middleware('cap:orders.update');
+    Route::patch('/orders/{order}/approve', [\App\Http\Controllers\OrderController::class, 'approve'])
+        ->middleware('cap:orders.approve');
+    Route::patch('/orders/{order}/cancel', [\App\Http\Controllers\OrderController::class, 'cancel'])
+        ->middleware('cap:orders.cancel');
+    Route::delete('/orders/{order}', [\App\Http\Controllers\OrderController::class, 'destroy'])
+        ->middleware('cap:orders.delete');
 
     // Telebirr API Routes
     // Agent routes
@@ -126,6 +146,18 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->middleware('cap:telebirr.view');
     Route::get('/telebirr/reports/transaction-summary', [\App\Http\Controllers\TelebirrController::class, 'transactionSummary'])
         ->middleware('cap:telebirr.view');
+
+    // Product Categories API Routes
+    Route::get('/product-categories', [\App\Http\Controllers\ProductCategoryController::class, 'index'])
+        ->middleware('cap:products.read');
+    Route::post('/product-categories', [\App\Http\Controllers\ProductCategoryController::class, 'store'])
+        ->middleware('cap:products.manage');
+    Route::get('/product-categories/{category}', [\App\Http\Controllers\ProductCategoryController::class, 'show'])
+        ->middleware('cap:products.read');
+    Route::patch('/product-categories/{category}', [\App\Http\Controllers\ProductCategoryController::class, 'update'])
+        ->middleware('cap:products.update');
+    Route::delete('/product-categories/{category}', [\App\Http\Controllers\ProductCategoryController::class, 'destroy'])
+        ->middleware('cap:products.update');
 
     // Products API Routes
     Route::get('/products', [\App\Http\Controllers\ProductController::class, 'index'])
@@ -189,6 +221,18 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Reports API Routes
     Route::get('/reports/summary', [\App\Http\Controllers\ReportController::class, 'summary'])
+        ->middleware('cap:reports.view');
+    Route::get('/reports/dashboard', [\App\Http\Controllers\ReportController::class, 'dashboard'])
+        ->middleware('cap:reports.view');
+    Route::get('/reports/orders-summary', [\App\Http\Controllers\ReportController::class, 'ordersSummary'])
+        ->middleware('cap:reports.view');
+    Route::get('/reports/revenue-over-time', [\App\Http\Controllers\ReportController::class, 'revenueOverTime'])
+        ->middleware('cap:reports.view');
+    Route::get('/reports/top-selling-products', [\App\Http\Controllers\ReportController::class, 'topSellingProducts'])
+        ->middleware('cap:reports.view');
+    Route::get('/reports/low-stock-items', [\App\Http\Controllers\ReportController::class, 'lowStockItems'])
+        ->middleware('cap:reports.view');
+    Route::get('/reports/recent-orders', [\App\Http\Controllers\ReportController::class, 'recentOrders'])
         ->middleware('cap:reports.view');
     Route::get('/reports/inventory', [\App\Http\Controllers\ReportController::class, 'inventory'])
         ->middleware('cap:reports.view');
