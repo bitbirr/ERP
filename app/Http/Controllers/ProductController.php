@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\Rule;
 use App\Models\Product;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -17,20 +18,20 @@ class ProductController extends Controller
     {
         $query = Product::query();
 
-        // Apply filters
-        if ($request->has('category_id')) {
+        // Apply filters with validation
+        if ($request->has('category_id') && $request->category_id && $request->category_id !== 'undefined' && Str::isUuid($request->category_id)) {
             $query->where('category_id', $request->category_id);
         }
 
-        if ($request->has('type')) {
+        if ($request->has('type') && $request->type && $request->type !== 'undefined' && in_array($request->type, ['YIMULU', 'SERVICE', 'OTHER'])) {
             $query->where('type', $request->type);
         }
 
-        if ($request->has('is_active')) {
+        if ($request->has('is_active') && $request->is_active !== null && $request->is_active !== 'undefined') {
             $query->where('is_active', $request->boolean('is_active'));
         }
 
-        if ($request->has('q')) {
+        if ($request->has('q') && !empty($request->q) && $request->q !== 'undefined') {
             $search = $request->q;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'ilike', "%{$search}%")

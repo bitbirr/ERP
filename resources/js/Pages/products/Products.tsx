@@ -33,13 +33,14 @@ const Products: React.FC = () => {
   // Fetch products
   const { data: productsData, isLoading: productsLoading, error: productsError } = useQuery({
     queryKey: ['products', filters],
-    queryFn: () => productService.getProducts({
-      ...filters,
-      category_id: filters.category_id || undefined,
-      type: filters.type || undefined,
-      is_active: filters.is_active ? filters.is_active === 'true' : undefined,
-      q: filters.q || undefined,
-    }),
+    queryFn: () => {
+      const params: any = {};
+      if (filters.category_id) params.category_id = filters.category_id;
+      if (filters.type) params.type = filters.type;
+      if (filters.is_active) params.is_active = filters.is_active === 'true';
+      if (filters.q) params.q = filters.q;
+      return productService.getProducts(params);
+    },
   });
 
   // Fetch categories for filter dropdown
@@ -85,7 +86,7 @@ const Products: React.FC = () => {
       field: 'category',
       headerName: 'Category',
       width: 150,
-      valueGetter: (params) => params.row.category?.name || 'No Category',
+      valueGetter: (params) => params?.row?.category?.name || 'No Category',
     },
     {
       field: 'type',
@@ -104,13 +105,13 @@ const Products: React.FC = () => {
       field: 'price',
       headerName: 'Price',
       width: 100,
-      valueFormatter: (params) => params.value ? `$${params.value}` : '-',
+      valueFormatter: (params) => params?.value ? `$${params.value}` : '-',
     },
     {
       field: 'cost',
       headerName: 'Cost',
       width: 100,
-      valueFormatter: (params) => params.value ? `$${params.value}` : '-',
+      valueFormatter: (params) => params?.value ? `$${params.value}` : '-',
     },
     {
       field: 'is_active',
@@ -128,7 +129,7 @@ const Products: React.FC = () => {
       field: 'created_at',
       headerName: 'Created',
       width: 120,
-      valueFormatter: (params) => new Date(params.value).toLocaleDateString(),
+      valueFormatter: (params) => params?.value ? new Date(params.value).toLocaleDateString() : '-',
     },
     {
       field: 'actions',
