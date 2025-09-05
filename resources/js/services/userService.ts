@@ -32,8 +32,16 @@ export interface Role {
 }
 
 export const userService = {
-  // Get all users with pagination
-  getUsers: async (params?: { page?: number; per_page?: number }) => {
+  // Get all users with pagination, search, sorting, and filters
+  getUsers: async (params?: {
+    page?: number;
+    per_page?: number;
+    search?: string;
+    sort_by?: string;
+    sort_order?: 'asc' | 'desc';
+    roles?: string[];
+    email_verified?: 'verified' | 'not_verified';
+  }) => {
     console.log('Making request to:', `${API_BASE}/users`, 'with params:', params);
     try {
       const response = await window.axios.get(`${API_BASE}/users`, { params });

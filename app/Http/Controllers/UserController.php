@@ -18,6 +18,46 @@ class UserController extends Controller
     {
         $query = User::with('roleAssignments.role');
 
+        // Handle search
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        // Handle role filter
+        if ($request->has('roles') && !empty($request->roles)) {
+            $roles = is_array($request->roles) ? $request->roles : [$request->roles];
+            $query->whereHas('roleAssignments.role', function ($q) use ($roles) {
+                $q->whereIn('name', $roles);
+            });
+        }
+
+        // Handle email verified filter
+        if ($request->has('email_verified')) {
+            $verified = $request->email_verified;
+            if ($verified === 'verified') {
+                $query->whereNotNull('email_verified_at');
+            } elseif ($verified === 'not_verified') {
+                $query->whereNull('email_verified_at');
+            }
+        }
+
+        // Handle sorting
+        if ($request->has('sort_by')) {
+            $sortBy = $request->sort_by;
+            $sortOrder = $request->get('sort_order', 'asc');
+            $allowedSorts = ['name', 'email', 'created_at', 'updated_at'];
+
+            if (in_array($sortBy, $allowedSorts)) {
+                $query->orderBy($sortBy, $sortOrder);
+            }
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
         // Handle pagination
         $perPage = $request->get('per_page', 15);
         $users = $query->paginate($perPage);
