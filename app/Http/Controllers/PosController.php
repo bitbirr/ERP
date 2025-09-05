@@ -7,6 +7,8 @@ use App\Application\Services\PosService;
 use App\Application\Services\ReceiptNumberGeneratorService;
 use App\Application\Services\IdempotencyKeyService;
 use App\Models\Receipt;
+use App\Http\Resources\ReceiptResource;
+use App\Http\Resources\ReceiptCollection;
 
 class PosController extends Controller
 {
@@ -25,10 +27,55 @@ class PosController extends Controller
     }
 
     /**
+     * Display a listing of receipts
+     */
+    public function index(Request $request): ReceiptCollection
+    {
+        $query = Receipt::with(['customer', 'branch', 'lines.product']);
+
+        // Filter by status
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Filter by customer
+        if ($request->has('customer_id')) {
+            $query->where('customer_id', $request->customer_id);
+        }
+
+        // Filter by branch
+        if ($request->has('branch_id')) {
+            $query->where('branch_id', $request->branch_id);
+        }
+
+        // Filter by date range
+        if ($request->has('from_date')) {
+            $query->whereDate('created_at', '>=', $request->from_date);
+        }
+        if ($request->has('to_date')) {
+            $query->whereDate('created_at', '<=', $request->to_date);
+        }
+
+        $receipts = $query->orderBy('created_at', 'desc')->paginate(15);
+
+        return new ReceiptCollection($receipts);
+    }
+
+    /**
+     * Display the specified receipt
+     */
+    public function show(Receipt $receipt): ReceiptResource
+    {
+        $receipt->load(['lines.product', 'customer', 'branch']);
+
+        return new ReceiptResource($receipt);
+    }
+
+    /**
      * Create a new receipt.
      *
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return ReceiptResource
      */
     public function createReceipt(Request $request)
     {
@@ -44,7 +91,7 @@ class PosController extends Controller
 
         $receipt = $this->posService->processReceipt($receiptData, $lineItems);
 
-        return response()->json($receipt, 201);
+        return new ReceiptResource($receipt->load(['lines.product', 'customer', 'branch']));
     }
 
     /**
@@ -52,9 +99,9 @@ class PosController extends Controller
      *
      * @param Request $request
      * @param Receipt $receipt
-     * @return \Illuminate\Http\JsonResponse
+     * @return ReceiptResource
      */
-    public function voidReceipt(Request $request, Receipt $receipt)
+    public function voidReceipt(Request $request, Receipt $receipt): ReceiptResource
     {
         $ctx = [
             'voided_by' => $request->user()->id ?? null,
@@ -62,6 +109,6 @@ class PosController extends Controller
 
         $receipt = $this->posService->voidReceipt($receipt, $ctx);
 
-        return response()->json($receipt);
+        return new ReceiptResource($receipt->load(['lines.product', 'customer', 'branch']));
     }
 }

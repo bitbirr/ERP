@@ -3,11 +3,12 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Inertia App</title>
-    @vite('resources/js/app.js')
-    @inertiaHead
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Najib Shop - Back Office</title>
+    @viteReactRefresh
+    @vite(['resources/js/main.tsx'])
   </head>
   <body class="antialiased">
-    @inertia
+    <div id="root"></div>
   </body>
 </html>

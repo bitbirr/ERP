@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -20,6 +21,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Increase max execution time to prevent timeouts during heavy operations
+        if (!app()->runningInConsole()) {
+            set_time_limit(300); // 5 minutes for web requests
+        }
+
+        Log::info('AppServiceProvider boot start', ['timestamp' => now()]);
+
         // Define Gates for RBAC capabilities
         Gate::define('telebirr.view', function ($user) {
             return $user->hasCapability('telebirr.view');
@@ -65,5 +73,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('gl.reverse', function ($user) {
             return $user->hasCapability('gl.reverse');
         });
+
+        Log::info('AppServiceProvider boot end', ['timestamp' => now()]);
     }
 }

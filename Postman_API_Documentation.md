@@ -1,6 +1,6 @@
 # ERP API Postman Collections
 
-This repository contains Postman collections and environments for testing the ERP system's Products, Inventory, and Stock Movement APIs.
+This repository contains Postman collections and environments for testing the Najib Shop - Back Office's Products, Inventory, and Stock Movement APIs.
 
 ## Files Created
 

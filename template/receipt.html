@@ -1,0 +1,329 @@
+<!--<button onclick="setGeneralReceipt(1);">Show</button>
+    <button onclick="setGeneralReceipt(0);">Hide</button>-->
+
+<div class="row action_buttons">
+    <div class="col-sm-12 col-md-12 col-lg-10 col-lg-offset-1">
+        <div class="pull-right">
+            <a href="javascript:void(0);" class="btn btn-default"
+                ng-click="printDiv('printablereciept')"><i class="fa fa-print"></i> Print</a>
+            <a href="javascript:void(0);" class="btn btn-default" ng-click="goBack()"> Go Back</a>
+        </div>
+    </div>
+</div>
+<div id="printablereciept">
+    <div class="container"
+        style="width:670px;margin:0 auto;font-family: Verdana,Geneva,sans-serif; font-size:12px;color: #626262;">
+        <div class="section">
+            <div class="copy_of" style="text-align:right;margin-bottom: 5px;"> Office Copy</div>
+            <div class="header" style="height:46px;border: 1px solid #b7b7b7;">
+                <div class="title"
+                    style="font-size: 14px; padding-top: 13px; margin-left: 20px; display: inline-block;">
+                    <span class="receiptInfo_serviceProviderName"></span>
+                </div>
+                <div class="logo"
+                    style="display: inline-block; text-align: right; float: right; padding-top: 6px; margin-right: 10px;">
+                    <img src="img/myaccount/receipt_logo.png" width="139" height="34" />
+                </div>
+            </div>
+            <div class="two_col_wrap" style="margin-left: 20px; margin-top: 10px; margin-bottom: 10px;">
+                <div class="col-left" style="display: inline-block; width: 50%;">
+                    <div class="lebel"
+                        style="width:120px; display:inline-block;color: #000;text-align: right;padding-right: 10px;">
+                        <span class="receiptInfo_identityTypeName"></span> ID:
+                    </div>
+                    <div class="value" style="display: inline-block;color: #949494;">
+                        <span class="receiptInfo_id"></span>
+                    </div>
+                </div>
+                <div class="col-right" style="display: inline-block; text-align: right;">
+                    <div class="lebel" style="width:120px;display: inline-block;padding-right: 10px;color: #000;">
+                        Date:
+                    </div>
+                    <div class="value" style="display: inline-block;color: #949494;">
+                        <span class="receiptInfo_createdDate"></span>
+                    </div>
+                </div>
+            </div>
+            <!--<hr />-->
+            <div class="two_col_wrap" style="margin-left: 20px; margin-top: 10px; margin-bottom: 10px;">
+                <div class="col-left" style="display: inline-block; width: 50%;">
+                    <div class="lebel"
+                        style="width:120px; display:inline-block;color: #000;text-align: right;padding-right: 10px;">
+                        <span class="receiptInfo_identityTypeName"></span> Name:
+                    </div>
+                    <div class="value" style="display: inline-block;color: #949494;">
+                        <span class="receiptInfo_name"></span>
+                    </div>
+                </div>
+                <div class="col-right" style="display: inline-block; text-align: right;">
+                    <div class="lebel" style="width:120px;display: inline-block;padding-right: 10px;color: #000;">
+                        Partner UID:
+                    </div>
+                    <div class="value" style="display: inline-block;color: #949494;">
+                        <span class="receiptInfo_partnerUID"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="two_col_wrap" style="margin-left: 20px; margin-top: 10px; margin-bottom: 10px;">
+                <div class="col-left" style="display: inline-block; width: 50%;">
+                    <div class="lebel"
+                        style="width:120px; display:inline-block;color: #000;text-align: right;padding-right: 10px;">
+                        Subscription ID:
+                    </div>
+                    <div class="value" style="display: inline-block;color: #949494;">
+                        <span class="receiptInfo_subscriptionId"></span>
+                    </div>
+                </div>
+                <div class="col-right" style="display: inline-block; text-align: right;">
+                    <div class="lebel" style="width:120px;display: inline-block;padding-right: 10px;color: #000;">
+                        Account Number:
+                    </div>
+                    <div class="value" style="display: inline-block;color: #949494;">
+                        <span class="receiptInfo_accountNumber"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="image_wrap">
+                <div class="image_left" style="display: inline-block;width: 85%;">
+                    <div class="two_col_wrap" style="margin-left: 20px; margin-top: 10px; margin-bottom: 10px;">
+                        <div class="col-left" style="display: inline-block; width: 95%;">
+                            <div class="lebel"
+                                style="width:120px; display:inline-block;color: #000;text-align: right;padding-right: 10px;">
+                                Username:
+                            </div>
+                            <div class="value" style="display: inline-block;color: #949494;">
+                                <span class="receiptInfo_userName"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="two_col_wrap" style="margin-left: 20px; margin-top: 10px; margin-bottom: 10px;">
+                        <div class="col-left" style="display: inline-block; width: 95%;">
+                            <div class="lebel"
+                                style="width:120px; display:inline-block;color: #000;text-align: right;padding-right: 10px;">
+                                Email:
+                            </div>
+                            <div class="value" style="display: inline-block;color: #949494;">
+                                <span class="receiptInfo_email"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="two_col_wrap" style="margin-left: 20px; margin-top: 10px; margin-bottom: 10px;">
+                        <div class="col-left" style="display: inline-block; width: 100%;">
+                            <div class="lebel"
+                                style="width:120px; display:inline-block;color: #000;text-align: right;padding-right: 10px;">
+                                Address:
+                            </div>
+                            <div class="value"
+                                style="display: inline-block;word-wrap: break-word;color: #949494;vertical-align: top;">
+                                <span class="receiptInfo_address"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="image_right" style="display: inline-block;vertical-align: top;">
+                    <img src="" class="receipt_pic" alt="Photo" width="75" height="" />
+                </div>
+            </div>
+            <!--<div class="two_col_wrap" style="margin-left: 20px; margin-top: 10px; margin-bottom: 10px;">
+                    <div class="col-left" style="display: inline-block; width: 100%;">
+                        <div class="lebel" style="width:100%; display:inline-block;color: #000;vertical-align: top;">
+                            GL Details:
+                        </div>
+                        <div class="value" style="margin-top:5px; display: inline-block;color: #949494;width: 100%;">
+                            <div class="tran_detail_tbl" style="border: 1px solid #949494;border-bottom: none;">
+                                <div class="row-receipt" style="color: #454646;font-weight: bold; border-bottom: 1px solid #949494">
+                                    <div class="rec_head" style="width: 90px; display: inline-block;padding-left: 5px;">A/C NO</div>
+                                    <div class="rec_head" style="width: 180px; display: inline-block;">A/C Name</div>
+                                    <div class="rec_head" style="width: 87px; display: inline-block;">Debit($)</div>
+                                    <div class="rec_head" style="width: 87px; display: inline-block;">Credit($)</div>
+                                    <div class="rec_head" style="display: inline-block; width: 85px;">Balance($)</div>
+                                </div>
+                                    <span class="tran_detail_tbl_body" style="font-size: 10px;">
+                                    </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>-->
+            <div class="signature_wrap">
+                <div class="sign_left"
+                    style="margin-top: 45px; width: 33%; text-align: center; display: inline-block; margin-left: 3%;">
+                    <hr />
+                    <div>Signature</div>
+                </div>
+                <div class="sign_right"
+                    style="margin-top: 45px; width: 33%; text-align: center; display: inline-block; margin-left: 27%;">
+                    <hr />
+                    <div>Approved By</div>
+                </div>
+            </div>
+
+            <div class="terms_wrap" style="border: 1px dashed; padding: 10px;margin-top:10px;">
+                <div class="terms_heading" style="text-align: center; margin-bottom: 10px;">Terms & Conditions</div>
+                <div class="terms" style="font-size:9px;">
+                    1) SafariMFS will not take any responsibility for delays or delivery failure as a result of mistakes
+                    in information.<br />
+                        2) In case of cancellation will be refunded at the market rate with cancellation fee.<br />
+                        3) In case of cancellation will be refunded at the market rate with cancellation fee.
+                </div>
+            </div>
+        </div>
+        <div class="section_seperator" style="border-top: 3px dashed; margin-top: 20px; margin-bottom: 20px;"></div>
+        <div class="section">
+            <div class="copy_of" style="text-align:right;margin-bottom: 5px;">
+                <span class="receiptInfo_identityTypeName"></span> Copy</div>
+            <div class="header" style="height:46px;border: 1px solid #b7b7b7;">
+                <div class="title"
+                    style="font-size: 14px; padding-top: 13px; margin-left: 20px; display: inline-block;">
+                    <span class="receiptInfo_serviceProviderName"></span>
+                </div>
+                <div class="logo"
+                    style="display: inline-block; text-align: right; float: right; padding-top: 6px; margin-right: 10px;">
+
+                    <img src="img/myaccount/receipt_logo.png" width="139" height="34" />
+
+                </div>
+            </div>
+            <div class="two_col_wrap" style="margin-left: 20px; margin-top: 10px; margin-bottom: 10px;">
+                <div class="col-left" style="display: inline-block; width: 50%;">
+                    <div class="lebel"
+                        style="width:120px; display:inline-block;color: #000;text-align: right;padding-right: 10px;">
+                        <span class="receiptInfo_identityTypeName"></span> ID:
+                    </div>
+                    <div class="value" style="display: inline-block;color: #949494;">
+                        <span class="receiptInfo_id"></span>
+                    </div>
+                </div>
+                <div class="col-right" style="display: inline-block; text-align: right;">
+                    <div class="lebel" style="width:120px;display: inline-block;padding-right: 10px;color: #000;">
+                        Date:
+                    </div>
+                    <div class="value" style="display: inline-block;color: #949494;">
+                        <span class="receiptInfo_createdDate"></span>
+                    </div>
+                </div>
+            </div>
+            <!--<hr />-->
+            <div class="two_col_wrap" style="margin-left: 20px; margin-top: 10px; margin-bottom: 10px;">
+                <div class="col-left" style="display: inline-block; width: 50%;">
+                    <div class="lebel"
+                        style="width:120px; display:inline-block;color: #000;text-align: right;padding-right: 10px;">
+                        <span class="receiptInfo_identityTypeName"></span> Name:
+                    </div>
+                    <div class="value" style="display: inline-block;color: #949494;">
+                        <span class="receiptInfo_name"></span>
+                    </div>
+                </div>
+                <div class="col-right" style="display: inline-block; text-align: right;">
+                    <div class="lebel" style="width:120px;display: inline-block;padding-right: 10px;color: #000;">
+                        Partner UID:
+                    </div>
+                    <div class="value" style="display: inline-block;color: #949494;">
+                        <span class="receiptInfo_partnerUID"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="two_col_wrap" style="margin-left: 20px; margin-top: 10px; margin-bottom: 10px;">
+                <div class="col-left" style="display: inline-block; width: 50%;">
+                    <div class="lebel"
+                        style="width:120px; display:inline-block;color: #000;text-align: right;padding-right: 10px;">
+                        Subscription ID:
+                    </div>
+                    <div class="value" style="display: inline-block;color: #949494;">
+                        <span class="receiptInfo_subscriptionId"></span>
+                    </div>
+                </div>
+                <div class="col-right" style="display: inline-block; text-align: right;">
+                    <div class="lebel" style="width:120px;display: inline-block;padding-right: 10px;color: #000;">
+                        Account Number:
+                    </div>
+                    <div class="value" style="display: inline-block;color: #949494;">
+                        <span class="receiptInfo_accountNumber"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="image_wrap">
+                <div class="image_left" style="display: inline-block;width: 85%;">
+                    <div class="two_col_wrap" style="margin-left: 20px; margin-top: 10px; margin-bottom: 10px;">
+                        <div class="col-left" style="display: inline-block; width: 95%;">
+                            <div class="lebel"
+                                style="width:120px; display:inline-block;color: #000;text-align: right;padding-right: 10px;">
+                                Username:
+                            </div>
+                            <div class="value" style="display: inline-block;color: #949494;">
+                                <span class="receiptInfo_userName"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="two_col_wrap" style="margin-left: 20px; margin-top: 10px; margin-bottom: 10px;">
+                        <div class="col-left" style="display: inline-block; width: 95%;">
+                            <div class="lebel"
+                                style="width:120px; display:inline-block;color: #000;text-align: right;padding-right: 10px;">
+                                Email:
+                            </div>
+                            <div class="value" style="display: inline-block;color: #949494;">
+                                <span class="receiptInfo_email"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="two_col_wrap" style="margin-left: 20px; margin-top: 10px; margin-bottom: 10px;">
+                        <div class="col-left" style="display: inline-block; width: 100%;">
+                            <div class="lebel"
+                                style="width:120px; display:inline-block;color: #000;text-align: right;padding-right: 10px;">
+                                Address:
+                            </div>
+                            <div class="value"
+                                style="display: inline-block;word-wrap: break-word;color: #949494;vertical-align: top;">
+                                <span class="receiptInfo_address"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="image_right" style="display: inline-block;vertical-align: top;">
+                    <img src="" class="receipt_pic" alt="Photo" width="75" height="" />
+                </div>
+            </div>
+            <!--<div class="two_col_wrap" style="margin-left: 20px; margin-top: 10px; margin-bottom: 10px;">
+                    <div class="col-left" style="display: inline-block; width: 100%;">
+                        <div class="lebel" style="width:100%; display:inline-block;color: #000;vertical-align: top;">
+                            GL Details:
+                        </div>
+                        <div class="value" style="margin-top:5px; display: inline-block;color: #949494;width: 100%;">
+                            <div class="tran_detail_tbl" style="border: 1px solid #949494;border-bottom: none;">
+                                <div class="row-receipt" style="color: #454646;font-weight: bold; border-bottom: 1px solid #949494">
+                                    <div class="rec_head" style="width: 90px; display: inline-block;padding-left: 5px;">A/C NO</div>
+                                    <div class="rec_head" style="width: 180px; display: inline-block;">A/C Name</div>
+                                    <div class="rec_head" style="width: 87px; display: inline-block;">Debit($)</div>
+                                    <div class="rec_head" style="width: 87px; display: inline-block;">Credit($)</div>
+                                    <div class="rec_head" style="display: inline-block; width: 85px;">Balance($)</div>
+                                </div>
+                                    <span class="tran_detail_tbl_body" style="font-size: 10px;">
+                                    </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>-->
+            <div class="signature_wrap">
+                <div class="sign_left"
+                    style="margin-top: 45px; width: 33%; text-align: center; display: inline-block; margin-left: 3%;">
+                    <hr />
+                    <div>Signature</div>
+                </div>
+                <div class="sign_right"
+                    style="margin-top: 45px; width: 33%; text-align: center; display: inline-block; margin-left: 27%;">
+                    <hr />
+                    <div>Approved By</div>
+                </div>
+            </div>
+
+            <div class="terms_wrap" style="border: 1px dashed; padding: 10px;margin-top:10px;">
+                <div class="terms_heading" style="text-align: center; margin-bottom: 10px;">Terms & Conditions</div>
+                <div class="terms" style="font-size:9px;">
+                    1) Telebirr Topup Posted Successfully<br />
+                        Reciept Generated By System<br />
+                       
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>

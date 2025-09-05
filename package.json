@@ -6,7 +6,9 @@
         "dev": "vite"
     },
     "devDependencies": {
-        "@vitejs/plugin-vue": "^6.0.1",
+        "@types/react": "^18.3.12",
+        "@types/react-dom": "^18.3.1",
+        "@vitejs/plugin-react": "^4.3.3",
         "autoprefixer": "^10.4.20",
         "axios": "^1.7.4",
         "concurrently": "^9.0.1",
@@ -16,12 +18,21 @@
         "vite": "^6.0.11"
     },
     "dependencies": {
-        "@headlessui/vue": "^1.7.23",
-        "@inertiajs/inertia": "^0.11.1",
-        "@inertiajs/inertia-vue3": "^0.6.0",
-        "@inertiajs/progress": "^0.2.7",
-        "laravel-echo": "^2.2.0",
-        "pusher-js": "^8.4.0",
-        "vue": "^3.5.20"
+        "@emotion/react": "^11.14.0",
+        "@emotion/styled": "^11.14.0",
+        "@hookform/resolvers": "^3.10.0",
+        "@inertiajs/react": "^2.1.5",
+        "@mui/icons-material": "^6.1.7",
+        "@mui/material": "^6.1.7",
+        "@mui/x-data-grid": "^7.23.2",
+        "@mui/x-date-pickers": "^7.23.2",
+        "@tanstack/react-query": "^5.62.2",
+        "date-fns": "^2.30.0",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1",
+        "react-hook-form": "^7.54.0",
+        "react-router-dom": "^6.28.0",
+        "recharts": "^3.1.2",
+        "yup": "^1.6.0"
     }
 }

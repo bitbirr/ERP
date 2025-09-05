@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use App\Models\User;
 
 class AuditLog extends Model
 {
@@ -21,4 +22,9 @@ class AuditLog extends Model
         'context'     => 'array',
         'created_at'  => 'datetime',
     ];
+
+    public function actor()
+    {
+        return $this->belongsTo(User::class, 'actor_id');
+    }
 }

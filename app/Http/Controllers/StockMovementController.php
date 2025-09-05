@@ -8,6 +8,7 @@ use App\Models\StockMovement;
 use App\Models\Product;
 use App\Models\Branch;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class StockMovementController extends Controller
 {
@@ -34,28 +35,28 @@ class StockMovementController extends Controller
 
         $query = StockMovement::with(['product', 'branch']);
 
-        // Apply filters
-        if ($request->has('product_id')) {
+        // Apply filters with validation for undefined values
+        if ($request->has('product_id') && $request->product_id && $request->product_id !== 'undefined' && Str::isUuid($request->product_id)) {
             $query->where('product_id', $request->product_id);
         }
 
-        if ($request->has('branch_id')) {
+        if ($request->has('branch_id') && $request->branch_id && $request->branch_id !== 'undefined' && Str::isUuid($request->branch_id)) {
             $query->where('branch_id', $request->branch_id);
         }
 
-        if ($request->has('type')) {
+        if ($request->has('type') && $request->type && $request->type !== 'undefined' && in_array($request->type, ['OPENING', 'RECEIVE', 'RESERVE', 'UNRESERVE', 'ISSUE', 'TRANSFER', 'ADJUST'])) {
             $query->where('type', $request->type);
         }
 
-        if ($request->has('ref')) {
+        if ($request->has('ref') && !empty($request->ref) && $request->ref !== 'undefined') {
             $query->where('ref', $request->ref);
         }
 
-        if ($request->has('start_date')) {
+        if ($request->has('start_date') && $request->start_date && $request->start_date !== 'undefined') {
             $query->whereDate('created_at', '>=', $request->start_date);
         }
 
-        if ($request->has('end_date')) {
+        if ($request->has('end_date') && $request->end_date && $request->end_date !== 'undefined') {
             $query->whereDate('created_at', '<=', $request->end_date);
         }
 
@@ -93,20 +94,20 @@ class StockMovementController extends Controller
 
         $query = StockMovement::query();
 
-        // Apply filters
-        if ($request->has('product_id')) {
+        // Apply filters with validation for undefined values
+        if ($request->has('product_id') && $request->product_id && $request->product_id !== 'undefined' && Str::isUuid($request->product_id)) {
             $query->where('product_id', $request->product_id);
         }
 
-        if ($request->has('branch_id')) {
+        if ($request->has('branch_id') && $request->branch_id && $request->branch_id !== 'undefined' && Str::isUuid($request->branch_id)) {
             $query->where('branch_id', $request->branch_id);
         }
 
-        if ($request->has('start_date')) {
+        if ($request->has('start_date') && $request->start_date && $request->start_date !== 'undefined') {
             $query->whereDate('created_at', '>=', $request->start_date);
         }
 
-        if ($request->has('end_date')) {
+        if ($request->has('end_date') && $request->end_date && $request->end_date !== 'undefined') {
             $query->whereDate('created_at', '<=', $request->end_date);
         }
 
@@ -156,15 +157,15 @@ class StockMovementController extends Controller
         $query = StockMovement::where('product_id', $product->id)
             ->with(['branch']);
 
-        if ($request->has('branch_id')) {
+        if ($request->has('branch_id') && $request->branch_id && $request->branch_id !== 'undefined' && Str::isUuid($request->branch_id)) {
             $query->where('branch_id', $request->branch_id);
         }
 
-        if ($request->has('start_date')) {
+        if ($request->has('start_date') && $request->start_date && $request->start_date !== 'undefined') {
             $query->whereDate('created_at', '>=', $request->start_date);
         }
 
-        if ($request->has('end_date')) {
+        if ($request->has('end_date') && $request->end_date && $request->end_date !== 'undefined') {
             $query->whereDate('created_at', '<=', $request->end_date);
         }
 
@@ -197,15 +198,15 @@ class StockMovementController extends Controller
         $query = StockMovement::where('branch_id', $branch->id)
             ->with(['product']);
 
-        if ($request->has('product_id')) {
+        if ($request->has('product_id') && $request->product_id && $request->product_id !== 'undefined' && Str::isUuid($request->product_id)) {
             $query->where('product_id', $request->product_id);
         }
 
-        if ($request->has('start_date')) {
+        if ($request->has('start_date') && $request->start_date && $request->start_date !== 'undefined') {
             $query->whereDate('created_at', '>=', $request->start_date);
         }
 
-        if ($request->has('end_date')) {
+        if ($request->has('end_date') && $request->end_date && $request->end_date !== 'undefined') {
             $query->whereDate('created_at', '<=', $request->end_date);
         }
 

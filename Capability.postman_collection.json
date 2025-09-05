@@ -1,0 +1,197 @@
+{
+  "info": {
+    "name": "Capability Management",
+    "description": "Capability management API endpoints. Note: Direct capability CRUD operations are not currently implemented. Capabilities are managed through roles.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Capabilities via Roles",
+      "item": [
+        {
+          "name": "Get All Capabilities",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}/rbac/roles",
+              "host": ["{{baseURL}}"],
+              "path": ["rbac", "roles"]
+            },
+            "description": "Retrieve all capabilities through associated roles (current implementation)"
+          }
+        },
+        {
+          "name": "Sync Role Capabilities",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"capability_keys\": [\"users.create\", \"users.read\", \"users.update\", \"users.delete\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/rbac/roles/{{role_id}}/capabilities",
+              "host": ["{{baseURL}}"],
+              "path": ["rbac", "roles", "{{role_id}}", "capabilities"]
+            },
+            "description": "Sync capabilities for a specific role"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Future Implementation Notes",
+      "item": [
+        {
+          "name": "Create Capability (Future)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Create Users\",\n  \"key\": \"users.create\",\n  \"group\": \"users\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/capabilities",
+              "host": ["{{baseURL}}"],
+              "path": ["capabilities"]
+            },
+            "description": "Future endpoint for creating capabilities directly"
+          }
+        },
+        {
+          "name": "Get Capability (Future)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}/capabilities/{{capability_id}}",
+              "host": ["{{baseURL}}"],
+              "path": ["capabilities", "{{capability_id}}"]
+            },
+            "description": "Future endpoint for retrieving a specific capability"
+          }
+        },
+        {
+          "name": "Update Capability (Future)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Create Users\",\n  \"key\": \"users.create\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/capabilities/{{capability_id}}",
+              "host": ["{{baseURL}}"],
+              "path": ["capabilities", "{{capability_id}}"]
+            },
+            "description": "Future endpoint for updating a capability"
+          }
+        },
+        {
+          "name": "Delete Capability (Future)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}/capabilities/{{capability_id}}",
+              "host": ["{{baseURL}}"],
+              "path": ["capabilities", "{{capability_id}}"]
+            },
+            "description": "Future endpoint for deleting a capability"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseURL",
+      "value": "http://localhost:8000/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "1|iQkYFkQymCitaSPgIr4ZBHgt0SbvV4302vp0A0Uo1cae004f",
+      "type": "string"
+    },
+    {
+      "key": "role_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "capability_id",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

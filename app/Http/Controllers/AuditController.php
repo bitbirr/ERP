@@ -18,7 +18,7 @@ class AuditController extends Controller
 
         // Apply filters
         if ($request->has('user_id')) {
-            $query->where('user_id', $request->user_id);
+            $query->where('actor_id', $request->user_id);
         }
 
         if ($request->has('action')) {
@@ -26,7 +26,7 @@ class AuditController extends Controller
         }
 
         if ($request->has('entity_type')) {
-            $query->where('entity_type', $request->entity_type);
+            $query->where('subject_type', $request->entity_type);
         }
 
         if ($request->has('date_from')) {
@@ -37,7 +37,7 @@ class AuditController extends Controller
             $query->where('created_at', '<=', $request->date_to);
         }
 
-        $logs = $query->with(['user'])
+        $logs = $query->with(['actor'])
             ->orderBy('created_at', 'desc')
             ->paginate(50);
 

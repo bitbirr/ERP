@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This report documents the implementation and testing of idempotency for StockMovement records in the ERP system's inventory management. The testing phase successfully verified that multiple requests using the same `ref` (idempotency key) consistently generate exactly one StockMovement record, preventing duplicates and ensuring system reliability.
+This report documents the implementation and testing of idempotency for StockMovement records in the Najib Shop - Back Office's inventory management. The testing phase successfully verified that multiple requests using the same `ref` (idempotency key) consistently generate exactly one StockMovement record, preventing duplicates and ensuring system reliability.
 
 ## Implementation Details
 

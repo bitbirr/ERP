@@ -1417,7 +1417,7 @@
       "name": "Customer Module API",
       "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
       "description": {
-        "content": "Postman collection for testing the Customer module endpoints in the ERP system. Includes positive and negative test cases for all CRUD operations.",
+        "content": "Postman collection for testing the Customer module endpoints in the Najib Shop - Back Office. Includes positive and negative test cases for all CRUD operations.",
         "type": "text/plain"
       }
     }

@@ -134,23 +134,168 @@ class GlAccountController extends Controller
         $netBalance = ($totals->total_debit ?? 0) - ($totals->total_credit ?? 0);
 
         return response()->json([
-            'account' => [
-                'id' => $account->id,
-                'code' => $account->code,
-                'name' => $account->name,
-                'type' => $account->type,
-                'normal_balance' => $account->normal_balance,
-            ],
-            'balance' => [
-                'debit' => $totals->total_debit ?? 0,
-                'credit' => $totals->total_credit ?? 0,
-                'net' => $netBalance,
-                'transaction_count' => $totals->transaction_count ?? 0,
-            ],
-            'period' => [
-                'from' => $request->date_from,
-                'to' => $request->date_to,
-            ],
+            'account_id' => $account->id,
+            'account_code' => $account->code,
+            'account_name' => $account->name,
+            'balance' => $netBalance,
+            'debit_total' => $totals->total_debit ?? 0,
+            'credit_total' => $totals->total_credit ?? 0,
+            'as_of_date' => now()->toISOString(),
+        ]);
+    }
+
+    /**
+     * Store a newly created account.
+     */
+    public function store(Request $request): GlAccountResource
+    {
+        Gate::authorize('gl.create');
+
+        $validated = $request->validate([
+            'code' => 'required|string|unique:gl_accounts,code|max:10',
+            'name' => 'required|string|max:255',
+            'type' => 'required|in:ASSET,LIABILITY,EQUITY,REVENUE,EXPENSE',
+            'normal_balance' => 'required|in:DEBIT,CREDIT',
+            'parent_id' => 'nullable|uuid|exists:gl_accounts,id',
+            'is_postable' => 'boolean',
+            'branch_id' => 'nullable|uuid|exists:branches,id',
+        ]);
+
+        // Auto-generate 4-digit code if not provided
+        if (empty($validated['code'])) {
+            $validated['code'] = $this->generateAccountCode();
+        }
+
+        // Set level based on parent
+        if ($validated['parent_id']) {
+            $parent = GlAccount::find($validated['parent_id']);
+            $validated['level'] = $parent->level + 1;
+        } else {
+            $validated['level'] = 1;
+        }
+
+        $account = GlAccount::create($validated);
+
+        return new GlAccountResource($account->load(['parent', 'children', 'branch']));
+    }
+
+    /**
+     * Update the specified account.
+     */
+    public function update(Request $request, GlAccount $account): GlAccountResource
+    {
+        Gate::authorize('gl.update');
+
+        $validated = $request->validate([
+            'code' => 'sometimes|required|string|unique:gl_accounts,code,' . $account->id . '|max:10',
+            'name' => 'sometimes|required|string|max:255',
+            'type' => 'sometimes|required|in:ASSET,LIABILITY,EQUITY,REVENUE,EXPENSE',
+            'normal_balance' => 'sometimes|required|in:DEBIT,CREDIT',
+            'parent_id' => 'nullable|uuid|exists:gl_accounts,id',
+            'is_postable' => 'boolean',
+            'status' => 'sometimes|required|in:ACTIVE,ARCHIVED',
+            'branch_id' => 'nullable|uuid|exists:branches,id',
+        ]);
+
+        // Prevent circular references
+        if ($validated['parent_id'] && $this->wouldCreateCircularReference($account, $validated['parent_id'])) {
+            return response()->json(['error' => 'Circular reference detected'], 422);
+        }
+
+        // Update level if parent changed
+        if (isset($validated['parent_id'])) {
+            if ($validated['parent_id']) {
+                $parent = GlAccount::find($validated['parent_id']);
+                $validated['level'] = $parent->level + 1;
+            } else {
+                $validated['level'] = 1;
+            }
+        }
+
+        $account->update($validated);
+
+        return new GlAccountResource($account->load(['parent', 'children', 'branch']));
+    }
+
+    /**
+     * Remove the specified account.
+     */
+    public function destroy(GlAccount $account): JsonResponse
+    {
+        Gate::authorize('gl.delete');
+
+        // Check if account has children
+        if ($account->children()->exists()) {
+            return response()->json([
+                'error' => 'Cannot delete account with child accounts. Please delete child accounts first.'
+            ], 422);
+        }
+
+        // Check if account has journal entries
+        if ($account->lines()->exists()) {
+            // Soft delete by archiving
+            $account->update(['status' => 'ARCHIVED']);
+            return response()->json(['message' => 'Account archived successfully']);
+        }
+
+        $account->delete();
+
+        return response()->json(['message' => 'Account deleted successfully']);
+    }
+
+    /**
+     * Generate a unique 4-digit account code.
+     */
+    private function generateAccountCode(): string
+    {
+        do {
+            $code = str_pad(mt_rand(1000, 9999), 4, '0', STR_PAD_LEFT);
+        } while (GlAccount::where('code', $code)->exists());
+
+        return $code;
+    }
+
+    /**
+     * Check for circular references in account hierarchy.
+     */
+    private function wouldCreateCircularReference(GlAccount $account, string $parentId): bool
+    {
+        $current = GlAccount::find($parentId);
+        while ($current) {
+            if ($current->id === $account->id) {
+                return true;
+            }
+            $current = $current->parent;
+        }
+        return false;
+    }
+
+    /**
+     * Get account summary metrics.
+     */
+    public function summary(Request $request): JsonResponse
+    {
+        Gate::authorize('gl.view');
+
+        $query = GlAccount::query();
+
+        if ($request->has('branch_id')) {
+            $query->where('branch_id', $request->branch_id);
+        }
+
+        $totalAccounts = $query->count();
+        $activeAccounts = (clone $query)->where('status', 'ACTIVE')->count();
+        $postableAccounts = (clone $query)->where('is_postable', true)->count();
+
+        $accountsByType = (clone $query)->selectRaw('type, COUNT(*) as count')
+            ->groupBy('type')
+            ->pluck('count', 'type');
+
+        return response()->json([
+            'total_accounts' => $totalAccounts,
+            'active_accounts' => $activeAccounts,
+            'postable_accounts' => $postableAccounts,
+            'accounts_by_type' => $accountsByType,
         ]);
     }
 
