@@ -12,6 +12,7 @@ interface AuthContextType {
   login: (email: string, password: string, deviceName?: string) => Promise<void>;
   logout: () => void;
   forceLogout: () => void;
+  refreshToken: () => Promise<string | null>;
   isAuthenticated: boolean;
   loading: boolean;
 }
@@ -91,6 +92,34 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const refreshToken = async (): Promise<string | null> => {
+    try {
+      console.log('AuthContext: Attempting token refresh');
+
+      const response = await window.axios.post('/api/sanctum/refresh', {
+        device_name: 'web-app',
+      });
+
+      const { token, user: userData } = response.data;
+      console.log('AuthContext: Token refresh successful');
+
+      // Update stored token and user data
+      setToken(token);
+      setUser(userData);
+      localStorage.setItem('auth_user', JSON.stringify(userData));
+
+      // Update authorization header
+      window.axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+      return token;
+    } catch (error: any) {
+      console.error('AuthContext: Token refresh failed:', error.response?.data || error.message);
+      // If refresh fails, trigger logout
+      forceLogout();
+      return null;
+    }
+  };
+
   const forceLogout = () => {
     console.log('AuthContext: Force logout triggered');
     setUser(null);
@@ -109,6 +138,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     login,
     logout,
     forceLogout,
+    refreshToken,
     isAuthenticated: !!user,
     loading
   };

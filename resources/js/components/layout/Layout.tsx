@@ -28,6 +28,7 @@ import {
   Logout as LogoutIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
+import BackButton from '../BackButton';
 
 const drawerWidth = 240;
 
@@ -38,7 +39,9 @@ const menuItems = [
   { text: 'Inventory', icon: <InventoryIcon />, path: '/inventory' },
   { text: 'Customers', icon: <PeopleIcon />, path: '/customers' },
   { text: 'Sales', icon: <ShoppingCartIcon />, path: '/sales/orders' },
+  { text: 'GL Accounts', icon: <AccountBalanceIcon />, path: '/finance/accounts' },
   { text: 'Finance', icon: <AccountBalanceIcon />, path: '/finance/journals' },
+  { text: 'Bank Accounts', icon: <AccountBalanceIcon />, path: '/finance/bank-accounts' },
   { text: 'Telebirr', icon: <PhoneAndroidIcon />, path: '/telebirr' },
   { text: 'Reports', icon: <AssessmentIcon />, path: '/reports' },
 ];
@@ -119,6 +122,7 @@ const Layout: React.FC = () => {
           >
             <MenuIcon />
           </IconButton>
+          <BackButton />
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             Welcome, {user?.name}
           </Typography>

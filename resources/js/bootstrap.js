@@ -34,21 +34,49 @@ window.axios.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error) => {
-    if (error.response?.status === 401) {
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
       // Token expired or invalid
-      console.log('Axios interceptor: 401 detected, token expired or invalid');
+      console.log('Axios interceptor: 401 detected, attempting token refresh');
 
-      // Clear authentication data
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('auth_user');
-      delete window.axios.defaults.headers.common['Authorization'];
+      // Mark request as retry to prevent infinite loop
+      originalRequest._retry = true;
 
-      // Use React's forceLogout if available, otherwise fallback to direct redirect
-      if (window.authForceLogout) {
-        window.authForceLogout();
-      } else {
-        window.location.href = '/login';
+      try {
+        // Attempt to refresh token
+        const refreshResponse = await window.axios.post('/api/sanctum/refresh', {
+          device_name: 'web-app',
+        });
+
+        const { token, user: userData } = refreshResponse.data;
+        console.log('Axios interceptor: Token refresh successful');
+
+        // Update stored token and user data
+        localStorage.setItem('auth_token', token);
+        localStorage.setItem('auth_user', JSON.stringify(userData));
+
+        // Update authorization header
+        window.axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+        // Retry the original request with new token
+        originalRequest.headers.Authorization = `Bearer ${token}`;
+        return window.axios(originalRequest);
+      } catch (refreshError) {
+        console.log('Axios interceptor: Token refresh failed, logging out');
+
+        // Clear authentication data
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('auth_user');
+        delete window.axios.defaults.headers.common['Authorization'];
+
+        // Use React's forceLogout if available, otherwise fallback to direct redirect
+        if (window.authForceLogout) {
+          window.authForceLogout();
+        } else {
+          window.location.href = '/login';
+        }
       }
     } else if (error.response?.status === 419) {
       // CSRF token mismatch (for web routes)

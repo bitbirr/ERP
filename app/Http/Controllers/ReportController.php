@@ -33,16 +33,26 @@ class ReportController extends Controller
      */
     public function dashboard(Request $request): JsonResponse
     {
-        $data = [
-            'summary' => $this->reportService->getSummary(),
-            'orders_summary' => $this->reportService->getOrdersSummary(),
-            'revenue_over_time' => $this->reportService->getRevenueOverTime(),
-            'top_selling_products' => $this->reportService->getTopSellingProducts(),
-            'low_stock_items' => $this->reportService->getLowStockItems(),
-            'recent_orders' => $this->reportService->getRecentOrders(),
-        ];
+        try {
+            $data = [
+                'summary' => $this->reportService->getSummary(),
+                'orders_summary' => $this->reportService->getOrdersSummary(),
+                'revenue_over_time' => $this->reportService->getRevenueOverTime(),
+                'top_selling_products' => $this->reportService->getTopSellingProducts(),
+                'low_stock_items' => $this->reportService->getLowStockItems(),
+                'recent_orders' => $this->reportService->getRecentOrders(),
+                'recent_transactions' => $this->reportService->getRecentTransactions(),
+                'transactions_per_branch' => $this->reportService->getTransactionsPerBranch(),
+                'top_products_by_volume' => $this->reportService->getTopProductsByVolume(),
+            ];
 
-        return response()->json($data);
+            return response()->json($data);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to fetch dashboard data',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

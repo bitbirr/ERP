@@ -106,7 +106,7 @@ const Customers: React.FC = () => {
 
       const response = await axios.get(`/api/customers?${params}`);
       setCustomers(response.data.data);
-      setTotal(response.data.meta.total);
+      setTotal(Number(response.data.meta.total) || 0);
     } catch (err) {
       setError('Failed to load customers');
       console.error('Error fetching customers:', err);

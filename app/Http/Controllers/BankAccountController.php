@@ -14,14 +14,43 @@ class BankAccountController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = BankAccount::with(['branch', 'customer']);
+        $query = BankAccount::with(['branch', 'customer', 'glAccount']);
 
-        // Filtering
-        if ($request->has('branch_id')) {
+        // Advanced Filtering
+        if ($request->has('branch_id') && $request->branch_id) {
             $query->where('branch_id', $request->branch_id);
         }
-        if ($request->has('account_type')) {
+        if ($request->has('account_type') && $request->account_type) {
             $query->where('account_type', $request->account_type);
+        }
+        if ($request->has('status')) {
+            $query->where('is_active', $request->status === 'active');
+        }
+        if ($request->has('gl_number') && $request->gl_number) {
+            $query->whereHas('glAccount', function ($q) use ($request) {
+                $q->where('code', 'like', '%' . $request->gl_number . '%');
+            });
+        }
+        if ($request->has('name') && $request->name) {
+            $query->where('name', 'like', '%' . $request->name . '%');
+        }
+        if ($request->has('balance_min')) {
+            $query->where('balance', '>=', $request->balance_min);
+        }
+        if ($request->has('balance_max')) {
+            $query->where('balance', '<=', $request->balance_max);
+        }
+        if ($request->has('created_from')) {
+            $query->whereDate('created_at', '>=', $request->created_from);
+        }
+        if ($request->has('created_to')) {
+            $query->whereDate('created_at', '<=', $request->created_to);
+        }
+        if ($request->has('updated_from')) {
+            $query->whereDate('updated_at', '>=', $request->updated_from);
+        }
+        if ($request->has('updated_to')) {
+            $query->whereDate('updated_at', '<=', $request->updated_to);
         }
 
         // Sorting
@@ -33,7 +62,20 @@ class BankAccountController extends Controller
         $perPage = $request->get('per_page', 15);
         $accounts = $query->paginate($perPage);
 
-        return response()->json($accounts);
+        // Add summary data
+        $summary = [
+            'total_accounts' => BankAccount::count(),
+            'active_accounts' => BankAccount::where('is_active', true)->count(),
+            'total_balance' => BankAccount::sum('balance'),
+            'recent_transactions' => BankAccount::with(['transactions' => function ($q) {
+                $q->latest()->limit(5);
+            }])->get()->pluck('transactions')->flatten()->take(5)
+        ];
+
+        return response()->json([
+            'data' => $accounts,
+            'summary' => $summary
+        ]);
     }
 
     /**

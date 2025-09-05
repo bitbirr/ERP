@@ -58,6 +58,34 @@ Route::post('/sanctum/token', function (Request $request) {
     ]);
 });
 
+// Sanctum token refresh route
+Route::middleware('auth:sanctum')->post('/sanctum/refresh', function (Request $request) {
+    \Illuminate\Support\Facades\Log::info('Sanctum token refresh request received', [
+        'user_id' => $request->user()->id,
+        'email' => $request->user()->email,
+        'device_name' => $request->device_name ?? 'web-app',
+    ]);
+
+    $request->validate([
+        'device_name' => 'sometimes|required|string|max:255',
+    ]);
+
+    $deviceName = $request->device_name ?? 'web-app';
+
+    // Delete current token
+    $request->user()->currentAccessToken()->delete();
+
+    \Illuminate\Support\Facades\Log::info('Sanctum token refreshed successfully', [
+        'user_id' => $request->user()->id,
+        'email' => $request->user()->email
+    ]);
+
+    return response()->json([
+        'token' => $request->user()->createToken($deviceName)->plainTextToken,
+        'user' => $request->user()->only(['id', 'name', 'email'])
+    ]);
+});
+
 // Protected route example (requires authentication via Sanctum)
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return response()->json(['user' => $request->user()]);
@@ -99,10 +127,18 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Account routes
     Route::get('/gl/accounts', [\App\Http\Controllers\GL\GlAccountController::class, 'index'])
         ->middleware('cap:gl.view');
+    Route::post('/gl/accounts', [\App\Http\Controllers\GL\GlAccountController::class, 'store'])
+        ->middleware('cap:gl.create');
     Route::get('/gl/accounts/tree', [\App\Http\Controllers\GL\GlAccountController::class, 'tree'])
+        ->middleware('cap:gl.view');
+    Route::get('/gl/accounts/summary', [\App\Http\Controllers\GL\GlAccountController::class, 'summary'])
         ->middleware('cap:gl.view');
     Route::get('/gl/accounts/{account}', [\App\Http\Controllers\GL\GlAccountController::class, 'show'])
         ->middleware('cap:gl.view');
+    Route::patch('/gl/accounts/{account}', [\App\Http\Controllers\GL\GlAccountController::class, 'update'])
+        ->middleware('cap:gl.update');
+    Route::delete('/gl/accounts/{account}', [\App\Http\Controllers\GL\GlAccountController::class, 'destroy'])
+        ->middleware('cap:gl.delete');
     Route::get('/gl/accounts/{account}/balance', [\App\Http\Controllers\GL\GlAccountController::class, 'balance'])
         ->middleware('cap:gl.view');
 

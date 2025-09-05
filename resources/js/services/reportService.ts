@@ -8,6 +8,9 @@ export interface SummaryData {
   total_revenue: number;
   total_products: number;
   active_products: number;
+  total_agents: number;
+  active_agents: number;
+  total_branches: number;
   total_inventory_value: number;
   low_stock_items: number;
   total_stock_movements: number;
@@ -32,13 +35,10 @@ export interface TopSellingProduct {
 
 export interface LowStockItem {
   id: string;
-  product: {
-    name: string;
-  };
-  branch: {
-    name: string;
-  };
-  on_hand: number;
+  product_name: string;
+  current_stock: number;
+  reorder_threshold: number;
+  branch_name: string;
 }
 
 export interface RecentOrder {
@@ -55,6 +55,25 @@ export interface RecentOrder {
   };
 }
 
+export interface RecentTransaction {
+  id: string;
+  type: string;
+  description: string;
+  date: string;
+  amount: number | null;
+}
+
+export interface TransactionPerBranch {
+  branch_name: string;
+  transaction_count: number;
+}
+
+export interface TopProductByVolume {
+  name: string;
+  total_volume: number;
+  transaction_count: number;
+}
+
 export interface DashboardData {
   summary: SummaryData;
   orders_summary: OrderSummary[];
@@ -62,6 +81,9 @@ export interface DashboardData {
   top_selling_products: TopSellingProduct[];
   low_stock_items: LowStockItem[];
   recent_orders: RecentOrder[];
+  recent_transactions: RecentTransaction[];
+  transactions_per_branch: TransactionPerBranch[];
+  top_products_by_volume: TopProductByVolume[];
 }
 
 class ReportService {

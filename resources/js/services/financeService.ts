@@ -12,7 +12,7 @@ export interface GlAccount {
   parent_id?: string;
   level: number;
   is_postable: boolean;
-  status: 'ACTIVE' | 'INACTIVE';
+  status: 'ACTIVE' | 'ARCHIVED';
   branch_id?: string;
   created_at: string;
   updated_at: string;
@@ -32,6 +32,27 @@ export interface AccountBalance {
   debit_total: number;
   credit_total: number;
   as_of_date: string;
+}
+
+export interface CreateAccountData {
+  code?: string;
+  name: string;
+  type: 'ASSET' | 'LIABILITY' | 'EQUITY' | 'REVENUE' | 'EXPENSE';
+  normal_balance: 'DEBIT' | 'CREDIT';
+  parent_id?: string;
+  is_postable?: boolean;
+  branch_id?: string;
+}
+
+export interface UpdateAccountData extends Partial<CreateAccountData> {
+  status?: 'ACTIVE' | 'ARCHIVED';
+}
+
+export interface AccountSummary {
+  total_accounts: number;
+  active_accounts: number;
+  postable_accounts: number;
+  accounts_by_type: Record<string, number>;
 }
 
 // GL Journal interfaces
@@ -124,7 +145,17 @@ export interface JournalFilters {
 
 export const financeService = {
   // Account operations
-  getAccounts: async (params?: { branch_id?: string; type?: string; status?: string }): Promise<{ data: GlAccount[]; meta: any }> => {
+  getAccounts: async (params?: {
+    branch_id?: string;
+    type?: string;
+    status?: string;
+    is_postable?: boolean;
+    search?: string;
+    page?: number;
+    per_page?: number;
+    sort?: string;
+    order?: string;
+  }): Promise<{ data: GlAccount[]; meta: any }> => {
     console.log('FinanceService: Making request to:', `${API_BASE}/gl/accounts`, 'with params:', params);
     try {
       const response = await axios.get(`${API_BASE}/gl/accounts`, { params });
@@ -148,6 +179,25 @@ export const financeService = {
 
   getAccountBalance: async (accountId: string, params?: { as_of_date?: string }): Promise<AccountBalance> => {
     const response = await axios.get(`${API_BASE}/gl/accounts/${accountId}/balance`, { params });
+    return response.data;
+  },
+
+  createAccount: async (accountData: CreateAccountData): Promise<GlAccount> => {
+    const response = await axios.post(`${API_BASE}/gl/accounts`, accountData);
+    return response.data;
+  },
+
+  updateAccount: async (accountId: string, accountData: UpdateAccountData): Promise<GlAccount> => {
+    const response = await axios.patch(`${API_BASE}/gl/accounts/${accountId}`, accountData);
+    return response.data;
+  },
+
+  deleteAccount: async (accountId: string): Promise<void> => {
+    await axios.delete(`${API_BASE}/gl/accounts/${accountId}`);
+  },
+
+  getAccountSummary: async (params?: { branch_id?: string }): Promise<AccountSummary> => {
+    const response = await axios.get(`${API_BASE}/gl/accounts/summary`, { params });
     return response.data;
   },
 

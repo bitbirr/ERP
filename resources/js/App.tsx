@@ -26,6 +26,7 @@ import Orders from './Pages/sales/Orders';
 import Journals from './Pages/finance/Journals';
 import JournalForm from './Pages/finance/JournalForm';
 import GLAccounts from './Pages/finance/GLAccounts';
+import BankAccounts from './Pages/finance/BankAccounts';
 import TelebirrDashboard from './Pages/telebirr/Dashboard';
 import Agents from './Pages/telebirr/Agents';
 import AgentForm from './Pages/telebirr/AgentForm';
@@ -110,6 +111,7 @@ function App() {
                   <Route path="finance/journals/new" element={<JournalForm />} />
                   <Route path="finance/journals/:id/edit" element={<JournalForm />} />
                   <Route path="finance/accounts" element={<GLAccounts />} />
+                  <Route path="finance/bank-accounts" element={<BankAccounts />} />
 
                   {/* Telebirr Management */}
                   <Route path="telebirr" element={<TelebirrDashboard />} />

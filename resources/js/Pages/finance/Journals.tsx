@@ -154,6 +154,7 @@ const Journals: React.FC = () => {
       headerName: 'Total Debit',
       width: 120,
       valueFormatter: (params) => {
+        if (!params || !params.row) return '0.00';
         const journal = params.row as GlJournal;
         return journal.lines ? journal.lines.reduce((sum, line) => sum + line.debit, 0).toFixed(2) : '0.00';
       },
@@ -163,6 +164,7 @@ const Journals: React.FC = () => {
       headerName: 'Total Credit',
       width: 120,
       valueFormatter: (params) => {
+        if (!params || !params.row) return '0.00';
         const journal = params.row as GlJournal;
         return journal.lines ? journal.lines.reduce((sum, line) => sum + line.credit, 0).toFixed(2) : '0.00';
       },

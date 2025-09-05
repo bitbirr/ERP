@@ -83,6 +83,18 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Delete Categories', 'key' => 'category.delete', 'group' => 'categories'],
             ['name' => 'Assign Customers to Categories', 'key' => 'category.assign', 'group' => 'categories'],
 
+            // GL capabilities
+            ['name' => 'View GL Journals', 'key' => 'gl.view', 'group' => 'gl'],
+            ['name' => 'Create GL Journals', 'key' => 'gl.create', 'group' => 'gl'],
+            ['name' => 'Post GL Journals', 'key' => 'gl.post', 'group' => 'gl'],
+            ['name' => 'Reverse GL Journals', 'key' => 'gl.reverse', 'group' => 'gl'],
+
+            // Bank Account capabilities
+            ['name' => 'View Bank Accounts', 'key' => 'accounts.view', 'group' => 'accounts'],
+            ['name' => 'Create Bank Accounts', 'key' => 'accounts.create', 'group' => 'accounts'],
+            ['name' => 'Update Bank Accounts', 'key' => 'accounts.update', 'group' => 'accounts'],
+            ['name' => 'Delete Bank Accounts', 'key' => 'accounts.delete', 'group' => 'accounts'],
+
             // Additional capabilities for completeness
             ['name' => 'Manage Users', 'key' => 'users.manage', 'group' => 'users'],
             ['name' => 'Read Transactions', 'key' => 'tx.read', 'group' => 'transactions'],
