@@ -204,6 +204,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->middleware('cap:telebirr.view');
     Route::get('/telebirr/reports/transaction-summary', [\App\Http\Controllers\TelebirrController::class, 'transactionSummary'])
         ->middleware('cap:telebirr.view');
+    Route::get('/telebirr/dashboard', [\App\Http\Controllers\TelebirrController::class, 'dashboard'])
+        ->middleware('cap:telebirr.view');
 
     // Product Categories API Routes
     Route::get('/product-categories', [\App\Http\Controllers\ProductCategoryController::class, 'index'])

@@ -48,6 +48,18 @@ export interface CreateAgentData {
   notes?: string;
 }
 
+export interface BankAccount {
+  id: string;
+  name: string;
+  external_number: string;
+  account_number: string;
+  account_type: string;
+  balance: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface CreateTransactionData {
   tx_type: string;
   agent_short_code?: string;
@@ -110,9 +122,9 @@ export const telebirrService = {
   },
 
   // Post TOPUP transaction
-  postTopup: async (data: CreateTransactionData): Promise<TelebirrTransaction> => {
+  postTopup: async (data: CreateTransactionData) => {
     const response = await axios.post(`${API_BASE}/telebirr/transactions/topup`, data);
-    return response.data.data;
+    return response.data;
   },
 
   // Post ISSUE transaction
@@ -143,19 +155,31 @@ export const telebirrService = {
 
   // Get agent balances
   getAgentBalances: async () => {
-    const response = await axios.get(`${API_BASE}/telebirr/agent-balances`);
+    const response = await axios.get(`${API_BASE}/telebirr/reports/agent-balances`);
     return response.data;
   },
 
   // Get transaction summary
   getTransactionSummary: async (params: { date_from: string; date_to: string }) => {
-    const response = await axios.get(`${API_BASE}/telebirr/transaction-summary`, { params });
+    const response = await axios.get(`${API_BASE}/telebirr/reports/transaction-summary`, { params });
     return response.data;
   },
 
   // Get reconciliation data
   getReconciliation: async (params: { date_from: string; date_to: string }) => {
     const response = await axios.get(`${API_BASE}/telebirr/reconciliation`, { params });
+    return response.data;
+  },
+
+  // Get dashboard data
+  getDashboard: async () => {
+    const response = await axios.get(`${API_BASE}/telebirr/dashboard`);
+    return response.data;
+  },
+
+  // Get bank accounts
+  getBankAccounts: async () => {
+    const response = await axios.get(`${API_BASE}/accounts`);
     return response.data;
   },
 };

@@ -507,7 +507,7 @@ class TelebirrController extends Controller
     {
         Gate::authorize('telebirr.view');
 
-        $agents = TelebirrAgent::active()->get();
+        $agents = TelebirrAgent::all();
 
         $balances = $agents->map(function ($agent) {
             return [
@@ -561,8 +561,93 @@ class TelebirrController extends Controller
                         'amount' => $item->amount,
                     ];
                 }),
+            'daily_amounts' => $query->selectRaw('DATE(created_at) as date, SUM(amount) as amount')
+                ->groupBy('date')
+                ->orderBy('date')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'date' => $item->date,
+                        'amount' => $item->amount,
+                    ];
+                }),
         ];
 
         return response()->json($summary);
+    }
+
+    /**
+     * Get dashboard data
+     */
+    public function dashboard(Request $request): JsonResponse
+    {
+        Gate::authorize('telebirr.view');
+
+        // Get agent counts and balances
+        $agents = TelebirrAgent::all();
+        $agentBalances = $agents->map(function ($agent) {
+            return [
+                'agent' => $agent,
+                'outstanding_balance' => $agent->getOutstandingBalance(),
+                'last_transaction' => $agent->transactions()->latest()->first(),
+            ];
+        });
+
+        // Get transaction summary for last 30 days
+        $dateFrom = now()->subDays(30)->toDateString();
+        $dateTo = now()->toDateString();
+        $transactionQuery = TelebirrTransaction::whereBetween('created_at', [$dateFrom, $dateTo])
+            ->where('status', 'Posted');
+
+        $transactionSummary = [
+            'period' => [
+                'from' => $dateFrom,
+                'to' => $dateTo,
+            ],
+            'totals' => [
+                'count' => $transactionQuery->count(),
+                'amount' => $transactionQuery->sum('amount'),
+            ],
+            'daily_amounts' => $transactionQuery->selectRaw('DATE(created_at) as date, SUM(amount) as amount')
+                ->groupBy('date')
+                ->orderBy('date')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'date' => $item->date,
+                        'amount' => $item->amount,
+                    ];
+                }),
+        ];
+
+        // Get recent transactions
+        $recentTransactions = TelebirrTransaction::with(['agent', 'createdBy'])
+            ->latest()
+            ->limit(10)
+            ->get()
+            ->map(function ($transaction) {
+                return [
+                    'id' => $transaction->id,
+                    'tx_type' => $transaction->tx_type,
+                    'amount' => $transaction->amount,
+                    'status' => $transaction->status,
+                    'agent' => $transaction->agent,
+                    'created_at' => $transaction->created_at,
+                    'created_by' => $transaction->createdBy,
+                ];
+            });
+
+        $dashboard = [
+            'agent_counts' => [
+                'total' => $agents->count(),
+                'active' => $agents->where('status', 'Active')->count(),
+            ],
+            'agent_balances' => $agentBalances,
+            'transaction_summary' => $transactionSummary,
+            'recent_transactions' => $recentTransactions,
+            'generated_at' => now(),
+        ];
+
+        return response()->json($dashboard);
     }
 }

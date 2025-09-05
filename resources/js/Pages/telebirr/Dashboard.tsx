@@ -10,6 +10,13 @@ import {
   Button,
   Alert,
   CircularProgress,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
 } from '@mui/material';
 import {
   People as PeopleIcon,
@@ -24,18 +31,12 @@ import { telebirrService } from '../../services/telebirrService';
 const TelebirrDashboard: React.FC = () => {
   const navigate = useNavigate();
 
-  // Fetch summary data
-  const { data: agentBalances, isLoading: isLoadingBalances } = useQuery({
-    queryKey: ['telebirr-agent-balances'],
-    queryFn: () => telebirrService.getAgentBalances(),
-  });
-
-  const { data: transactionSummary, isLoading: isLoadingSummary } = useQuery({
-    queryKey: ['telebirr-transaction-summary'],
-    queryFn: () => telebirrService.getTransactionSummary({
-      date_from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      date_to: new Date().toISOString().split('T')[0],
-    }),
+  // Fetch dashboard data
+  const { data: dashboardData, isLoading: isLoadingDashboard } = useQuery({
+    queryKey: ['telebirr-dashboard'],
+    queryFn: () => telebirrService.getDashboard(),
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000, // Refetch every 30 seconds
   });
 
   const quickActions = [
@@ -72,25 +73,25 @@ const TelebirrDashboard: React.FC = () => {
   const summaryCards = [
     {
       title: 'Total Agents',
-      value: agentBalances?.data?.length || 0,
+      value: dashboardData?.agent_counts?.total || 0,
       icon: <PeopleIcon />,
       color: 'primary',
     },
     {
       title: 'Active Agents',
-      value: agentBalances?.data?.filter((agent: any) => agent.agent.status === 'Active').length || 0,
+      value: dashboardData?.agent_counts?.active || 0,
       icon: <PeopleIcon />,
       color: 'success',
     },
     {
       title: 'Total Transactions (30 days)',
-      value: transactionSummary?.totals?.count || 0,
+      value: dashboardData?.transaction_summary?.totals?.count || 0,
       icon: <ReceiptIcon />,
       color: 'secondary',
     },
     {
       title: 'Total Amount (30 days)',
-      value: `ETB ${transactionSummary?.totals?.amount?.toLocaleString() || 0}`,
+      value: `ETB ${dashboardData?.transaction_summary?.totals?.amount?.toLocaleString() || 0}`,
       icon: <AccountBalanceIcon />,
       color: 'info',
     },
@@ -118,7 +119,7 @@ const TelebirrDashboard: React.FC = () => {
                       {card.title}
                     </Typography>
                     <Typography variant="h4">
-                      {isLoadingBalances || isLoadingSummary ? (
+                      {isLoadingDashboard ? (
                         <CircularProgress size={20} />
                       ) : (
                         card.value
@@ -169,14 +170,71 @@ const TelebirrDashboard: React.FC = () => {
         ))}
       </Grid>
 
-      {/* Recent Activity */}
+      {/* Daily Transaction Amounts */}
       <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
-        Recent Activity
+        Daily Transaction Amounts (Last 30 Days)
       </Typography>
 
-      <Alert severity="info">
-        Recent transactions and agent activities will be displayed here.
-      </Alert>
+      {dashboardData?.transaction_summary?.daily_amounts && dashboardData.transaction_summary.daily_amounts.length > 0 ? (
+        <TableContainer component={Paper} sx={{ mt: 2 }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Date</TableCell>
+                <TableCell align="right">Amount (ETB)</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {dashboardData.transaction_summary.daily_amounts.map((day: any) => (
+                <TableRow key={day.date}>
+                  <TableCell>{new Date(day.date).toLocaleDateString()}</TableCell>
+                  <TableCell align="right">{day.amount.toLocaleString()}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      ) : (
+        <Alert severity="info" sx={{ mt: 2 }}>
+          No transaction data available for the selected period.
+        </Alert>
+      )}
+
+      {/* Recent Activity */}
+      <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
+        Recent Transactions
+      </Typography>
+
+      {dashboardData?.recent_transactions && dashboardData.recent_transactions.length > 0 ? (
+        <TableContainer component={Paper} sx={{ mt: 2 }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Type</TableCell>
+                <TableCell>Agent</TableCell>
+                <TableCell align="right">Amount (ETB)</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Date</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {dashboardData.recent_transactions.map((transaction: any) => (
+                <TableRow key={transaction.id}>
+                  <TableCell>{transaction.tx_type}</TableCell>
+                  <TableCell>{transaction.agent?.short_code || 'N/A'}</TableCell>
+                  <TableCell align="right">{transaction.amount.toLocaleString()}</TableCell>
+                  <TableCell>{transaction.status}</TableCell>
+                  <TableCell>{new Date(transaction.created_at).toLocaleDateString()}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      ) : (
+        <Alert severity="info" sx={{ mt: 2 }}>
+          No recent transactions found.
+        </Alert>
+      )}
     </Box>
   );
 };

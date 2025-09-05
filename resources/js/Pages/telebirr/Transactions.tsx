@@ -110,13 +110,14 @@ const Transactions: React.FC = () => {
       field: 'amount',
       headerName: 'Amount',
       width: 120,
-      valueFormatter: (params) => `ETB ${params.value?.toLocaleString()}`,
+      valueFormatter: (params) => `ETB ${params?.value?.toLocaleString()}`,
     },
     {
       field: 'agent',
       headerName: 'Agent',
       width: 150,
-      valueGetter: (params) => params.row.agent?.short_code || 'N/A',
+      valueGetter: (params) => params?.row?.agent?.short_code || 'N/A',
+      renderCell: (params) => params?.row?.agent?.short_code || 'N/A',
     },
     {
       field: 'status',
@@ -139,7 +140,7 @@ const Transactions: React.FC = () => {
       field: 'created_at',
       headerName: 'Created',
       width: 180,
-      valueFormatter: (params) => new Date(params.value).toLocaleDateString(),
+      valueFormatter: (params) => params?.value ? new Date(params.value).toLocaleDateString() : 'N/A',
     },
     {
       field: 'actions',
@@ -149,16 +150,16 @@ const Transactions: React.FC = () => {
         <Box>
           <Button
             size="small"
-            onClick={() => handleViewTransaction(params.row.id)}
+            onClick={() => handleViewTransaction(params?.row?.id)}
             sx={{ mr: 1 }}
           >
             <ViewIcon fontSize="small" />
           </Button>
-          {params.row.status === 'Posted' && (
+          {params?.row?.status === 'Posted' && (
             <Button
               size="small"
               color="error"
-              onClick={() => handleVoidTransaction(params.row.id)}
+              onClick={() => handleVoidTransaction(params?.row?.id)}
             >
               Void
             </Button>
@@ -184,7 +185,10 @@ const Transactions: React.FC = () => {
     );
   }
 
-  const transactions = data?.data || [];
+  const rawTransactions = data?.data || [];
+  const transactions = rawTransactions.filter(t => t != null && t !== undefined);
+
+  // Filter out null/undefined transactions
 
   return (
     <Box>
@@ -273,7 +277,7 @@ const Transactions: React.FC = () => {
           rowsPerPageOptions={[10, 25, 50]}
           components={{ Toolbar: GridToolbar }}
           disableSelectionOnClick
-          getRowId={(row) => row.id}
+          getRowId={(row) => row?.id || `temp-${Math.random()}`}
         />
       </div>
     </Box>

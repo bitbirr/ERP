@@ -124,9 +124,9 @@ const Inventory: React.FC = () => {
   };
 
   const columns: GridColDef[] = [
-    { field: 'product_name', headerName: 'Product', width: 200, valueGetter: (params) => params.row.product?.name },
-    { field: 'product_code', headerName: 'Code', width: 120, valueGetter: (params) => params.row.product?.code },
-    { field: 'branch_name', headerName: 'Branch', width: 150, valueGetter: (params) => params.row.branch?.name },
+    { field: 'product_name', headerName: 'Product', width: 200, valueGetter: (params) => params?.row?.product?.name },
+    { field: 'product_code', headerName: 'Code', width: 120, valueGetter: (params) => params?.row?.product?.code },
+    { field: 'branch_name', headerName: 'Branch', width: 150, valueGetter: (params) => params?.row?.branch?.name },
     { field: 'on_hand', headerName: 'On Hand', width: 100, type: 'number' },
     { field: 'reserved', headerName: 'Reserved', width: 100, type: 'number' },
     {
@@ -134,13 +134,14 @@ const Inventory: React.FC = () => {
       headerName: 'Available',
       width: 100,
       type: 'number',
-      valueGetter: (params) => params.row.on_hand - params.row.reserved,
+      valueGetter: (params) => (params?.row?.on_hand || 0) - (params?.row?.reserved || 0),
     },
     {
       field: 'status',
       headerName: 'Status',
       width: 120,
       renderCell: (params) => {
+        if (!params?.row) return null;
         const available = params.row.on_hand - params.row.reserved;
         const onHand = params.row.on_hand;
 
@@ -305,12 +306,12 @@ const Inventory: React.FC = () => {
             <DataGrid
               rows={movements}
               columns={[
-                { field: 'product_name', headerName: 'Product', width: 200, valueGetter: (params) => params.row.product?.name },
-                { field: 'branch_name', headerName: 'Branch', width: 150, valueGetter: (params) => params.row.branch?.name },
+                { field: 'product_name', headerName: 'Product', width: 200, valueGetter: (params) => params?.row?.product?.name },
+                { field: 'branch_name', headerName: 'Branch', width: 150, valueGetter: (params) => params?.row?.branch?.name },
                 { field: 'type', headerName: 'Type', width: 120 },
                 { field: 'qty', headerName: 'Quantity', width: 100, type: 'number' },
                 { field: 'ref', headerName: 'Reference', width: 150 },
-                { field: 'created_at', headerName: 'Date', width: 180, valueFormatter: (params) => new Date(params.value).toLocaleString() },
+                { field: 'created_at', headerName: 'Date', width: 180, valueFormatter: (params) => params?.value ? new Date(params.value).toLocaleString() : '' },
               ]}
               pageSize={5}
               rowsPerPageOptions={[5]}
