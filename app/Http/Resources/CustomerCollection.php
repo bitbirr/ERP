@@ -16,6 +16,9 @@ class CustomerCollection extends ResourceCollection
     {
         return [
             'data' => $this->collection->map(function ($customer) {
+                $primaryContact = $customer->primaryContact();
+                $primaryAddress = $customer->primaryAddress();
+
                 return [
                     'id' => $customer->id,
                     'type' => $customer->type,
@@ -32,16 +35,16 @@ class CustomerCollection extends ResourceCollection
                             'description' => $customer->category->description,
                         ];
                     }),
-                    'primary_contact' => $customer->primaryContact() ? [
-                        'type' => $customer->primaryContact()->type,
-                        'value' => $customer->primaryContact()->value,
+                    'primary_contact' => $primaryContact ? [
+                        'type' => $primaryContact->type,
+                        'value' => $primaryContact->value,
                     ] : null,
-                    'primary_address' => $customer->primaryAddress() ? [
-                        'region' => $customer->primaryAddress()->region,
-                        'zone' => $customer->primaryAddress()->zone,
-                        'woreda' => $customer->primaryAddress()->woreda,
-                        'kebele' => $customer->primaryAddress()->kebele,
-                        'full_address' => $customer->primaryAddress()->full_address,
+                    'primary_address' => $primaryAddress ? [
+                        'region' => $primaryAddress->region,
+                        'zone' => $primaryAddress->zone,
+                        'woreda' => $primaryAddress->woreda,
+                        'kebele' => $primaryAddress->kebele,
+                        'full_address' => $primaryAddress->full_address,
                     ] : null,
                     'tags' => $customer->whenLoaded('tags', function () use ($customer) {
                         return $customer->tags->map(function ($tag) {

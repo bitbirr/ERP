@@ -182,9 +182,9 @@ class DatabaseSeeder extends Seeder
 
         // 4. Create Branches (static + factory for realistic data)
         $branches = [
-            ['name' => 'Main', 'code' => 'main'],
-            ['name' => 'Hamada', 'code' => 'hamada'],
-            ['name' => 'Chinaksen', 'code' => 'chinaksen'],
+            ['name' => 'Main', 'code' => 'main', 'address' => 'Main Branch Address', 'phone' => '1234567890', 'manager' => 'Manager Name'],
+            ['name' => 'Hamada', 'code' => 'hamada', 'address' => 'Hamada Branch Address', 'phone' => '1234567891', 'manager' => 'Manager Name'],
+            ['name' => 'Chinaksen', 'code' => 'chinaksen', 'address' => 'Chinaksen Branch Address', 'phone' => '1234567892', 'manager' => 'Manager Name'],
         ];
         $branchModels = [];
         foreach ($branches as $branch) {

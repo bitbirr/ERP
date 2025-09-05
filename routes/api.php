@@ -231,13 +231,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Stock Movement API Routes
     Route::get('/stock-movements', [\App\Http\Controllers\StockMovementController::class, 'index'])
-        ->middleware('cap:inventory.view');
+        ->middleware('cap:inventory.read');
     Route::get('/stock-movements/{stockMovement}', [\App\Http\Controllers\StockMovementController::class, 'show'])
-        ->middleware('cap:inventory.view');
+        ->middleware('cap:inventory.read');
     Route::get('/stock-movements/reports/summary', [\App\Http\Controllers\StockMovementController::class, 'summary'])
-        ->middleware('cap:inventory.view');
+        ->middleware('cap:inventory.read');
     Route::get('/stock-movements/reports/by-product/{product}', [\App\Http\Controllers\StockMovementController::class, 'byProduct'])
-        ->middleware('cap:inventory.view');
+        ->middleware('cap:inventory.read');
     Route::get('/stock-movements/reports/by-branch/{branch}', [\App\Http\Controllers\StockMovementController::class, 'byBranch'])
         ->middleware('cap:inventory.read');
 
@@ -304,6 +304,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Customer API Routes
     Route::get('/customers', [\App\Http\Controllers\CustomerController::class, 'index']);
     Route::post('/customers', [\App\Http\Controllers\CustomerController::class, 'store']);
+
+    // Customer stats and duplicate check (must come before parameterized routes)
+    Route::get('/customers/stats', [\App\Http\Controllers\CustomerController::class, 'stats']);
+    Route::get('/customers/check-duplicate', [\App\Http\Controllers\CustomerController::class, 'checkDuplicate']);
+
+    // Customer specific routes
     Route::get('/customers/{customer}', [\App\Http\Controllers\CustomerController::class, 'show']);
     Route::patch('/customers/{customer}', [\App\Http\Controllers\CustomerController::class, 'update']);
     Route::delete('/customers/{customer}', [\App\Http\Controllers\CustomerController::class, 'destroy']);
@@ -333,6 +339,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('/segments/{segment}', [\App\Http\Controllers\CustomerSegmentController::class, 'destroy']);
     Route::get('/segments/{segment}/members', [\App\Http\Controllers\CustomerSegmentController::class, 'members']);
     Route::post('/segments/preview', [\App\Http\Controllers\CustomerSegmentController::class, 'preview']);
+
+    // Services
+    Route::get('/services', [\App\Http\Controllers\ServiceController::class, 'index']);
+    Route::post('/services', [\App\Http\Controllers\ServiceController::class, 'store']);
+    Route::get('/services/{service}', [\App\Http\Controllers\ServiceController::class, 'show']);
+    Route::patch('/services/{service}', [\App\Http\Controllers\ServiceController::class, 'update']);
+    Route::delete('/services/{service}', [\App\Http\Controllers\ServiceController::class, 'destroy']);
 
     // Category API Routes
     Route::get('/categories', [\App\Http\Controllers\CategoryController::class, 'index'])

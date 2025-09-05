@@ -15,6 +15,9 @@ class BranchFactory extends Factory
         return [
             'name' => $this->faker->company . ' Branch',
             'code' => strtoupper(Str::random(5)),
+            'address' => $this->faker->address,
+            'phone' => $this->faker->phoneNumber,
+            'manager' => $this->faker->name,
         ];
     }
 }
