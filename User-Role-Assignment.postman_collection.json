@@ -1,0 +1,120 @@
+{
+  "info": {
+    "name": "User Role Assignment",
+    "description": "User role assignment API endpoints for managing user-role relationships",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "User Role Assignments",
+      "item": [
+        {
+          "name": "Assign Role to User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role_slug\": \"manager\",\n  \"branch_code\": \"MAIN\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/rbac/users/{{user_id}}/roles",
+              "host": ["{{baseURL}}"],
+              "path": ["rbac", "users", "{{user_id}}", "roles"]
+            },
+            "description": "Assign a role to a user, optionally for a specific branch"
+          }
+        },
+        {
+          "name": "Get User Role Assignments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}/users/{{user_id}}",
+              "host": ["{{baseURL}}"],
+              "path": ["users", "{{user_id}}"]
+            },
+            "description": "Get user details including role assignments"
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Permissions",
+      "item": [
+        {
+          "name": "Get User Permissions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "X-Branch-Id",
+                "value": "{{branch_id}}",
+                "description": "Optional branch ID for branch-specific permissions"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}/rbac/users/{{user_id}}/permissions",
+              "host": ["{{baseURL}}"],
+              "path": ["rbac", "users", "{{user_id}}", "permissions"]
+            },
+            "description": "Get effective permissions for a user based on their role assignments"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseURL",
+      "value": "http://localhost:8000/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "1|iQkYFkQymCitaSPgIr4ZBHgt0SbvV4302vp0A0Uo1cae004f",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "branch_id",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

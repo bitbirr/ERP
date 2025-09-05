@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Categories API",
-    "description": "Postman collection for testing the Customer Categories API endpoints in the ERP system. Includes CRUD operations and RBAC testing.",
+    "description": "Postman collection for testing the Customer Categories API endpoints in the Najib Shop - Back Office. Includes CRUD operations and RBAC testing.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [

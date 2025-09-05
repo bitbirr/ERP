@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const API_BASE = 'https://localhost:8000/api';
+const API_BASE = '/api';
 
 export interface OrderLine {
   id: string;
@@ -80,42 +78,49 @@ export interface CreateOrderData {
 export const orderService = {
   // Get all orders with pagination
   getOrders: async (params?: { page?: number; per_page?: number; status?: string; customer_id?: string }) => {
-    const response = await axios.get(`${API_BASE}/orders`, { params });
-    return response.data;
+    console.log('OrderService: Making request to:', `${API_BASE}/orders`, 'with params:', params);
+    try {
+      const response = await window.axios.get(`${API_BASE}/orders`, { params });
+      console.log('OrderService: Request successful');
+      return response.data;
+    } catch (error: any) {
+      console.error('OrderService: Request failed:', error.message, error.code);
+      throw error;
+    }
   },
 
   // Create a new order
   createOrder: async (orderData: CreateOrderData): Promise<Order> => {
-    const response = await axios.post(`${API_BASE}/orders`, orderData);
+    const response = await window.axios.post(`${API_BASE}/orders`, orderData);
     return response.data;
   },
 
   // Get a specific order
   getOrder: async (id: string): Promise<Order> => {
-    const response = await axios.get(`${API_BASE}/orders/${id}`);
+    const response = await window.axios.get(`${API_BASE}/orders/${id}`);
     return response.data;
   },
 
   // Update an order
   updateOrder: async (id: string, orderData: Partial<CreateOrderData>): Promise<Order> => {
-    const response = await axios.patch(`${API_BASE}/orders/${id}`, orderData);
+    const response = await window.axios.patch(`${API_BASE}/orders/${id}`, orderData);
     return response.data;
   },
 
   // Approve an order
   approveOrder: async (id: string): Promise<Order> => {
-    const response = await axios.patch(`${API_BASE}/orders/${id}/approve`);
+    const response = await window.axios.patch(`${API_BASE}/orders/${id}/approve`);
     return response.data;
   },
 
   // Cancel an order
   cancelOrder: async (id: string): Promise<Order> => {
-    const response = await axios.patch(`${API_BASE}/orders/${id}/cancel`);
+    const response = await window.axios.patch(`${API_BASE}/orders/${id}/cancel`);
     return response.data;
   },
 
   // Delete an order
   deleteOrder: async (id: string): Promise<void> => {
-    await axios.delete(`${API_BASE}/orders/${id}`);
+    await window.axios.delete(`${API_BASE}/orders/${id}`);
   },
 };

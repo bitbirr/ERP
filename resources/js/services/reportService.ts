@@ -68,8 +68,15 @@ class ReportService {
   private baseUrl = '/api';
 
   async getDashboard(): Promise<DashboardData> {
-    const response = await axios.get(`${this.baseUrl}/reports/dashboard`);
-    return response.data;
+    console.log('ReportService: Making request to:', `${this.baseUrl}/reports/dashboard`);
+    try {
+      const response = await axios.get(`${this.baseUrl}/reports/dashboard`);
+      console.log('ReportService: Request successful');
+      return response.data;
+    } catch (error: any) {
+      console.error('ReportService: Request failed:', error.message, error.code, 'Full URL:', window.location.origin + this.baseUrl + '/reports/dashboard');
+      throw error;
+    }
   }
 
   async getSummary(): Promise<SummaryData> {

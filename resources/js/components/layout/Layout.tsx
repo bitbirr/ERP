@@ -70,7 +70,7 @@ const Layout: React.FC = () => {
     <div>
       <Toolbar>
         <Typography variant="h6" noWrap component="div">
-          ERP System
+          Najib Shop - Back Office
         </Typography>
       </Toolbar>
       <Divider />

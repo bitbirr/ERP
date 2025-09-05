@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const API_BASE = 'https://localhost:8000/api';
+const API_BASE = 'http://localhost:8000/api';
 
 export interface InventoryItem {
   id: string;
@@ -89,97 +87,97 @@ export interface BulkReceiveData {
 export const inventoryService = {
   // Get inventory items with filters
   getInventory: async (filters: InventoryFilters = {}) => {
-    const response = await axios.get(`${API_BASE}/inventory`, { params: filters });
+    const response = await window.axios.get(`${API_BASE}/inventory`, { params: filters });
     return response.data;
   },
 
   // Get specific inventory item
   getInventoryItem: async (branchId: string, productId: string) => {
-    const response = await axios.get(`${API_BASE}/inventory/${branchId}/${productId}`);
+    const response = await window.axios.get(`${API_BASE}/inventory/${branchId}/${productId}`);
     return response.data;
   },
 
   // Set opening balance
   setOpeningBalance: async (data: StockOperationData) => {
-    const response = await axios.post(`${API_BASE}/inventory/opening`, data);
+    const response = await window.axios.post(`${API_BASE}/inventory/opening`, data);
     return response.data;
   },
 
   // Receive stock
   receiveStock: async (data: StockOperationData) => {
-    const response = await axios.post(`${API_BASE}/inventory/receive`, data);
+    const response = await window.axios.post(`${API_BASE}/inventory/receive`, data);
     return response.data;
   },
 
   // Issue stock
   issueStock: async (data: StockOperationData) => {
-    const response = await axios.post(`${API_BASE}/inventory/issue`, data);
+    const response = await window.axios.post(`${API_BASE}/inventory/issue`, data);
     return response.data;
   },
 
   // Reserve stock
   reserveStock: async (data: StockOperationData) => {
-    const response = await axios.post(`${API_BASE}/inventory/reserve`, data);
+    const response = await window.axios.post(`${API_BASE}/inventory/reserve`, data);
     return response.data;
   },
 
   // Unreserve stock
   unreserveStock: async (data: StockOperationData) => {
-    const response = await axios.post(`${API_BASE}/inventory/unreserve`, data);
+    const response = await window.axios.post(`${API_BASE}/inventory/unreserve`, data);
     return response.data;
   },
 
   // Transfer stock between branches
   transferStock: async (data: TransferData) => {
-    const response = await axios.post(`${API_BASE}/inventory/transfer`, data);
+    const response = await window.axios.post(`${API_BASE}/inventory/transfer`, data);
     return response.data;
   },
 
   // Adjust stock levels
   adjustStock: async (data: StockOperationData & { reason?: string }) => {
-    const response = await axios.post(`${API_BASE}/inventory/adjust`, data);
+    const response = await window.axios.post(`${API_BASE}/inventory/adjust`, data);
     return response.data;
   },
 
   // Bulk receive
   bulkReceive: async (data: BulkReceiveData) => {
-    const response = await axios.post(`${API_BASE}/inventory/receive/bulk`, data);
+    const response = await window.axios.post(`${API_BASE}/inventory/receive/bulk`, data);
     return response.data;
   },
 
   // Bulk reserve
   bulkReserve: async (data: BulkReceiveData) => {
-    const response = await axios.post(`${API_BASE}/inventory/reserve/bulk`, data);
+    const response = await window.axios.post(`${API_BASE}/inventory/reserve/bulk`, data);
     return response.data;
   },
 
   // Get stock movements
   getStockMovements: async (filters: StockMovementFilters = {}) => {
-    const response = await axios.get(`${API_BASE}/stock-movements`, { params: filters });
+    const response = await window.axios.get(`${API_BASE}/stock-movements`, { params: filters });
     return response.data;
   },
 
   // Get stock on hand report
   getStockOnHand: async (filters: { branch?: string; type?: string } = {}) => {
-    const response = await axios.get(`${API_BASE}/reports/stock/onhand`, { params: filters });
+    const response = await window.axios.get(`${API_BASE}/reports/stock/onhand`, { params: filters });
     return response.data;
   },
 
   // Get stock movements report
   getStockMovementsReport: async (filters: { from?: string; to?: string; type?: string; branch?: string; per_page?: number } = {}) => {
-    const response = await axios.get(`${API_BASE}/reports/stock/movements`, { params: filters });
+    const response = await window.axios.get(`${API_BASE}/reports/stock/movements`, { params: filters });
     return response.data;
   },
 
   // Get stock valuation report
   getStockValuation: async (filters: { branch?: string; as_of?: string } = {}) => {
-    const response = await axios.get(`${API_BASE}/reports/stock/valuation`, { params: filters });
+    const response = await window.axios.get(`${API_BASE}/reports/stock/valuation`, { params: filters });
     return response.data;
   },
 
   // Get reserved backlog report
   getReservedBacklog: async (filters: { branch?: string; older_than?: string } = {}) => {
-    const response = await axios.get(`${API_BASE}/reports/stock/reserved-backlog`, { params: filters });
+    const response = await window.axios.get(`${API_BASE}/reports/stock/reserved-backlog`, { params: filters });
     return response.data;
   },
 };

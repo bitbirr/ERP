@@ -8,6 +8,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 // Components
 import Layout from './components/layout/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/auth/Login';
 import Dashboard from './pages/Dashboard';
 
@@ -74,7 +75,11 @@ function App() {
                 <Route path="/login" element={<Login />} />
 
                 {/* Protected Routes */}
-                <Route path="/" element={<Layout />}>
+                <Route path="/" element={
+                  <ProtectedRoute>
+                    <Layout />
+                  </ProtectedRoute>
+                }>
                   <Route index element={<Dashboard />} />
 
                   {/* User Management */}

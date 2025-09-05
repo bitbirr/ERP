@@ -1,0 +1,260 @@
+{
+  "info": {
+    "name": "RBAC",
+    "description": "Role-Based Access Control API endpoints for managing roles, capabilities, and user assignments",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Roles",
+      "item": [
+        {
+          "name": "Get All Roles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}/rbac/roles",
+              "host": ["{{baseURL}}"],
+              "path": ["rbac", "roles"]
+            },
+            "description": "Retrieve all roles with their associated capabilities"
+          }
+        },
+        {
+          "name": "Create Role",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Manager\",\n  \"slug\": \"manager\",\n  \"is_system\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/rbac/roles",
+              "host": ["{{baseURL}}"],
+              "path": ["rbac", "roles"]
+            },
+            "description": "Create a new role"
+          }
+        },
+        {
+          "name": "Update Role",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Manager\",\n  \"slug\": \"updated-manager\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/rbac/roles/{{role_id}}",
+              "host": ["{{baseURL}}"],
+              "path": ["rbac", "roles", "{{role_id}}"]
+            },
+            "description": "Update an existing role"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Role Capabilities",
+      "item": [
+        {
+          "name": "Sync Role Capabilities",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"capability_keys\": [\"users.manage\", \"roles.view\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/rbac/roles/{{role_id}}/capabilities",
+              "host": ["{{baseURL}}"],
+              "path": ["rbac", "roles", "{{role_id}}", "capabilities"]
+            },
+            "description": "Sync capabilities for a specific role"
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Role Assignments",
+      "item": [
+        {
+          "name": "Assign User Role",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role_slug\": \"manager\",\n  \"branch_code\": \"MAIN\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/rbac/users/{{user_id}}/roles",
+              "host": ["{{baseURL}}"],
+              "path": ["rbac", "users", "{{user_id}}", "roles"]
+            },
+            "description": "Assign a role to a user"
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Permissions",
+      "item": [
+        {
+          "name": "Get User Permissions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "X-Branch-Id",
+                "value": "{{branch_id}}",
+                "description": "Optional branch ID for branch-specific permissions"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}/rbac/users/{{user_id}}/permissions",
+              "host": ["{{baseURL}}"],
+              "path": ["rbac", "users", "{{user_id}}", "permissions"]
+            },
+            "description": "Get permissions for a specific user"
+          }
+        }
+      ]
+    },
+    {
+      "name": "RBAC Cache",
+      "item": [
+        {
+          "name": "Rebuild RBAC Cache",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"{{user_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/rbac/rebuild",
+              "host": ["{{baseURL}}"],
+              "path": ["rbac", "rebuild"]
+            },
+            "description": "Rebuild RBAC cache for all users or a specific user"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseURL",
+      "value": "http://localhost:8000/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "1|iQkYFkQymCitaSPgIr4ZBHgt0SbvV4302vp0A0Uo1cae004f",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "role_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "branch_id",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

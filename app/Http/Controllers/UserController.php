@@ -6,18 +6,36 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
+use App\Http\Resources\UserResource;
+use App\Http\Resources\UserCollection;
 
 class UserController extends Controller
 {
-    // POST /api/users
-    public function store(Request $request)
+    // GET /api/users
+    public function index(Request $request)
     {
-        $data = $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:12',
-            'email_verified_at' => 'nullable|date',
-        ]);
+        $query = User::with('roleAssignments.role');
+
+        // Handle pagination
+        $perPage = $request->get('per_page', 15);
+        $users = $query->paginate($perPage);
+
+        return new UserCollection($users);
+    }
+
+    // GET /api/users/{user}
+    public function show(User $user)
+    {
+        $user->load('roleAssignments.role');
+        return new UserResource($user);
+    }
+
+    // POST /api/users
+    public function store(StoreUserRequest $request)
+    {
+        $data = $request->validated();
 
         $user = User::create([
             'id' => (string) Str::uuid(),
@@ -27,6 +45,32 @@ class UserController extends Controller
             'email_verified_at' => $data['email_verified_at'] ?? now(),
         ]);
 
-        return response()->json($user, 201);
+        $user->load('roleAssignments.role');
+        return new UserResource($user);
+    }
+
+    // PATCH /api/users/{user}
+    public function update(UpdateUserRequest $request, User $user)
+    {
+        $data = $request->validated();
+
+        if (isset($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        } else {
+            unset($data['password']);
+        }
+
+        $user->update($data);
+        $user->load('roleAssignments.role');
+
+        return new UserResource($user);
+    }
+
+    // DELETE /api/users/{user}
+    public function destroy(User $user)
+    {
+        $user->delete();
+
+        return response()->json(['message' => 'User deleted successfully']);
     }
 }

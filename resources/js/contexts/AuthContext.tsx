@@ -9,7 +9,6 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  token: string | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
@@ -18,22 +17,21 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_BASE = 'https://localhost:8000/api';
+const API_BASE = '';
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored token on app start
-    const storedToken = localStorage.getItem('auth_token');
+    // Check for stored user session on app start
     const storedUser = localStorage.getItem('auth_user');
+    console.log('AuthContext: Checking stored user on app start:', !!storedUser);
 
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-      axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+    if (storedUser) {
+      const userData = JSON.parse(storedUser);
+      console.log('AuthContext: Setting user from localStorage:', userData.name);
+      setUser(userData);
     }
 
     setLoading(false);
@@ -41,40 +39,39 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await axios.post(`${API_BASE}/sanctum/token`, {
+      // For session-based authentication, just call the login endpoint
+      const response = await window.axios.post('/login', {
         email,
         password,
-        device_name: 'ERP Frontend'
       });
 
-      const { token: authToken, user: userData } = response.data;
+      const { user: userData } = response.data;
 
-      setToken(authToken);
       setUser(userData);
-
-      localStorage.setItem('auth_token', authToken);
       localStorage.setItem('auth_user', JSON.stringify(userData));
-
-      axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
-    } catch (error) {
-      throw new Error('Login failed. Please check your credentials.');
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Login failed. Please check your credentials.');
     }
   };
 
-  const logout = () => {
-    setToken(null);
-    setUser(null);
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('auth_user');
-    delete axios.defaults.headers.common['Authorization'];
+  const logout = async () => {
+    console.log('AuthContext: Making logout request to:', '/logout');
+    try {
+      await window.axios.post('/logout');
+      console.log('AuthContext: Logout request successful');
+    } catch (error: any) {
+      console.error('AuthContext: Logout error:', error.message, error.code, 'Status:', error.response?.status);
+    } finally {
+      setUser(null);
+      localStorage.removeItem('auth_user');
+    }
   };
 
   const value = {
     user,
-    token,
     login,
     logout,
-    isAuthenticated: !!token,
+    isAuthenticated: !!user,
     loading
   };
 

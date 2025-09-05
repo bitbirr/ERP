@@ -13,13 +13,19 @@ import {
   Alert,
   CircularProgress,
   Grid,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Chip,
 } from '@mui/material';
-import { userService, CreateUserData, User } from '../../services/userService';
+import { userService, CreateUserData, User, Role } from '../../services/userService';
 
 const schema = yup.object({
   name: yup.string().required('Name is required'),
   email: yup.string().email('Invalid email').required('Email is required'),
   password: yup.string().min(12, 'Password must be at least 12 characters').required('Password is required'),
+  role_id: yup.number().nullable(),
 });
 
 interface UserFormData extends CreateUserData {}
@@ -41,6 +47,12 @@ const UserForm: React.FC = () => {
     enabled: isEditing,
   });
 
+  // Fetch roles
+  const { data: roles, isLoading: isLoadingRoles } = useQuery({
+    queryKey: ['roles'],
+    queryFn: () => userService.getRoles(),
+  });
+
   // Create user mutation
   const createMutation = useMutation({
     mutationFn: (data: CreateUserData) => userService.createUser(data),
@@ -60,6 +72,15 @@ const UserForm: React.FC = () => {
     },
   });
 
+  // Assign role mutation
+  const assignRoleMutation = useMutation({
+    mutationFn: ({ userId, roleId }: { userId: string; roleId: number }) =>
+      userService.assignRole(userId, roleId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
+
   useEffect(() => {
     if (user && isEditing) {
       reset({
@@ -70,11 +91,26 @@ const UserForm: React.FC = () => {
     }
   }, [user, isEditing, reset]);
 
-  const onSubmit = (data: UserFormData) => {
-    if (isEditing && id) {
-      updateMutation.mutate({ id, data });
-    } else {
-      createMutation.mutate(data);
+  const onSubmit = async (data: UserFormData) => {
+    try {
+      let userId: string;
+
+      if (isEditing && id) {
+        await updateMutation.mutateAsync({ id, data });
+        userId = id;
+      } else {
+        const newUser = await createMutation.mutateAsync(data);
+        userId = newUser.id;
+      }
+
+      // Assign role if selected
+      if (data.role_id && userId) {
+        await assignRoleMutation.mutateAsync({ userId, roleId: data.role_id });
+      }
+
+      navigate('/users');
+    } catch (error) {
+      // Error handling is done by the mutations
     }
   };
 
@@ -82,8 +118,8 @@ const UserForm: React.FC = () => {
     navigate('/users');
   };
 
-  const isLoading = createMutation.isPending || updateMutation.isPending;
-  const error = createMutation.error || updateMutation.error;
+  const isLoading = createMutation.isPending || updateMutation.isPending || assignRoleMutation.isPending;
+  const error = createMutation.error || updateMutation.error || assignRoleMutation.error;
 
   if (isLoadingUser && isEditing) {
     return (
@@ -147,6 +183,38 @@ const UserForm: React.FC = () => {
                 helperText={errors.password?.message || (isEditing ? 'Leave blank to keep current password' : '')}
                 disabled={isLoading}
               />
+            </Grid>
+
+            <Grid item xs={12}>
+              <FormControl fullWidth disabled={isLoading || isLoadingRoles}>
+                <InputLabel id="role-label">Role (Optional)</InputLabel>
+                <Select
+                  {...register('role_id')}
+                  labelId="role-label"
+                  id="role_id"
+                  label="Role (Optional)"
+                  value={undefined} // Controlled by react-hook-form
+                >
+                  <MenuItem value="">
+                    <em>No Role</em>
+                  </MenuItem>
+                  {roles?.map((role: Role) => (
+                    <MenuItem key={role.id} value={role.id}>
+                      <Box>
+                        <Typography variant="body1">{role.name}</Typography>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
+                          {role.capabilities.slice(0, 3).map((cap: string) => (
+                            <Chip key={cap} label={cap} size="small" variant="outlined" />
+                          ))}
+                          {role.capabilities.length > 3 && (
+                            <Chip label={`+${role.capabilities.length - 3} more`} size="small" variant="outlined" />
+                          )}
+                        </Box>
+                      </Box>
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
           </Grid>
 

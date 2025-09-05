@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Telebirr integration provides a comprehensive API for managing Telebirr (Ethiopian mobile money) transactions within the ERP system. It supports agent management, transaction processing, reconciliation, and reporting functionalities.
+The Telebirr integration provides a comprehensive API for managing Telebirr (Ethiopian mobile money) transactions within the Najib Shop - Back Office. It supports agent management, transaction processing, reconciliation, and reporting functionalities.
 
 ## Features
 

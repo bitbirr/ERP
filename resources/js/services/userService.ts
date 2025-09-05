@@ -1,6 +1,11 @@
-import axios from 'axios';
+const API_BASE = '/api';
 
-const API_BASE = 'https://localhost:8000/api';
+// Ensure window.axios is available
+declare global {
+  interface Window {
+    axios: any;
+  }
+}
 
 export interface User {
   id: string;
@@ -27,59 +32,66 @@ export interface Role {
 export const userService = {
   // Get all users with pagination
   getUsers: async (params?: { page?: number; per_page?: number }) => {
-    const response = await axios.get(`${API_BASE}/users`, { params });
-    return response.data;
+    console.log('Making request to:', `${API_BASE}/users`, 'with params:', params);
+    try {
+      const response = await window.window.axios.get(`${API_BASE}/users`, { params });
+      console.log('Response received:', response.status, response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error in getUsers:', error);
+      throw error;
+    }
   },
 
   // Create a new user
   createUser: async (userData: CreateUserData): Promise<User> => {
-    const response = await axios.post(`${API_BASE}/users`, userData);
+    const response = await window.axios.post(`${API_BASE}/users`, userData);
     return response.data;
   },
 
   // Get a specific user
   getUser: async (id: string): Promise<User> => {
-    const response = await axios.get(`${API_BASE}/users/${id}`);
+    const response = await window.axios.get(`${API_BASE}/users/${id}`);
     return response.data;
   },
 
   // Update a user
   updateUser: async (id: string, userData: Partial<CreateUserData>): Promise<User> => {
-    const response = await axios.patch(`${API_BASE}/users/${id}`, userData);
+    const response = await window.axios.patch(`${API_BASE}/users/${id}`, userData);
     return response.data;
   },
 
   // Delete a user
   deleteUser: async (id: string): Promise<void> => {
-    await axios.delete(`${API_BASE}/users/${id}`);
+    await window.axios.delete(`${API_BASE}/users/${id}`);
   },
 
   // Get all roles
   getRoles: async (): Promise<Role[]> => {
-    const response = await axios.get(`${API_BASE}/rbac/roles`);
+    const response = await window.axios.get(`${API_BASE}/rbac/roles`);
     return response.data;
   },
 
   // Create a role
   createRole: async (roleData: { name: string; capabilities: string[] }): Promise<Role> => {
-    const response = await axios.post(`${API_BASE}/rbac/roles`, roleData);
+    const response = await window.axios.post(`${API_BASE}/rbac/roles`, roleData);
     return response.data;
   },
 
   // Update a role
   updateRole: async (id: number, roleData: { name?: string; capabilities?: string[] }): Promise<Role> => {
-    const response = await axios.patch(`${API_BASE}/rbac/roles/${id}`, roleData);
+    const response = await window.axios.patch(`${API_BASE}/rbac/roles/${id}`, roleData);
     return response.data;
   },
 
   // Assign role to user
   assignRole: async (userId: string, roleId: number): Promise<void> => {
-    await axios.post(`${API_BASE}/rbac/users/${userId}/roles`, { role_id: roleId });
+    await window.axios.post(`${API_BASE}/rbac/users/${userId}/roles`, { role_id: roleId });
   },
 
   // Get user permissions
   getUserPermissions: async (userId: string) => {
-    const response = await axios.get(`${API_BASE}/rbac/users/${userId}/permissions`);
+    const response = await window.axios.get(`${API_BASE}/rbac/users/${userId}/permissions`);
     return response.data;
   },
 };

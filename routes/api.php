@@ -21,6 +21,14 @@ Route::get('/ping', function () {
 
 // Sanctum token creation route
 Route::post('/sanctum/token', function (Request $request) {
+    \Illuminate\Support\Facades\Log::info('Sanctum token request received', [
+        'email' => $request->email,
+        'device_name' => $request->device_name,
+        'headers' => $request->headers->all(),
+        'method' => $request->method(),
+        'url' => $request->fullUrl()
+    ]);
+
     $request->validate([
         'email' => 'required|email',
         'password' => 'required',
@@ -30,10 +38,19 @@ Route::post('/sanctum/token', function (Request $request) {
     $user = \App\Models\User::where('email', $request->email)->first();
 
     if (!$user || !\Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+        \Illuminate\Support\Facades\Log::warning('Sanctum token authentication failed', [
+            'email' => $request->email,
+            'user_found' => $user ? true : false
+        ]);
         throw \Illuminate\Validation\ValidationException::withMessages([
             'email' => ['The provided credentials are incorrect.'],
         ]);
     }
+
+    \Illuminate\Support\Facades\Log::info('Sanctum token created successfully', [
+        'user_id' => $user->id,
+        'email' => $user->email
+    ]);
 
     return response()->json([
         'token' => $user->createToken($request->device_name)->plainTextToken,
@@ -47,7 +64,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::middleware(['auth:sanctum', 'cap:users.manage'])->group(function () {
+    Route::get('/users', [\App\Http\Controllers\UserController::class, 'index']);
     Route::post('/users', [\App\Http\Controllers\UserController::class, 'store']);
+    Route::get('/users/{user}', [\App\Http\Controllers\UserController::class, 'show']);
+    Route::patch('/users/{user}', [\App\Http\Controllers\UserController::class, 'update']);
+    Route::delete('/users/{user}', [\App\Http\Controllers\UserController::class, 'destroy']);
+    Route::get('/rbac/roles', [\App\Http\Controllers\RbacController::class, 'getRoles']);
     Route::post('/rbac/roles', [\App\Http\Controllers\RbacController::class, 'createRole']);
     Route::patch('/rbac/roles/{id}', [\App\Http\Controllers\RbacController::class, 'updateRole']);
     Route::post('/rbac/roles/{id}/capabilities', [\App\Http\Controllers\RbacController::class, 'syncRoleCapabilities']);

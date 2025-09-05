@@ -7,6 +7,7 @@ import {
   Typography,
   Alert,
   CircularProgress,
+  Chip,
 } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid';
@@ -59,6 +60,18 @@ const Users: React.FC = () => {
       width: 120,
       renderCell: (params) => (
         <span>{params.value ? 'Yes' : 'No'}</span>
+      ),
+    },
+    {
+      field: 'roles',
+      headerName: 'Roles',
+      width: 200,
+      renderCell: (params) => (
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+          {params.row.roles?.map((role: any) => (
+            <Chip key={role.id} label={role.name} size="small" />
+          )) || 'No roles'}
+        </Box>
       ),
     },
     {

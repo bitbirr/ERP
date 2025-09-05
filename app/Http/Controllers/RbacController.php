@@ -12,6 +12,20 @@ use App\Domain\Auth\RbacCacheBuilder;
 
 class RbacController extends Controller
 {
+    // GET /api/rbac/roles
+    public function getRoles(Request $request)
+    {
+        $roles = Role::with('capabilities')->get();
+
+        return response()->json($roles->map(function ($role) {
+            return [
+                'id' => $role->id,
+                'name' => $role->name,
+                'capabilities' => $role->capabilities->pluck('key')->toArray(),
+            ];
+        }));
+    }
+
     // POST /api/rbac/roles
     public function createRole(Request $request)
     {

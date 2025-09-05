@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = 'https://localhost:8000/api';
+const API_BASE = '/api';
 
 // GL Account interfaces
 export interface GlAccount {
@@ -125,8 +125,15 @@ export interface JournalFilters {
 export const financeService = {
   // Account operations
   getAccounts: async (params?: { branch_id?: string; type?: string; status?: string }): Promise<{ data: GlAccount[]; meta: any }> => {
-    const response = await axios.get(`${API_BASE}/gl/accounts`, { params });
-    return response.data;
+    console.log('FinanceService: Making request to:', `${API_BASE}/gl/accounts`, 'with params:', params);
+    try {
+      const response = await axios.get(`${API_BASE}/gl/accounts`, { params });
+      console.log('FinanceService: Request successful');
+      return response.data;
+    } catch (error: any) {
+      console.error('FinanceService: Request failed:', error.message, error.code);
+      throw error;
+    }
   },
 
   getAccountTree: async (params?: { branch_id?: string }): Promise<AccountTreeNode[]> => {

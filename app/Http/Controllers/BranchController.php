@@ -111,7 +111,7 @@ class BranchController extends Controller
     {
         try {
             // Assuming external endpoint is /api/external/branches/uuids
-            $response = Http::get('https://external-api.example.com/api/branches/uuids');
+            $response = Http::get('http://external-api.example.com/api/branches/uuids');
 
             if ($response->successful()) {
                 $uuids = $response->json();
