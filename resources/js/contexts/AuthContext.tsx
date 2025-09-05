@@ -9,8 +9,9 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, deviceName?: string) => Promise<void>;
   logout: () => void;
+  forceLogout: () => void;
   isAuthenticated: boolean;
   loading: boolean;
 }
@@ -23,54 +24,91 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Check for stored user session on app start
-    const storedUser = localStorage.getItem('auth_user');
-    console.log('AuthContext: Checking stored user on app start:', !!storedUser);
+  // Token management functions
+  const getToken = () => localStorage.getItem('auth_token');
+  const setToken = (token: string) => localStorage.setItem('auth_token', token);
+  const removeToken = () => localStorage.removeItem('auth_token');
 
-    if (storedUser) {
+  useEffect(() => {
+    // Check for stored token and user on app start
+    const storedToken = getToken();
+    const storedUser = localStorage.getItem('auth_user');
+    console.log('AuthContext: Checking stored token and user on app start:', !!storedToken, !!storedUser);
+
+    if (storedToken && storedUser) {
       const userData = JSON.parse(storedUser);
       console.log('AuthContext: Setting user from localStorage:', userData.name);
       setUser(userData);
+
+      // Set the token in axios defaults for subsequent requests
+      window.axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
     }
 
     setLoading(false);
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, deviceName: string = 'web-app') => {
     try {
-      // For session-based authentication, just call the login endpoint
-      const response = await window.axios.post('/login', {
+      console.log('AuthContext: Attempting Sanctum token login for:', email);
+
+      // Use Sanctum token endpoint
+      const response = await window.axios.post('/api/sanctum/token', {
         email,
         password,
+        device_name: deviceName,
       });
 
-      const { user: userData } = response.data;
+      const { token, user: userData } = response.data;
+      console.log('AuthContext: Login successful, received token and user data');
 
+      // Store token and user data
+      setToken(token);
       setUser(userData);
       localStorage.setItem('auth_user', JSON.stringify(userData));
+
+      // Set authorization header for future requests
+      window.axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     } catch (error: any) {
+      console.error('AuthContext: Login failed:', error.response?.data || error.message);
       throw new Error(error.response?.data?.message || 'Login failed. Please check your credentials.');
     }
   };
 
   const logout = async () => {
-    console.log('AuthContext: Making logout request to:', '/logout');
+    console.log('AuthContext: Making logout request');
     try {
-      await window.axios.post('/logout');
+      // For Sanctum, we can optionally revoke the token on the server
+      // but for now, we'll just clear local storage
       console.log('AuthContext: Logout request successful');
     } catch (error: any) {
       console.error('AuthContext: Logout error:', error.message, error.code, 'Status:', error.response?.status);
     } finally {
+      // Clear all auth data
       setUser(null);
+      removeToken();
       localStorage.removeItem('auth_user');
+      delete window.axios.defaults.headers.common['Authorization'];
     }
   };
+
+  const forceLogout = () => {
+    console.log('AuthContext: Force logout triggered');
+    setUser(null);
+    removeToken();
+    localStorage.removeItem('auth_user');
+    delete window.axios.defaults.headers.common['Authorization'];
+  };
+
+  // Expose forceLogout globally for axios interceptor
+  React.useEffect(() => {
+    (window as any).authForceLogout = forceLogout;
+  }, []);
 
   const value = {
     user,
     login,
     logout,
+    forceLogout,
     isAuthenticated: !!user,
     loading
   };

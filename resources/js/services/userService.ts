@@ -12,6 +12,7 @@ export interface User {
   name: string;
   email: string;
   email_verified_at?: string;
+  roles?: Role[];
   created_at: string;
   updated_at: string;
 }
@@ -20,6 +21,7 @@ export interface CreateUserData {
   name: string;
   email: string;
   password: string;
+  password_confirmation?: string;
   email_verified_at?: string;
 }
 
@@ -34,7 +36,7 @@ export const userService = {
   getUsers: async (params?: { page?: number; per_page?: number }) => {
     console.log('Making request to:', `${API_BASE}/users`, 'with params:', params);
     try {
-      const response = await window.window.axios.get(`${API_BASE}/users`, { params });
+      const response = await window.axios.get(`${API_BASE}/users`, { params });
       console.log('Response received:', response.status, response.data);
       return response.data;
     } catch (error) {

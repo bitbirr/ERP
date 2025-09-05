@@ -13,25 +13,25 @@ import Login from './pages/auth/Login';
 import Dashboard from './pages/Dashboard';
 
 // Module Pages
-import Users from './pages/users/Users';
-import UserForm from './pages/users/UserForm';
-import Products from './pages/products/Products';
-import ProductForm from './pages/products/ProductForm';
-import Inventory from './pages/inventory/Inventory';
-import StockMovements from './pages/inventory/StockMovements';
-import StockTransfer from './pages/inventory/StockTransfer';
-import Customers from './pages/customers/Customers';
-import CustomerForm from './pages/customers/CustomerForm';
-import Orders from './pages/sales/Orders';
-import Journals from './pages/finance/Journals';
-import JournalForm from './pages/finance/JournalForm';
-import GLAccounts from './pages/finance/GLAccounts';
-import TelebirrDashboard from './pages/telebirr/Dashboard';
-import Agents from './pages/telebirr/Agents';
-import AgentForm from './pages/telebirr/AgentForm';
-import Transactions from './pages/telebirr/Transactions';
-import TransactionForm from './pages/telebirr/TransactionForm';
-import Reports from './pages/reports/Reports';
+import Users from './Pages/users/Users';
+import UserForm from './Pages/users/UserForm';
+import Products from './Pages/products/Products';
+import ProductForm from './Pages/products/ProductForm';
+import Inventory from './Pages/inventory/Inventory';
+import StockMovements from './Pages/inventory/StockMovements';
+import StockTransfer from './Pages/inventory/StockTransfer';
+import Customers from './Pages/customers/Customers';
+import CustomerForm from './Pages/customers/CustomerForm';
+import Orders from './Pages/sales/Orders';
+import Journals from './Pages/finance/Journals';
+import JournalForm from './Pages/finance/JournalForm';
+import GLAccounts from './Pages/finance/GLAccounts';
+import TelebirrDashboard from './Pages/telebirr/Dashboard';
+import Agents from './Pages/telebirr/Agents';
+import AgentForm from './Pages/telebirr/AgentForm';
+import Transactions from './Pages/telebirr/Transactions';
+import TransactionForm from './Pages/telebirr/TransactionForm';
+import Reports from './Pages/reports/Reports';
 
 // Context
 import { AuthProvider } from './contexts/AuthContext';

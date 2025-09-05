@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -8,20 +8,34 @@ import {
   Alert,
   CircularProgress,
   Chip,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Grid,
 } from '@mui/material';
-import { Add as AddIcon } from '@mui/icons-material';
+import { Add as AddIcon, Search as SearchIcon } from '@mui/icons-material';
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid';
-import { userService, User } from '../../services/userService';
+import { userService, User, Role } from '../../services/userService';
 
 const Users: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedRole, setSelectedRole] = useState<string>('');
 
   // Fetch users
   const { data, isLoading, error: queryError } = useQuery({
     queryKey: ['users'],
-    queryFn: () => userService.getUsers({ per_page: 50 }),
+    queryFn: () => userService.getUsers({ per_page: 10 }),
+  });
+
+  // Fetch roles for filter
+  const { data: rolesData } = useQuery({
+    queryKey: ['roles'],
+    queryFn: () => userService.getRoles(),
   });
 
   // Delete user mutation
@@ -123,6 +137,20 @@ const Users: React.FC = () => {
 
   const users = data?.data || [];
 
+  // Filter users based on search term and selected role
+  const filteredUsers = useMemo(() => {
+    return users.filter((user: User) => {
+      const matchesSearch = searchTerm === '' ||
+        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesRole = selectedRole === '' ||
+        user.roles?.some((role: Role) => role.name === selectedRole);
+
+      return matchesSearch && matchesRole;
+    });
+  }, [users, searchTerm, selectedRole]);
+
   return (
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
@@ -142,9 +170,45 @@ const Users: React.FC = () => {
         </Alert>
       )}
 
+      {/* Search and Filter Controls */}
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid item xs={12} md={6}>
+          <TextField
+            fullWidth
+            label="Search users"
+            variant="outlined"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            InputProps={{
+              startAdornment: <SearchIcon sx={{ mr: 1, color: 'action.active' }} />,
+            }}
+            placeholder="Search by name or email..."
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <FormControl fullWidth>
+            <InputLabel>Filter by Role</InputLabel>
+            <Select
+              value={selectedRole}
+              label="Filter by Role"
+              onChange={(e) => setSelectedRole(e.target.value)}
+            >
+              <MenuItem value="">
+                <em>All Roles</em>
+              </MenuItem>
+              {rolesData?.map((role: Role) => (
+                <MenuItem key={role.id} value={role.name}>
+                  {role.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+      </Grid>
+
       <div style={{ height: 600, width: '100%' }}>
         <DataGrid
-          rows={users}
+          rows={filteredUsers}
           columns={columns}
           pageSize={10}
           rowsPerPageOptions={[10, 25, 50]}
