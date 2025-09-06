@@ -12,7 +12,7 @@ class Branch extends Model
 {
     use HasFactory, HasUuids, SoftDeletes;
 
-    protected $fillable = ['name', 'code', 'address', 'phone', 'manager'];
+    protected $fillable = ['name', 'code', 'address', 'phone', 'manager', 'location', 'status'];
 
     /**
      * Get the bank accounts for this branch

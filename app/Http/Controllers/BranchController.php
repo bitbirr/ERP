@@ -24,6 +24,9 @@ class BranchController extends Controller
         if ($request->has('address')) {
             $query->where('address', 'like', '%' . $request->address . '%');
         }
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
 
         // Sorting
         $sortBy = $request->get('sort', 'name');
@@ -48,6 +51,8 @@ class BranchController extends Controller
             'address' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
             'manager' => 'required|string|max:255',
+            'location' => 'nullable|string|max:255',
+            'status' => 'sometimes|in:active,inactive',
         ]);
 
         $branch = Branch::create($validated);
@@ -78,6 +83,8 @@ class BranchController extends Controller
             'address' => 'sometimes|required|string|max:255',
             'phone' => 'sometimes|required|string|max:20',
             'manager' => 'sometimes|required|string|max:255',
+            'location' => 'sometimes|nullable|string|max:255',
+            'status' => 'sometimes|in:active,inactive',
         ]);
 
         $branch->update($validated);
@@ -102,6 +109,22 @@ class BranchController extends Controller
             $branch->forceDelete();
             return response()->json(['message' => 'Branch permanently deleted']);
         }
+    }
+
+    /**
+     * Get branch statistics
+     */
+    public function stats(): JsonResponse
+    {
+        $totalBranches = Branch::count();
+        $activeBranches = Branch::where('status', 'active')->count();
+        $inactiveBranches = Branch::where('status', 'inactive')->count();
+
+        return response()->json([
+            'total_branches' => $totalBranches,
+            'active_branches' => $activeBranches,
+            'inactive_branches' => $inactiveBranches,
+        ]);
     }
 
     /**

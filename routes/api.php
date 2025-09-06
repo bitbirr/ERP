@@ -418,6 +418,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Branch API Routes
     Route::get('/branches', [\App\Http\Controllers\BranchController::class, 'index'])
         ->middleware('cap:branches.view');
+    Route::get('/branches/stats', [\App\Http\Controllers\BranchController::class, 'stats'])
+        ->middleware('cap:branches.view');
     Route::post('/branches', [\App\Http\Controllers\BranchController::class, 'store'])
         ->middleware('cap:branches.create');
     Route::get('/branches/{branch}', [\App\Http\Controllers\BranchController::class, 'show'])

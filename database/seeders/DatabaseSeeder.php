@@ -95,6 +95,14 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Update Bank Accounts', 'key' => 'accounts.update', 'group' => 'accounts'],
             ['name' => 'Delete Bank Accounts', 'key' => 'accounts.delete', 'group' => 'accounts'],
 
+            // Orders capabilities
+            ['name' => 'View Orders', 'key' => 'orders.view', 'group' => 'orders'],
+            ['name' => 'Create Orders', 'key' => 'orders.create', 'group' => 'orders'],
+            ['name' => 'Update Orders', 'key' => 'orders.update', 'group' => 'orders'],
+            ['name' => 'Approve Orders', 'key' => 'orders.approve', 'group' => 'orders'],
+            ['name' => 'Cancel Orders', 'key' => 'orders.cancel', 'group' => 'orders'],
+            ['name' => 'Delete Orders', 'key' => 'orders.delete', 'group' => 'orders'],
+
             // Additional capabilities for completeness
             ['name' => 'Manage Users', 'key' => 'users.manage', 'group' => 'users'],
             ['name' => 'Read Transactions', 'key' => 'tx.read', 'group' => 'transactions'],
@@ -121,6 +129,9 @@ class DatabaseSeeder extends Seeder
                 'products.read',
                 'tx.read',
                 'reports.view',
+                'orders.view',
+                'orders.approve',
+                'orders.cancel',
             ],
             'user' => [ // User role: read-only access
                 'customer.view',
@@ -128,6 +139,7 @@ class DatabaseSeeder extends Seeder
                 'products.read',
                 'inventory.read',
                 'tx.read',
+                'orders.view',
             ],
             'finance' => [ // Finance role: inventory operations + products.read, no products.create/update, no audit.view
                 'customer.view',
@@ -146,6 +158,7 @@ class DatabaseSeeder extends Seeder
                 'telebirr.view',
                 'telebirr.post', // Finance can post topup transactions
                 'telebirr.void',
+                'orders.view',
             ],
             'sales' => [ // Sales role: customer management + reserve/issue via POS + products.read, no receive/transfer/adjust
                 'customer.view',
@@ -159,6 +172,9 @@ class DatabaseSeeder extends Seeder
                 'tx.read',
                 'tx.create',
                 'receipts.create',
+                'orders.view',
+                'orders.create',
+                'orders.update',
             ],
             'auditor' => [ // Auditor role: reports.view, audit.view, products.read, no mutations
                 'customer.view',
@@ -167,6 +183,7 @@ class DatabaseSeeder extends Seeder
                 'products.read',
                 'tx.read',
                 'telebirr.view', // Auditor can view telebirr data
+                'orders.view',
             ],
             'telebirr_distributor' => [ // Telebirr Distributor: can post transactions but not manage agents
                 'customer.view', // Can view customers to link telebirr agents
@@ -184,6 +201,7 @@ class DatabaseSeeder extends Seeder
                 'inventory.read',
                 'tx.read',
                 'telebirr.view',
+                'orders.view',
             ],
         ];
         foreach ($roleCaps as $roleSlug => $capKeys) {
