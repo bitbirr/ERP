@@ -23,6 +23,7 @@ import StockTransfer from './Pages/inventory/StockTransfer';
 import Customers from './Pages/customers/Customers';
 import CustomerForm from './Pages/customers/CustomerForm';
 import Orders from './Pages/sales/Orders';
+import OrderForm from './Pages/sales/OrderForm';
 import Journals from './Pages/finance/Journals';
 import JournalForm from './Pages/finance/JournalForm';
 import GLAccounts from './Pages/finance/GLAccounts';
@@ -33,6 +34,7 @@ import AgentForm from './Pages/telebirr/AgentForm';
 import Transactions from './Pages/telebirr/Transactions';
 import TransactionForm from './Pages/telebirr/TransactionForm';
 import Reports from './Pages/reports/Reports';
+import BranchManagement from './Pages/branches/BranchManagement';
 
 // Context
 import { AuthProvider } from './contexts/AuthContext';
@@ -105,6 +107,7 @@ function App() {
 
                   {/* Sales Management */}
                   <Route path="sales/orders" element={<Orders />} />
+                  <Route path="sales/orders/new" element={<OrderForm />} />
 
                   {/* Finance Management */}
                   <Route path="finance/journals" element={<Journals />} />
@@ -121,6 +124,9 @@ function App() {
                   <Route path="telebirr/transactions" element={<Transactions />} />
                   <Route path="telebirr/transactions/new" element={<TransactionForm />} />
                   <Route path="telebirr/transactions/:id" element={<TransactionForm />} />
+
+                  {/* Branch Management */}
+                  <Route path="branches" element={<BranchManagement />} />
 
                   {/* Reports */}
                   <Route path="reports" element={<Reports />} />

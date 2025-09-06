@@ -18,6 +18,8 @@ import {
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid';
 import { productService, Product, ProductCategory } from '../../services/productService';
+import HelpIcon from '../../components/HelpIcon';
+import QuickHowToTutorial from '../../components/QuickHowToTutorial';
 
 const Products: React.FC = () => {
   const navigate = useNavigate();
@@ -136,12 +138,11 @@ const Products: React.FC = () => {
       headerName: 'Actions',
       width: 150,
       renderCell: (params) => (
-        <Box>
+        <Box className="action-buttons" sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
           <Button
             size="small"
             startIcon={<EditIcon />}
             onClick={() => handleEditProduct(params.row.id)}
-            sx={{ mr: 1 }}
           >
             Edit
           </Button>
@@ -176,6 +177,34 @@ const Products: React.FC = () => {
 
   const products = productsData?.data || [];
   const categories = categoriesData?.data || [];
+
+  const tutorialSteps = [
+    {
+      title: 'Creating Products',
+      description: 'Click "Add Product" to create a new item. Fill in code, name, category, type, and pricing information.',
+      tips: ['Use unique product codes', 'Assign appropriate categories', 'Set competitive pricing based on cost']
+    },
+    {
+      title: 'Managing Product Categories',
+      description: 'Organize products into categories for better inventory management and reporting.',
+      tips: ['Create logical category hierarchies', 'Use consistent naming conventions', 'Review categories periodically']
+    },
+    {
+      title: 'Pricing Strategies',
+      description: 'Set prices based on cost, market competition, and profit margins. Monitor price vs cost ratios.',
+      tips: ['Calculate markup percentages', 'Consider volume discounts', 'Update prices seasonally']
+    },
+    {
+      title: 'Product Status Management',
+      description: 'Activate or deactivate products as needed. Inactive products won\'t appear in sales.',
+      tips: ['Deactivate discontinued items', 'Reactivate seasonal products', 'Monitor active product count']
+    },
+    {
+      title: 'Searching and Filtering',
+      description: 'Use filters to find products by category, type, status, or search by name/code.',
+      tips: ['Use search for quick lookups', 'Filter by status to manage active inventory', 'Combine filters for precise results']
+    }
+  ];
 
   return (
     <Box>
@@ -265,8 +294,10 @@ const Products: React.FC = () => {
           components={{ Toolbar: GridToolbar }}
           disableSelectionOnClick
           getRowId={(row) => row.id}
+          className="sticky-header"
         />
       </div>
+      <QuickHowToTutorial module="Products" steps={tutorialSteps} />
     </Box>
   );
 };

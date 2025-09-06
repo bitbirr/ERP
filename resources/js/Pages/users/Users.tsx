@@ -32,6 +32,8 @@ import {
 } from '@mui/icons-material';
 import { DataGrid, GridColDef, GridSortModel, GridPaginationModel } from '@mui/x-data-grid';
 import { userService, User, Role } from '../../services/userService';
+import HelpIcon from '../../components/HelpIcon';
+import QuickHowToTutorial from '../../components/QuickHowToTutorial';
 
 const Users: React.FC = () => {
   const navigate = useNavigate();
@@ -213,18 +215,52 @@ const Users: React.FC = () => {
   const users = data?.data || [];
   const totalCount = data?.total || 0;
 
+  const tutorialSteps = [
+    {
+      title: 'Creating Users',
+      description: 'Click "Add User" to create a new account. Fill in name, email, and password. Assign appropriate roles for access control.',
+      tips: ['Use strong passwords (12+ characters)', 'Assign minimal necessary roles', 'Verify email addresses for security']
+    },
+    {
+      title: 'Viewing and Editing Users',
+      description: 'Use the View button to see user details, or Edit to modify information. Changes are saved automatically.',
+      tips: ['Check role assignments regularly', 'Update contact information as needed', 'Monitor email verification status']
+    },
+    {
+      title: 'Searching and Filtering',
+      description: 'Use the search bar to find users by name or email. Apply filters for roles or verification status.',
+      tips: ['Use partial names for broader results', 'Combine filters for precise searches', 'Clear filters to see all users']
+    },
+    {
+      title: 'Managing Large Datasets',
+      description: 'Navigate through user lists using pagination. Adjust page size and sort columns for better organization.',
+      tips: ['Sort by creation date to see recent users', 'Use larger page sizes for bulk operations', 'Jump to specific pages for quick access']
+    },
+    {
+      title: 'Security Best Practices',
+      description: 'Always assign appropriate roles, ensure email verification, and regularly review user access.',
+      tips: ['Follow principle of least privilege', 'Remove inactive users', 'Audit role changes periodically']
+    }
+  ];
+
   return (
     <Box sx={{ p: isMobile ? 1 : 3 }}>
       <Box display="flex" flexDirection={isMobile ? 'column' : 'row'} justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" sx={{ mb: isMobile ? 2 : 0 }}>Users</Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleCreateUser}
-          fullWidth={isMobile}
-        >
-          Add User
-        </Button>
+        <Box display="flex" alignItems="center" sx={{ mb: isMobile ? 2 : 0 }}>
+          <Typography variant="h4">Users</Typography>
+          <HelpIcon title="Manage user accounts: Create, view, edit, and delete users. Assign roles for access control and ensure email verification for security." />
+        </Box>
+        <Box display="flex" alignItems="center">
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleCreateUser}
+            fullWidth={isMobile}
+          >
+            Add User
+          </Button>
+          <HelpIcon title="Create a new user account. Fill in name, email, password, and assign a role for permissions." />
+        </Box>
       </Box>
 
       {error && (
@@ -236,57 +272,66 @@ const Users: React.FC = () => {
       {/* Search and Filter Controls */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid item xs={12} md={4}>
-          <TextField
-            fullWidth
-            label="Search users"
-            variant="outlined"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              startAdornment: <SearchIcon sx={{ mr: 1, color: 'action.active' }} />,
-            }}
-            placeholder="Search by name or email..."
-          />
+          <Box display="flex" alignItems="center">
+            <TextField
+              fullWidth
+              label="Search users"
+              variant="outlined"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              InputProps={{
+                startAdornment: <SearchIcon sx={{ mr: 1, color: 'action.active' }} />,
+              }}
+              placeholder="Search by name or email..."
+            />
+            <HelpIcon title="Search users by name or email. Use partial keywords for flexible matching. Results update automatically." />
+          </Box>
         </Grid>
         <Grid item xs={12} md={4}>
-          <FormControl fullWidth>
-            <InputLabel>Filter by Roles</InputLabel>
-            <Select
-              multiple
-              value={selectedRoles}
-              label="Filter by Roles"
-              onChange={handleRoleFilterChange}
-              renderValue={(selected) => (
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                  {selected.map((value) => (
-                    <Chip key={value} label={value} size="small" />
-                  ))}
-                </Box>
-              )}
-            >
-              {rolesData?.map((role: Role) => (
-                <MenuItem key={role.id} value={role.name}>
-                  {role.name}
+          <Box display="flex" alignItems="center">
+            <FormControl fullWidth>
+              <InputLabel>Filter by Roles</InputLabel>
+              <Select
+                multiple
+                value={selectedRoles}
+                label="Filter by Roles"
+                onChange={handleRoleFilterChange}
+                renderValue={(selected) => (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {selected.map((value) => (
+                      <Chip key={value} label={value} size="small" />
+                    ))}
+                  </Box>
+                )}
+              >
+                {rolesData?.map((role: Role) => (
+                  <MenuItem key={role.id} value={role.name}>
+                    {role.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <HelpIcon title="Filter users by assigned roles. Select multiple roles to see users with any of those roles." />
+          </Box>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Box display="flex" alignItems="center">
+            <FormControl fullWidth>
+              <InputLabel>Email Verified Status</InputLabel>
+              <Select
+                value={emailVerifiedFilter}
+                label="Email Verified Status"
+                onChange={(e) => setEmailVerifiedFilter(e.target.value)}
+              >
+                <MenuItem value="">
+                  <em>All Users</em>
                 </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <FormControl fullWidth>
-            <InputLabel>Email Verified Status</InputLabel>
-            <Select
-              value={emailVerifiedFilter}
-              label="Email Verified Status"
-              onChange={(e) => setEmailVerifiedFilter(e.target.value)}
-            >
-              <MenuItem value="">
-                <em>All Users</em>
-              </MenuItem>
-              <MenuItem value="verified">Verified</MenuItem>
-              <MenuItem value="not_verified">Not Verified</MenuItem>
-            </Select>
-          </FormControl>
+                <MenuItem value="verified">Verified</MenuItem>
+                <MenuItem value="not_verified">Not Verified</MenuItem>
+              </Select>
+            </FormControl>
+            <HelpIcon title="Filter users by email verification status. Verified users have confirmed their email addresses." />
+          </Box>
         </Grid>
       </Grid>
 
@@ -314,6 +359,12 @@ const Users: React.FC = () => {
             },
           }}
         />
+      </Box>
+      <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+        <Typography variant="body2" color="text.secondary">
+          Use pagination controls to navigate through user records. Adjust page size for better viewing.
+        </Typography>
+        <HelpIcon title="Navigate large datasets: Use page numbers to jump to specific pages, change page size (10, 25, 50) for optimal display, and sort columns for organized viewing." />
       </Box>
 
       {/* View User Details Dialog */}
@@ -376,6 +427,7 @@ const Users: React.FC = () => {
           )}
         </DialogActions>
       </Dialog>
+      <QuickHowToTutorial module="Users" steps={tutorialSteps} />
     </Box>
   );
 };
