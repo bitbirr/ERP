@@ -25,6 +25,7 @@ import {
   AccountBalance as AccountBalanceIcon,
   PhoneAndroid as PhoneAndroidIcon,
   Assessment as AssessmentIcon,
+  Business as BusinessIcon,
   Logout as LogoutIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
@@ -35,6 +36,7 @@ const drawerWidth = 240;
 const menuItems = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
   { text: 'Users', icon: <PeopleIcon />, path: '/users' },
+  { text: 'Branches', icon: <BusinessIcon />, path: '/branches' },
   { text: 'Products', icon: <InventoryIcon />, path: '/products' },
   { text: 'Inventory', icon: <InventoryIcon />, path: '/inventory' },
   { text: 'Customers', icon: <PeopleIcon />, path: '/customers' },

@@ -20,6 +20,7 @@ import {
   Chip,
 } from '@mui/material';
 import { userService, CreateUserData, User, Role } from '../../services/userService';
+import HelpIcon from '../../components/HelpIcon';
 
 const schema = yup.object({
   name: yup.string().required('Name is required'),
@@ -131,9 +132,12 @@ const UserForm: React.FC = () => {
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>
-        {isEditing ? 'Edit User' : 'Create User'}
-      </Typography>
+      <Box display="flex" alignItems="center" mb={2}>
+        <Typography variant="h4" sx={{ mr: 1 }}>
+          {isEditing ? 'Edit User' : 'Create User'}
+        </Typography>
+        <HelpIcon title="Fill in user details. Password must be at least 12 characters. Assign appropriate roles for security. Email verification is recommended." />
+      </Box>
 
       <Paper sx={{ p: 3, maxWidth: 600 }}>
         {error && (
@@ -145,76 +149,88 @@ const UserForm: React.FC = () => {
         <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
           <Grid container spacing={3}>
             <Grid item xs={12}>
-              <TextField
-                {...register('name')}
-                required
-                fullWidth
-                id="name"
-                label="Full Name"
-                error={!!errors.name}
-                helperText={errors.name?.message}
-                disabled={isLoading}
-              />
+              <Box display="flex" alignItems="center">
+                <TextField
+                  {...register('name')}
+                  required
+                  fullWidth
+                  id="name"
+                  label="Full Name"
+                  error={!!errors.name}
+                  helperText={errors.name?.message}
+                  disabled={isLoading}
+                />
+                <HelpIcon title="Enter the user's full name as it will appear in the system." />
+              </Box>
             </Grid>
 
             <Grid item xs={12}>
-              <TextField
-                {...register('email')}
-                required
-                fullWidth
-                id="email"
-                label="Email Address"
-                type="email"
-                error={!!errors.email}
-                helperText={errors.email?.message}
-                disabled={isLoading}
-              />
+              <Box display="flex" alignItems="center">
+                <TextField
+                  {...register('email')}
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email Address"
+                  type="email"
+                  error={!!errors.email}
+                  helperText={errors.email?.message}
+                  disabled={isLoading}
+                />
+                <HelpIcon title="Provide a valid email address. Users will need to verify this for account activation." />
+              </Box>
             </Grid>
 
             <Grid item xs={12}>
-              <TextField
-                {...register('password')}
-                required
-                fullWidth
-                id="password"
-                label="Password"
-                type="password"
-                error={!!errors.password}
-                helperText={errors.password?.message || (isEditing ? 'Leave blank to keep current password' : '')}
-                disabled={isLoading}
-              />
+              <Box display="flex" alignItems="center">
+                <TextField
+                  {...register('password')}
+                  required
+                  fullWidth
+                  id="password"
+                  label="Password"
+                  type="password"
+                  error={!!errors.password}
+                  helperText={errors.password?.message || (isEditing ? 'Leave blank to keep current password' : '')}
+                  disabled={isLoading}
+                />
+                <HelpIcon title="Create a strong password with at least 12 characters, including uppercase, lowercase, numbers, and symbols." />
+              </Box>
             </Grid>
 
             <Grid item xs={12}>
-              <FormControl fullWidth disabled={isLoading || isLoadingRoles}>
-                <InputLabel id="role-label">Role (Optional)</InputLabel>
-                <Select
-                  {...register('role_id')}
-                  labelId="role-label"
-                  id="role_id"
-                  label="Role (Optional)"
-                  value={undefined} // Controlled by react-hook-form
-                >
-                  <MenuItem value="">
-                    <em>No Role</em>
-                  </MenuItem>
-                  {roles?.map((role: Role) => (
-                    <MenuItem key={role.id} value={role.id}>
-                      <Box>
-                        <Typography variant="body1">{role.name}</Typography>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
-                          {role.capabilities.slice(0, 3).map((cap: string) => (
-                            <Chip key={cap} label={cap} size="small" variant="outlined" />
-                          ))}
-                          {role.capabilities.length > 3 && (
-                            <Chip label={`+${role.capabilities.length - 3} more`} size="small" variant="outlined" />
-                          )}
-                        </Box>
-                      </Box>
+              <Box display="flex" alignItems="center">
+                <FormControl fullWidth disabled={isLoading || isLoadingRoles}>
+                  <InputLabel id="role-label">Role (Optional)</InputLabel>
+                  <Select
+                    {...register('role_id')}
+                    labelId="role-label"
+                    id="role_id"
+                    label="Role (Optional)"
+                    value={undefined} // Controlled by react-hook-form
+                  >
+                    <MenuItem value="">
+                      <em>No Role</em>
                     </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                    {roles?.map((role: Role) => (
+                      <MenuItem key={role.id} value={role.id}>
+                        <Box>
+                          <Typography variant="body1">{role.name}</Typography>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
+                            {role.capabilities.slice(0, 3).map((cap: string) => (
+                              <Chip key={cap} label={cap} size="small" variant="outlined" />
+                            ))}
+                            {role.capabilities.length > 3 && (
+                              <Chip label={`+${role.capabilities.length - 3} more`} size="small" variant="outlined" />
+                            )}
+                          </Box>
+                        </Box>
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <HelpIcon title="Assign a role to define user permissions and access levels. Roles determine what actions the user can perform in the system." />
+              </Box>
             </Grid>
           </Grid>
 
