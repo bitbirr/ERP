@@ -28,6 +28,7 @@ export interface BranchStats {
 }
 
 export interface BranchFilters {
+  search?: string;
   name?: string;
   status?: string;
   page?: number;

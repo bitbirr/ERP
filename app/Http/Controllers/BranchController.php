@@ -18,6 +18,14 @@ class BranchController extends Controller
         $query = Branch::query();
 
         // Filtering
+        if ($request->has('search')) {
+            $searchTerm = $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('code', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('location', 'like', '%' . $searchTerm . '%');
+            });
+        }
         if ($request->has('name')) {
             $query->where('name', 'like', '%' . $request->name . '%');
         }

@@ -68,6 +68,7 @@ const BranchManagement: React.FC = () => {
     per_page: 10,
     sort: 'name',
     direction: 'asc',
+    search: '',
   });
 
   // Dialog states
@@ -130,20 +131,11 @@ const BranchManagement: React.FC = () => {
     fetchBranches();
   }, [filters]);
 
-  // Filtered branches based on search and status
-  const filteredBranches = useMemo(() => {
-    if (!branches?.data) return [];
-    return branches.data.filter(branch => {
-      const matchesSearch = !searchTerm ||
-        branch.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        branch.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (branch.location && branch.location.toLowerCase().includes(searchTerm.toLowerCase()));
+  // Update filters when search term or status filter changes
+  useEffect(() => {
+    setFilters(prev => ({ ...prev, search: searchTerm, status: statusFilter || undefined, page: 0 }));
+  }, [searchTerm, statusFilter]);
 
-      const matchesStatus = !statusFilter || branch.status === statusFilter;
-
-      return matchesSearch && matchesStatus;
-    });
-  }, [branches?.data, searchTerm, statusFilter]);
 
   // Handle form submission
   const handleCreate = async () => {
@@ -419,7 +411,7 @@ const BranchManagement: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredBranches.map((branch) => (
+                {(branches?.data || []).map((branch) => (
                   <TableRow key={branch.id}>
                     <TableCell>{branch.name}</TableCell>
                     {columnVisibility.code && <TableCell>{branch.code}</TableCell>}
